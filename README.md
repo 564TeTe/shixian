@@ -30,9 +30,31 @@
 
 ## 新环境初始化
 
-`T132.sql` 现为纯表结构，无演示记录或账号密码，导入空的 MySQL 8 数据库。已有旧库升级使用 `database/001_teaching_foundation.sql` 与 `database/002_teaching_application.sql`。
+仓库已附带老师课表对应的教学数据，**不需要原始 Excel**。在项目根目录打开 MySQL 客户端（`-p` 输入别人自己电脑的 MySQL 密码）：
 
-初始化工具先完整备份，再清理现有业务数据并从指定真实课表初始化，必须显式传入 `--reset-legacy-data`。本机已完成，日常启动不要重跑。详见 [建库与导入说明](docs/database/02-建库与导入操作说明.md)。
+```powershell
+mysql --host=127.0.0.1 --port=3306 --user=root -p --default-character-set=utf8mb4
+```
+
+在 MySQL 提示符中依次执行：
+
+```sql
+CREATE DATABASE t132 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE t132;
+SOURCE T132.sql;
+SOURCE database/003_teaching_seed.sql;
+```
+
+使用 Workbench 时，先创建并选中 `t132`，再分别打开 `T132.sql`、`database/003_teaching_seed.sql`，按顺序执行整个文件。`SOURCE` 是命令行客户端的命令。
+
+- `T132.sql`：25 张表的结构；`003_teaching_seed.sql`：93 门课程、255 个任务、2,208 条排课、79 个教师、14 间课表实验室、原始导入记录。项目模板示例未导入，正式项目为 0。
+- **新环境网页管理员：`admin` / `Teaching2026!`**。这是公开的开发初始化密码，登录后在“账号与安全”修改。教师使用新的随机密码摘要，由管理员在“教师账号”重置后分发。
+- SQL 不包含本机管理员／教师密码、登录令牌、数据库账号权限或 AI 密钥。本机原有登录凭据不变。
+- 数据脚本只用于空表初始化，重复导入会报错，不会覆盖已有内容。不要在已使用的数据库上重跑，也不要为重跑而删除自己的数据库。
+
+接着把后端数据库连接改为自己的 MySQL 配置，在 `front` 执行 `npm ci`，回到根目录执行 `.\start-teaching.ps1 -Build`，访问 http://localhost:8081 。首次无需设置 AI 即可使用普通教学功能。
+
+已有旧库升级使用 001、002 增量脚本。需要从其他 Excel 重新清理初始化时才使用 `bootstrap_teaching.py --reset-legacy-data`。详见 [建库与导入说明](docs/database/02-建库与导入操作说明.md)。
 
 ## AI 配置
 

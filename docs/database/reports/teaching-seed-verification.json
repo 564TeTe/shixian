@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "counts": {
+    "academic_year": 2,
+    "academic_term": 4,
+    "jiaoshi": 79,
+    "shiyanshixinxi": 14,
+    "course": 93,
+    "teaching_import_batch": 1,
+    "teaching_import_row": 255,
+    "teaching_task": 255,
+    "teaching_task_teacher": 269,
+    "schedule_detail": 2208,
+    "experiment_project": 0,
+    "users": 1,
+    "caigoujilu": 0,
+    "config": 0,
+    "discussgonggaoxinxi": 0,
+    "discussshiyankecheng": 0,
+    "gonggaoxinxi": 0,
+    "shiyankecheng": 0,
+    "shiyanshebei": 0,
+    "shiyanshiyuyue": 0,
+    "storeup": 0,
+    "token": 0,
+    "weixiujilu": 0,
+    "xuesheng": 0,
+    "zhishiku": 0
+  },
+  "person_hours": "169784.00",
+  "checks": [
+    "No source password hashes or active tokens in shared SQL",
+    "Empty database import: expected counts, valid JSON, fresh BCrypt admin and matching person-hours",
+    "Repeated import rejected without changing records or resetting accounts",
+    "Foreign-key failure rolls back the entire data import",
+    "Real backend: new admin login, 255 tasks, 14 lab reports, teacher password reset and login"
+  ],
+  "source_database_modified": false,
+  "temporary_databases_removed_on_exit": true
+}

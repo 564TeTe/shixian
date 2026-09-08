@@ -1,5 +1,6 @@
 -- Teaching system schema only; no legacy demo records or account passwords.
--- Import into an EMPTY MySQL 8 database, then initialize with tools/database/bootstrap_teaching.py.
+-- Import into an EMPTY MySQL 8 database, then run database/003_teaching_seed.sql for shared teaching data.
+-- Alternative: tools/database/bootstrap_teaching.py initializes from a separately supplied workbook.
 -- Existing database upgrades use database/001 and 002 instead.
 -- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
