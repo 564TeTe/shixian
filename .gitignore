@@ -1,0 +1,15 @@
+# IDE
+.idea/
+*.iml
+
+# MySQL 密码重置临时目录（仅本机）
+_mysql_reset/
+
+# Java / Maven 构建输出
+back/target/
+
+# Node 依赖
+front/node_modules/
+
+# 日志
+*.log
