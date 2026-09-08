@@ -1,0 +1,2172 @@
+{
+  "file": "2025-2026学年开设实验课表.xlsx",
+  "sha256": "a89fbef4abaaf739cff3ce9e54853f6936d10100fb63a06e9eb389221d601df8",
+  "parser_version": "1.0.0",
+  "row_count": 255,
+  "course_code_count": 93,
+  "teacher_name_count": 79,
+  "lab_code_count": 14,
+  "raw_schedule_segments": 435,
+  "expanded_schedule_rows": 2208,
+  "terms": {
+    "2": 123,
+    "1": 132
+  },
+  "issue_counts": {
+    "TEACHER_ID_MAPPING_REQUIRED": 255,
+    "HEADCOUNT_DIFFERS": 202,
+    "CO_TEACHING": 10,
+    "MAJOR_MISSING": 9,
+    "TASK_IDENTITY_AMBIGUOUS": 10,
+    "HOURS_MISMATCH": 11
+  },
+  "ambiguous_task_groups": [
+    [
+      {
+        "sheet": "Sheet2",
+        "row": 43
+      },
+      {
+        "sheet": "Sheet2",
+        "row": 44
+      }
+    ],
+    [
+      {
+        "sheet": "Sheet2",
+        "row": 45
+      },
+      {
+        "sheet": "Sheet2",
+        "row": 46
+      }
+    ],
+    [
+      {
+        "sheet": "Sheet2",
+        "row": 73
+      },
+      {
+        "sheet": "Sheet2",
+        "row": 74
+      }
+    ],
+    [
+      {
+        "sheet": "Sheet2",
+        "row": 81
+      },
+      {
+        "sheet": "Sheet2",
+        "row": 82
+      }
+    ],
+    [
+      {
+        "sheet": "Sheet2",
+        "row": 221
+      },
+      {
+        "sheet": "Sheet2",
+        "row": 222
+      }
+    ]
+  ],
+  "hours_mismatches": [
+    {
+      "sheet": "Sheet2",
+      "row": 62,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 63,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 64,
+      "planned": "24",
+      "scheduled": 20
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 137,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 138,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 139,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 145,
+      "planned": "24",
+      "scheduled": 22
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 207,
+      "planned": "24",
+      "scheduled": 26
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 214,
+      "planned": "24",
+      "scheduled": 20
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 222,
+      "planned": "24",
+      "scheduled": 40
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 236,
+      "planned": "12",
+      "scheduled": 10
+    }
+  ],
+  "row_issues": [
+    {
+      "sheet": "Sheet2",
+      "row": 2,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 3,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 4,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 5,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 6,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 7,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 8,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 9,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 10,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 11,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 12,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 13,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 14,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 15,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 16,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 17,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 18,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 19,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 20,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 21,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 22,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 23,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 24,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 25,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 26,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 27,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 28,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 29,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 30,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 31,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 32,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 33,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 34,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 35,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 36,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 37,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 38,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 39,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 40,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 41,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 42,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 43,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 44,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 45,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 46,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 47,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 48,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 49,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 50,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 51,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 52,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 53,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 54,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 55,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 56,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 57,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 58,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 59,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 60,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 61,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 62,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 63,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 64,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS",
+        "MAJOR_MISSING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 65,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 66,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 67,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 68,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 69,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 70,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 71,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 72,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 73,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 74,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 75,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 76,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 77,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 78,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 79,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 80,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 81,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 82,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "MAJOR_MISSING",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 83,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 84,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 85,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 86,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 87,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 88,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 89,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 90,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 91,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 92,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 93,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 94,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 95,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 96,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 97,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 98,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 99,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 100,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 101,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 102,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 103,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 104,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 105,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 106,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 107,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 108,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 109,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 110,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 111,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 112,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 113,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 114,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 115,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 116,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 117,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 118,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 119,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 120,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 121,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 122,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 123,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 124,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 125,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 126,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 127,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 128,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 129,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 130,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 131,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 132,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 133,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 134,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "MAJOR_MISSING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 135,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 136,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 137,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 138,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 139,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 140,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 141,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 142,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 143,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 144,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 145,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 146,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 147,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 148,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 149,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 150,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 151,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 152,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 153,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 154,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 155,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 156,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 157,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 158,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 159,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 160,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 161,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 162,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 163,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 164,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 165,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 166,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 167,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 168,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 169,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "MAJOR_MISSING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 170,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 171,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 172,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 173,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 174,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 175,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 176,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 177,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 178,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 179,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 180,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 181,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 182,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 183,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 184,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 185,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 186,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 187,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 188,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 189,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 190,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 191,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 192,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 193,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 194,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 195,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 196,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 197,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 198,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 199,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 200,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 201,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 202,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 203,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 204,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 205,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 206,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 207,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 208,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 209,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 210,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 211,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 212,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 213,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 214,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 215,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 216,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 217,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 218,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 219,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "CO_TEACHING"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 220,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 221,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 222,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS",
+        "TASK_IDENTITY_AMBIGUOUS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 223,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 224,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 225,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 226,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 227,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 228,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 229,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 230,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 231,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 232,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 233,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 234,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 235,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 236,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HOURS_MISMATCH",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 237,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 238,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 239,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 240,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 241,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 242,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 243,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 244,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 245,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 246,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 247,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 248,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 249,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 250,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 251,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 252,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 253,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 254,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 255,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    },
+    {
+      "sheet": "Sheet2",
+      "row": 256,
+      "issues": [
+        "TEACHER_ID_MAPPING_REQUIRED",
+        "HEADCOUNT_DIFFERS"
+      ]
+    }
+  ]
+}

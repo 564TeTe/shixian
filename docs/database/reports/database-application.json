@@ -1,0 +1,16 @@
+{
+  "date": "2026-09-08",
+  "database": "t132",
+  "old_table_count": 16,
+  "old_row_counts_unchanged": true,
+  "new_table_count": 9,
+  "total_table_count": 25,
+  "staging_batches": 1,
+  "staging_rows": 255,
+  "review_rows": 255,
+  "formal_teaching_tasks": 0,
+  "formal_experiment_projects": 0,
+  "backup": "D:\\STUDY\\iahfbiwabidubIO\\database\\generated\\t132-before-foundation-20260908.sql",
+  "outcome": "APPLIED",
+  "all_staging_rows_match_source_and_parser": true
+}
