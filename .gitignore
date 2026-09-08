@@ -13,3 +13,9 @@ front/node_modules/
 
 # 日志
 *.log
+
+# 本机浏览器验证、账号清单与构建产物
+.playwright-mcp/
+.playwright-cli/
+output/playwright/
+front/dist/

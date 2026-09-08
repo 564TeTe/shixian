@@ -1,18 +1,70 @@
+-- Teaching system schema only; no legacy demo records or account passwords.
+-- Import into an EMPTY MySQL 8 database, then initialize with tools/database/bootstrap_teaching.py.
+-- Existing database upgrades use database/001 and 002 instead.
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: t132
+-- ------------------------------------------------------
+-- Server version	8.0.41
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-DROP DATABASE IF EXISTS `t132`;
-CREATE DATABASE IF NOT EXISTS `t132` /*!40100 DEFAULT CHARACTER SET utf8mb3 */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `t132`;
+--
+-- Table structure for table `academic_term`
+--
 
-DROP TABLE IF EXISTS `caigoujilu`;
-CREATE TABLE IF NOT EXISTS `caigoujilu` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `academic_term` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `academic_year_id` bigint NOT NULL,
+  `term_no` tinyint NOT NULL,
+  `starts_on` date DEFAULT NULL,
+  `ends_on` date DEFAULT NULL,
+  `status` varchar(16) NOT NULL DEFAULT 'DRAFT',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_term` (`academic_year_id`,`term_no`),
+  CONSTRAINT `academic_term_ibfk_1` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_year` (`id`),
+  CONSTRAINT `ck_term_dates` CHECK (((`ends_on` is null) or (`starts_on` is null) or (`ends_on` >= `starts_on`))),
+  CONSTRAINT `ck_term_no` CHECK ((`term_no` in (1,2))),
+  CONSTRAINT `ck_term_status` CHECK ((`status` in (_utf8mb4'DRAFT',_utf8mb4'OPEN',_utf8mb4'ARCHIVED')))
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期，状态与实际校历分别管理';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `academic_year`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `academic_year` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(9) NOT NULL,
+  `start_year` smallint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `start_year` (`start_year`),
+  CONSTRAINT `ck_year_name` CHECK ((`name` = concat(`start_year`,_utf8mb4'-',(`start_year` + 1)))),
+  CONSTRAINT `ck_year_start` CHECK ((`start_year` between 1900 and 9998))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学年';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `caigoujilu`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `caigoujilu` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `shebeibianhao` varchar(200) DEFAULT NULL COMMENT '设备编号',
@@ -25,34 +77,45 @@ CREATE TABLE IF NOT EXISTS `caigoujilu` (
   `beizhu` longtext COMMENT '备注',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212715410 DEFAULT CHARSET=utf8mb3 COMMENT='采购记录';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `caigoujilu`;
-INSERT INTO `caigoujilu` (`id`, `addtime`, `shebeibianhao`, `shebeimingcheng`, `xinghao`, `caigoushuliang`, `caigoujiage`, `caigougongsi`, `caigouriqi`, `beizhu`) VALUES
-	(91, '2021-05-17 00:46:26', '设备编号1', '设备名称1', '型号1', 1, 1, '采购公司1', '2021-05-17', '备注1'),
-	(92, '2021-05-17 00:46:26', '设备编号2', '设备名称2', '型号2', 2, 2, '采购公司2', '2021-05-17', '备注2'),
-	(93, '2021-05-17 00:46:26', '设备编号3', '设备名称3', '型号3', 3, 3, '采购公司3', '2021-05-17', '备注3'),
-	(94, '2021-05-17 00:46:26', '设备编号4', '设备名称4', '型号4', 4, 4, '采购公司4', '2021-05-17', '备注4'),
-	(95, '2021-05-17 00:46:26', '设备编号5', '设备名称5', '型号5', 5, 5, '采购公司5', '2021-05-17', '备注5'),
-	(96, '2021-05-17 00:46:26', '设备编号6', '设备名称6', '型号6', 6, 6, '采购公司6', '2021-05-17', '备注6'),
-	(1621212715409, '2021-05-17 00:51:54', '1', 'XX设备', 'A101', 100, 100, '111', '2021-05-19', '测试测试');
+--
+-- Table structure for table `config`
+--
 
-DROP TABLE IF EXISTS `config`;
-CREATE TABLE IF NOT EXISTS `config` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `config` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(100) NOT NULL COMMENT '配置参数名称',
   `value` varchar(100) DEFAULT NULL COMMENT '配置参数值',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COMMENT='配置文件';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `config`;
-INSERT INTO `config` (`id`, `name`, `value`) VALUES
-	(1, 'picture1', 'http://localhost:8080/springboote51e2/upload/1621212737966.jpg'),
-	(2, 'picture2', 'http://localhost:8080/springboote51e2/upload/picture2.jpg'),
-	(3, 'picture3', 'http://localhost:8080/springboote51e2/upload/picture3.jpg'),
-	(6, 'homepage', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png');
+--
+-- Table structure for table `course`
+--
 
-DROP TABLE IF EXISTS `discussgonggaoxinxi`;
-CREATE TABLE IF NOT EXISTS `discussgonggaoxinxi` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `course` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `course_code` varchar(64) NOT NULL,
+  `course_name` varchar(200) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `course_code` (`course_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='跨学期课程基础信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `discussgonggaoxinxi`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `discussgonggaoxinxi` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `refid` bigint NOT NULL COMMENT '关联表id',
@@ -62,19 +125,15 @@ CREATE TABLE IF NOT EXISTS `discussgonggaoxinxi` (
   `reply` longtext COMMENT '回复内容',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212879474 DEFAULT CHARSET=utf8mb3 COMMENT='公告信息评论表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `discussgonggaoxinxi`;
-INSERT INTO `discussgonggaoxinxi` (`id`, `addtime`, `refid`, `userid`, `nickname`, `content`, `reply`) VALUES
-	(121, '2021-05-17 00:46:26', 1, 1, '用户名1', '评论内容1', '回复内容1'),
-	(122, '2021-05-17 00:46:26', 2, 2, '用户名2', '评论内容2', '回复内容2'),
-	(123, '2021-05-17 00:46:26', 3, 3, '用户名3', '评论内容3', '回复内容3'),
-	(124, '2021-05-17 00:46:26', 4, 4, '用户名4', '评论内容4', '回复内容4'),
-	(125, '2021-05-17 00:46:26', 5, 5, '用户名5', '评论内容5', '回复内容5'),
-	(126, '2021-05-17 00:46:26', 6, 6, '用户名6', '评论内容6', '回复内容6'),
-	(1621212879473, '2021-05-17 00:54:39', 1621212799192, 1621212542867, '2', '6666', NULL);
+--
+-- Table structure for table `discussshiyankecheng`
+--
 
-DROP TABLE IF EXISTS `discussshiyankecheng`;
-CREATE TABLE IF NOT EXISTS `discussshiyankecheng` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `discussshiyankecheng` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `refid` bigint NOT NULL COMMENT '关联表id',
@@ -84,19 +143,59 @@ CREATE TABLE IF NOT EXISTS `discussshiyankecheng` (
   `reply` longtext COMMENT '回复内容',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212921111 DEFAULT CHARSET=utf8mb3 COMMENT='实验课程评论表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `discussshiyankecheng`;
-INSERT INTO `discussshiyankecheng` (`id`, `addtime`, `refid`, `userid`, `nickname`, `content`, `reply`) VALUES
-	(131, '2021-05-17 00:46:26', 1, 1, '用户名1', '评论内容1', '回复内容1'),
-	(132, '2021-05-17 00:46:26', 2, 2, '用户名2', '评论内容2', '回复内容2'),
-	(133, '2021-05-17 00:46:26', 3, 3, '用户名3', '评论内容3', '回复内容3'),
-	(134, '2021-05-17 00:46:26', 4, 4, '用户名4', '评论内容4', '回复内容4'),
-	(135, '2021-05-17 00:46:26', 5, 5, '用户名5', '评论内容5', '回复内容5'),
-	(136, '2021-05-17 00:46:26', 6, 6, '用户名6', '评论内容6', '回复内容6'),
-	(1621212921110, '2021-05-17 00:55:21', 1621212847328, 1621212542867, '2', '888', '9999');
+--
+-- Table structure for table `experiment_project`
+--
 
-DROP TABLE IF EXISTS `gonggaoxinxi`;
-CREATE TABLE IF NOT EXISTS `gonggaoxinxi` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `experiment_project` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `task_id` bigint NOT NULL,
+  `project_code` varchar(64) NOT NULL,
+  `school_code` varchar(32) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `category_code` char(1) NOT NULL,
+  `type_code` varchar(2) NOT NULL,
+  `discipline_code` varchar(16) NOT NULL,
+  `requirement_code` char(1) NOT NULL,
+  `participant_type_code` char(1) NOT NULL,
+  `group_size` smallint NOT NULL,
+  `hours` decimal(6,2) NOT NULL,
+  `sort_order` int NOT NULL DEFAULT '0',
+  `copied_from_id` bigint DEFAULT NULL,
+  `created_by_teacher_id` bigint DEFAULT NULL,
+  `updated_by_teacher_id` bigint DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `project_code` (`project_code`),
+  KEY `ix_project_task` (`task_id`,`sort_order`),
+  KEY `copied_from_id` (`copied_from_id`),
+  KEY `created_by_teacher_id` (`created_by_teacher_id`),
+  KEY `updated_by_teacher_id` (`updated_by_teacher_id`),
+  CONSTRAINT `experiment_project_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `teaching_task` (`id`),
+  CONSTRAINT `experiment_project_ibfk_2` FOREIGN KEY (`copied_from_id`) REFERENCES `experiment_project` (`id`),
+  CONSTRAINT `experiment_project_ibfk_3` FOREIGN KEY (`created_by_teacher_id`) REFERENCES `jiaoshi` (`id`),
+  CONSTRAINT `experiment_project_ibfk_4` FOREIGN KEY (`updated_by_teacher_id`) REFERENCES `jiaoshi` (`id`),
+  CONSTRAINT `ck_project_category` CHECK ((`category_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3',_utf8mb4'4'))),
+  CONSTRAINT `ck_project_group` CHECK ((`group_size` between 1 and 99)),
+  CONSTRAINT `ck_project_hours` CHECK (((`hours` > 0) and (`hours` <= 9999))),
+  CONSTRAINT `ck_project_participant` CHECK ((`participant_type_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3',_utf8mb4'4',_utf8mb4'5'))),
+  CONSTRAINT `ck_project_requirement` CHECK ((`requirement_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3'))),
+  CONSTRAINT `ck_project_type` CHECK ((`type_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3',_utf8mb4'4',_utf8mb4'5')))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='教学任务的实验项目版本，不自动导入模板示例';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gonggaoxinxi`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gonggaoxinxi` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `biaoti` varchar(200) NOT NULL COMMENT '标题',
@@ -107,20 +206,16 @@ CREATE TABLE IF NOT EXISTS `gonggaoxinxi` (
   `gonggaoneirong` longtext COMMENT '公告内容',
   `faburiqi` date DEFAULT NULL COMMENT '发布日期',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212799193 DEFAULT CHARSET=utf8mb3 COMMENT='公告信息';
+) ENGINE=InnoDB AUTO_INCREMENT=1788767235686 DEFAULT CHARSET=utf8mb3 COMMENT='公告信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `gonggaoxinxi`;
-INSERT INTO `gonggaoxinxi` (`id`, `addtime`, `biaoti`, `leixing`, `tupian`, `gonghao`, `jiaoshixingming`, `gonggaoneirong`, `faburiqi`) VALUES
-	(31, '2021-05-17 00:46:26', '标题1', '类型1', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian1.jpg', '工号1', '教师姓名1', '公告内容1', '2021-05-17'),
-	(32, '2021-05-17 00:46:26', '标题2', '类型2', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian2.jpg', '工号2', '教师姓名2', '公告内容2', '2021-05-17'),
-	(33, '2021-05-17 00:46:26', '标题3', '类型3', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian3.jpg', '工号3', '教师姓名3', '公告内容3', '2021-05-17'),
-	(34, '2021-05-17 00:46:26', '标题4', '类型4', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian4.jpg', '工号4', '教师姓名4', '公告内容4', '2021-05-17'),
-	(35, '2021-05-17 00:46:26', '标题5', '类型5', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian5.jpg', '工号5', '教师姓名5', '公告内容5', '2021-05-17'),
-	(36, '2021-05-17 00:46:26', '标题6', '类型6', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian6.jpg', '工号6', '教师姓名6', '公告内容6', '2021-05-17'),
-	(1621212799192, '2021-05-17 00:53:18', 'XX公告', '公告', 'http://localhost:8080/springboote51e2/upload/1621212786973.jpg', '1', '王老师', '<p><img src="http://localhost:8080/springboote51e2/upload/1621212792142.jpg"></p><p>这里可以发布一些相关公告内容的</p>', '2021-05-17');
+--
+-- Table structure for table `jiaoshi`
+--
 
-DROP TABLE IF EXISTS `jiaoshi`;
-CREATE TABLE IF NOT EXISTS `jiaoshi` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jiaoshi` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gonghao` varchar(200) NOT NULL COMMENT '工号',
@@ -133,19 +228,43 @@ CREATE TABLE IF NOT EXISTS `jiaoshi` (
   `dianhua` varchar(200) DEFAULT NULL COMMENT '电话',
   PRIMARY KEY (`id`),
   UNIQUE KEY `gonghao` (`gonghao`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3 COMMENT='教师';
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb3 COMMENT='教师';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `jiaoshi`;
-INSERT INTO `jiaoshi` (`id`, `addtime`, `gonghao`, `mima`, `jiaoshixingming`, `xingbie`, `touxiang`, `xueyuan`, `zhicheng`, `dianhua`) VALUES
-	(21, '2021-05-17 00:46:26', '教师1', '123456', '王老师', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang1.jpg', '上海大学', '班主任', '13823888881'),
-	(22, '2021-05-17 00:46:26', '教师2', '123456', '教师姓名2', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang2.jpg', '学院2', '职称2', '13823888882'),
-	(23, '2021-05-17 00:46:26', '教师3', '123456', '教师姓名3', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang3.jpg', '学院3', '职称3', '13823888883'),
-	(24, '2021-05-17 00:46:26', '教师4', '123456', '教师姓名4', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang4.jpg', '学院4', '职称4', '13823888884'),
-	(25, '2021-05-17 00:46:26', '教师5', '123456', '教师姓名5', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang5.jpg', '学院5', '职称5', '13823888885'),
-	(26, '2021-05-17 00:46:26', '教师6', '123456', '教师姓名6', '男', 'http://localhost:8080/springboote51e2/upload/jiaoshi_touxiang6.jpg', '学院6', '职称6', '13823888886');
+--
+-- Table structure for table `schedule_detail`
+--
 
-DROP TABLE IF EXISTS `shiyankecheng`;
-CREATE TABLE IF NOT EXISTS `shiyankecheng` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `schedule_detail` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `task_id` bigint NOT NULL,
+  `lab_id` bigint NOT NULL,
+  `teaching_week` smallint NOT NULL,
+  `weekday` tinyint NOT NULL,
+  `period_start` smallint NOT NULL,
+  `period_end` smallint NOT NULL,
+  `hours` decimal(6,2) NOT NULL,
+  `source_segment` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_schedule` (`task_id`,`lab_id`,`teaching_week`,`weekday`,`period_start`,`period_end`),
+  KEY `ix_lab_task` (`lab_id`,`task_id`),
+  CONSTRAINT `schedule_detail_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `teaching_task` (`id`),
+  CONSTRAINT `schedule_detail_ibfk_2` FOREIGN KEY (`lab_id`) REFERENCES `shiyanshixinxi` (`id`),
+  CONSTRAINT `ck_schedule_hours` CHECK (((`hours` > 0) and (`source_segment` >= 1))),
+  CONSTRAINT `ck_schedule_period` CHECK (((`period_start` >= 1) and (`period_end` >= `period_start`) and (`period_end` <= 24))),
+  CONSTRAINT `ck_schedule_week` CHECK (((`teaching_week` between 1 and 53) and (`weekday` between 1 and 7)))
+) ENGINE=InnoDB AUTO_INCREMENT=2209 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='按教学周和连续节次拆分的实验室排课';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `shiyankecheng`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shiyankecheng` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `kechengmingcheng` varchar(200) NOT NULL COMMENT '课程名称',
@@ -159,19 +278,15 @@ CREATE TABLE IF NOT EXISTS `shiyankecheng` (
   `userid` bigint DEFAULT NULL COMMENT '用户id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212847329 DEFAULT CHARSET=utf8mb3 COMMENT='实验课程';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `shiyankecheng`;
-INSERT INTO `shiyankecheng` (`id`, `addtime`, `kechengmingcheng`, `tupian`, `shiyanriqi`, `shiyanshihao`, `gonghao`, `jiaoshixingming`, `shiyanneirong`, `shiyanyaoqiu`, `userid`) VALUES
-	(51, '2021-05-17 00:46:26', '课程名称1', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian1.jpg', '2021-05-17', '实验室号1', '工号1', '教师姓名1', '实验内容1', '实验要求1', 1),
-	(52, '2021-05-17 00:46:26', '课程名称2', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian2.jpg', '2021-05-17', '实验室号2', '工号2', '教师姓名2', '实验内容2', '实验要求2', 2),
-	(53, '2021-05-17 00:46:26', '课程名称3', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian3.jpg', '2021-05-17', '实验室号3', '工号3', '教师姓名3', '实验内容3', '实验要求3', 3),
-	(54, '2021-05-17 00:46:26', '课程名称4', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian4.jpg', '2021-05-17', '实验室号4', '工号4', '教师姓名4', '实验内容4', '实验要求4', 4),
-	(55, '2021-05-17 00:46:26', '课程名称5', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian5.jpg', '2021-05-17', '实验室号5', '工号5', '教师姓名5', '实验内容5', '实验要求5', 5),
-	(56, '2021-05-17 00:46:26', '课程名称6', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian6.jpg', '2021-05-17', '实验室号6', '工号6', '教师姓名6', '实验内容6', '实验要求6', 6),
-	(1621212847328, '2021-05-17 00:54:07', '物理实验课', 'http://localhost:8080/springboote51e2/upload/1621212836492.jpg', '2021-05-06', '201', '1', '王老师', '测试', '测试', NULL);
+--
+-- Table structure for table `shiyanshebei`
+--
 
-DROP TABLE IF EXISTS `shiyanshebei`;
-CREATE TABLE IF NOT EXISTS `shiyanshebei` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shiyanshebei` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `shebeibianhao` varchar(200) NOT NULL COMMENT '设备编号',
@@ -185,18 +300,15 @@ CREATE TABLE IF NOT EXISTS `shiyanshebei` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `shebeibianhao` (`shebeibianhao`)
 ) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb3 COMMENT='实验设备';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `shiyanshebei`;
-INSERT INTO `shiyanshebei` (`id`, `addtime`, `shebeibianhao`, `shebeimingcheng`, `xinghao`, `danwei`, `tupian`, `shebeishuliang`, `shiyongfangfa`, `shebeizhuangtai`) VALUES
-	(81, '2021-05-17 00:46:26', '1', 'XX设备', 'A101', '件', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian1.jpg', 15, '使用方法1测试', '正常'),
-	(82, '2021-05-17 00:46:26', '设备编号2', '设备名称2', '型号2', '单位2', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian2.jpg', 2, '使用方法2', '正常'),
-	(83, '2021-05-17 00:46:26', '设备编号3', '设备名称3', '型号3', '单位3', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian3.jpg', 3, '使用方法3', '正常'),
-	(84, '2021-05-17 00:46:26', '设备编号4', '设备名称4', '型号4', '单位4', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian4.jpg', 4, '使用方法4', '正常'),
-	(85, '2021-05-17 00:46:26', '设备编号5', '设备名称5', '型号5', '单位5', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian5.jpg', 5, '使用方法5', '正常'),
-	(86, '2021-05-17 00:46:26', '设备编号6', '设备名称6', '型号6', '单位6', 'http://localhost:8080/springboote51e2/upload/shiyanshebei_tupian6.jpg', 6, '使用方法6', '正常');
+--
+-- Table structure for table `shiyanshixinxi`
+--
 
-DROP TABLE IF EXISTS `shiyanshixinxi`;
-CREATE TABLE IF NOT EXISTS `shiyanshixinxi` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shiyanshixinxi` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `shiyanshibianhao` varchar(200) NOT NULL COMMENT '实验室编号',
@@ -207,21 +319,23 @@ CREATE TABLE IF NOT EXISTS `shiyanshixinxi` (
   `keyueshijian` varchar(200) DEFAULT NULL COMMENT '可约时间',
   `shiyanshixiangqing` longtext COMMENT '实验室详情',
   `shiyanshizhuangtai` varchar(200) NOT NULL COMMENT '实验室状态',
+  `manager_teacher_id` bigint DEFAULT NULL COMMENT '负责人教师ID',
+  `equipment_count` int DEFAULT NULL COMMENT '设备数，NULL代表未知',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `shiyanshibianhao` (`shiyanshibianhao`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb3 COMMENT='实验室信息';
+  UNIQUE KEY `shiyanshibianhao` (`shiyanshibianhao`),
+  KEY `fk_lab_manager` (`manager_teacher_id`),
+  CONSTRAINT `fk_lab_manager` FOREIGN KEY (`manager_teacher_id`) REFERENCES `jiaoshi` (`id`),
+  CONSTRAINT `ck_lab_equipment` CHECK ((`equipment_count` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb3 COMMENT='实验室信息';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `shiyanshixinxi`;
-INSERT INTO `shiyanshixinxi` (`id`, `addtime`, `shiyanshibianhao`, `shiyanshimingcheng`, `shiyanshiguimo`, `shiyanshitupian`, `shiyanshiweizhi`, `keyueshijian`, `shiyanshixiangqing`, `shiyanshizhuangtai`) VALUES
-	(61, '2021-05-17 00:46:26', '1', '化学实验室', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian1.jpg', '3号楼', '8-10点', '<p>实验室详情1</p><p>这里可以发布一些相关实验室简介内容，这里的所有内容都是用于测试功能，都是随意添加的，都是可以自行添加修改删除替换的</p><p><img src="http://localhost:8080/springboote51e2/upload/1621212676843.jpg"></p>', '可预约'),
-	(62, '2021-05-17 00:46:26', '实验室编号2', '实验室名称2', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian2.jpg', '实验室位置2', '可约时间2', '实验室详情2', '可预约'),
-	(63, '2021-05-17 00:46:26', '实验室编号3', '实验室名称3', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian3.jpg', '实验室位置3', '可约时间3', '实验室详情3', '可预约'),
-	(64, '2021-05-17 00:46:26', '实验室编号4', '实验室名称4', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian4.jpg', '实验室位置4', '可约时间4', '实验室详情4', '可预约'),
-	(65, '2021-05-17 00:46:26', '实验室编号5', '实验室名称5', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian5.jpg', '实验室位置5', '可约时间5', '实验室详情5', '可预约'),
-	(66, '2021-05-17 00:46:26', '实验室编号6', '实验室名称6', '大型', 'http://localhost:8080/springboote51e2/upload/shiyanshixinxi_shiyanshitupian6.jpg', '实验室位置6', '可约时间6', '实验室详情6', '可预约');
+--
+-- Table structure for table `shiyanshiyuyue`
+--
 
-DROP TABLE IF EXISTS `shiyanshiyuyue`;
-CREATE TABLE IF NOT EXISTS `shiyanshiyuyue` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shiyanshiyuyue` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `shiyanshimingcheng` varchar(200) DEFAULT NULL COMMENT '实验室名称',
@@ -235,19 +349,15 @@ CREATE TABLE IF NOT EXISTS `shiyanshiyuyue` (
   `shhf` longtext COMMENT '审核回复',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212945551 DEFAULT CHARSET=utf8mb3 COMMENT='实验室预约';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `shiyanshiyuyue`;
-INSERT INTO `shiyanshiyuyue` (`id`, `addtime`, `shiyanshimingcheng`, `yuyueneirong`, `yuyueshijian`, `xuehao`, `xueshengxingming`, `banji`, `shouji`, `sfsh`, `shhf`) VALUES
-	(71, '2021-05-17 00:46:26', '实验室名称1', '预约内容1', '预约时间1', '学号1', '学生姓名1', '班级1', '手机1', '是', ''),
-	(72, '2021-05-17 00:46:26', '实验室名称2', '预约内容2', '预约时间2', '学号2', '学生姓名2', '班级2', '手机2', '是', ''),
-	(73, '2021-05-17 00:46:26', '实验室名称3', '预约内容3', '预约时间3', '学号3', '学生姓名3', '班级3', '手机3', '是', ''),
-	(74, '2021-05-17 00:46:26', '实验室名称4', '预约内容4', '预约时间4', '学号4', '学生姓名4', '班级4', '手机4', '是', ''),
-	(75, '2021-05-17 00:46:26', '实验室名称5', '预约内容5', '预约时间5', '学号5', '学生姓名5', '班级5', '手机5', '是', ''),
-	(76, '2021-05-17 00:46:26', '实验室名称6', '预约内容6', '预约时间6', '学号6', '学生姓名6', '班级6', '手机6', '是', ''),
-	(1621212945550, '2021-05-17 00:55:44', '化学实验室', '我要预约进行试验', '9点', '2', '李四', '201', '15214121411', '是', '同意预约');
+--
+-- Table structure for table `storeup`
+--
 
-DROP TABLE IF EXISTS `storeup`;
-CREATE TABLE IF NOT EXISTS `storeup` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `storeup` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `userid` bigint NOT NULL COMMENT '用户id',
@@ -257,18 +367,122 @@ CREATE TABLE IF NOT EXISTS `storeup` (
   `picture` varchar(200) NOT NULL COMMENT '收藏图片',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1713359105940 DEFAULT CHARSET=utf8mb3 COMMENT='收藏表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `storeup`;
-INSERT INTO `storeup` (`id`, `addtime`, `userid`, `refid`, `tablename`, `name`, `picture`) VALUES
-	(1621212889252, '2021-05-17 00:54:49', 1621212542867, 1621212799192, 'gonggaoxinxi', 'XX公告', 'http://localhost:8080/springboote51e2/upload/1621212786973.jpg'),
-	(1621212903983, '2021-05-17 00:55:03', 1621212542867, 1621212826428, 'zhishiku', 'XX知识库', 'http://localhost:8080/springboote51e2/upload/1621212817212.jpg'),
-	(1713359088893, '2024-04-17 13:04:48', 11, 1621212826428, 'zhishiku', 'XX知识库', 'http://localhost:8080/springboote51e2/upload/1621212817212.jpg'),
-	(1713359094977, '2024-04-17 13:04:54', 11, 32, 'gonggaoxinxi', '标题2', 'http://localhost:8080/springboote51e2/upload/gonggaoxinxi_tupian2.jpg'),
-	(1713359100357, '2024-04-17 13:05:00', 11, 44, 'zhishiku', '名称4', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian4.jpg'),
-	(1713359105939, '2024-04-17 13:05:05', 11, 51, 'shiyankecheng', '课程名称1', 'http://localhost:8080/springboote51e2/upload/shiyankecheng_tupian1.jpg');
+--
+-- Table structure for table `teaching_import_batch`
+--
 
-DROP TABLE IF EXISTS `token`;
-CREATE TABLE IF NOT EXISTS `token` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `teaching_import_batch` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `file_sha256` char(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `parser_version` varchar(32) NOT NULL,
+  `row_count` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `file_sha256` (`file_sha256`),
+  CONSTRAINT `ck_import_rows` CHECK ((`row_count` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='课表导入批次，同一文件内容只暂存一次';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `teaching_import_row`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `teaching_import_row` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `batch_id` bigint NOT NULL,
+  `sheet_name` varchar(64) NOT NULL,
+  `source_row` int NOT NULL,
+  `raw_data` json NOT NULL,
+  `parsed_schedule` json DEFAULT NULL,
+  `issues` json NOT NULL,
+  `status` varchar(16) NOT NULL DEFAULT 'REVIEW',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_import_source` (`batch_id`,`sheet_name`,`source_row`),
+  CONSTRAINT `teaching_import_row_ibfk_1` FOREIGN KEY (`batch_id`) REFERENCES `teaching_import_batch` (`id`),
+  CONSTRAINT `ck_import_status` CHECK ((`status` in (_utf8mb4'REVIEW',_utf8mb4'ERROR',_utf8mb4'PROMOTED'))),
+  CONSTRAINT `ck_source_row` CHECK ((`source_row` > 1))
+) ENGINE=InnoDB AUTO_INCREMENT=511 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='原始课表暂存，未确认身份和口径前不转正式任务';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `teaching_task`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `teaching_task` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `task_code` varchar(64) NOT NULL,
+  `term_id` bigint NOT NULL,
+  `course_id` bigint NOT NULL,
+  `source_import_row_id` bigint DEFAULT NULL,
+  `course_name_snapshot` varchar(200) NOT NULL,
+  `department_name` varchar(200) NOT NULL,
+  `credits` decimal(6,2) NOT NULL,
+  `class_composition` text NOT NULL,
+  `major_composition` text,
+  `class_size` int NOT NULL,
+  `enrollment_count` int NOT NULL,
+  `planned_lab_hours` decimal(8,2) NOT NULL,
+  `weekly_hours` decimal(6,2) NOT NULL,
+  `original_week_range` varchar(255) NOT NULL,
+  `scheduled_week_range` text NOT NULL,
+  `start_week` smallint NOT NULL,
+  `end_week` smallint NOT NULL,
+  `course_ends_at` datetime DEFAULT NULL,
+  `course_weekly_hours_text` varchar(255) NOT NULL,
+  `teacher_names_original` text NOT NULL,
+  `locations_original` text NOT NULL,
+  `schedule_original` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `default_lab_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `task_code` (`task_code`),
+  UNIQUE KEY `source_import_row_id` (`source_import_row_id`),
+  KEY `ix_task_term_course` (`term_id`,`course_id`),
+  KEY `course_id` (`course_id`),
+  KEY `fk_task_default_lab` (`default_lab_id`),
+  CONSTRAINT `fk_task_default_lab` FOREIGN KEY (`default_lab_id`) REFERENCES `shiyanshixinxi` (`id`),
+  CONSTRAINT `teaching_task_ibfk_1` FOREIGN KEY (`term_id`) REFERENCES `academic_term` (`id`),
+  CONSTRAINT `teaching_task_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`),
+  CONSTRAINT `teaching_task_ibfk_3` FOREIGN KEY (`source_import_row_id`) REFERENCES `teaching_import_row` (`id`),
+  CONSTRAINT `ck_task_counts` CHECK (((`class_size` >= 0) and (`enrollment_count` >= 0))),
+  CONSTRAINT `ck_task_hours` CHECK (((`credits` >= 0) and (`planned_lab_hours` > 0) and (`weekly_hours` >= 0))),
+  CONSTRAINT `ck_task_weeks` CHECK (((`start_week` >= 1) and (`end_week` >= `start_week`) and (`end_week` <= 53)))
+) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期开课任务，不以班级名称去重';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `teaching_task_teacher`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `teaching_task_teacher` (
+  `task_id` bigint NOT NULL,
+  `teacher_id` bigint NOT NULL,
+  PRIMARY KEY (`task_id`,`teacher_id`),
+  KEY `ix_teacher_tasks` (`teacher_id`,`task_id`),
+  CONSTRAINT `teaching_task_teacher_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `teaching_task` (`id`),
+  CONSTRAINT `teaching_task_teacher_ibfk_2` FOREIGN KEY (`teacher_id`) REFERENCES `jiaoshi` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='合授教师关联，姓名不是身份主键';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `token`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `token` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `userid` bigint NOT NULL COMMENT '用户id',
   `username` varchar(100) NOT NULL COMMENT '用户名',
@@ -279,30 +493,31 @@ CREATE TABLE IF NOT EXISTS `token` (
   `expiratedtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '过期时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COMMENT='token表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `token`;
-INSERT INTO `token` (`id`, `userid`, `username`, `tablename`, `role`, `token`, `addtime`, `expiratedtime`) VALUES
-	(1, 1, 'abo', 'users', '管理员', 'o5n6j26kh45ty5ed1qk4zy1qema6tc0i', '2021-05-17 00:47:29', '2024-04-17 14:06:58'),
-	(2, 1621212542867, '2', 'xuesheng', '学生', '2vdzxuxrbyqtjjcvezrrpyzocoe45w4j', '2021-05-17 00:49:18', '2021-05-17 01:57:06'),
-	(3, 21, '1', 'jiaoshi', '教师', 'bm2h8fitcbjixu417ktzidul2wwipmqu', '2021-05-17 00:52:34', '2024-04-17 14:04:30'),
-	(4, 11, '学生1', 'xuesheng', '学生', 'y2tmw30qch3hfz9zscsr1m1j6ye0e0ee', '2024-04-17 13:04:19', '2024-04-17 14:04:42');
+--
+-- Table structure for table `users`
+--
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `username` varchar(100) NOT NULL COMMENT '用户名',
   `password` varchar(100) NOT NULL COMMENT '密码',
   `role` varchar(100) DEFAULT '管理员' COMMENT '角色',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COMMENT='用户表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `users`;
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `addtime`) VALUES
-	(1, 'admin', '123456', '管理员', '2021-05-17 00:46:26');
+--
+-- Table structure for table `weixiujilu`
+--
 
-DROP TABLE IF EXISTS `weixiujilu`;
-CREATE TABLE IF NOT EXISTS `weixiujilu` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `weixiujilu` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `shebeibianhao` varchar(200) DEFAULT NULL COMMENT '设备编号',
@@ -313,19 +528,15 @@ CREATE TABLE IF NOT EXISTS `weixiujilu` (
   `weixiujieguo` longtext COMMENT '维修结果',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212728954 DEFAULT CHARSET=utf8mb3 COMMENT='维修记录';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `weixiujilu`;
-INSERT INTO `weixiujilu` (`id`, `addtime`, `shebeibianhao`, `shebeimingcheng`, `xinghao`, `weixiushuliang`, `weixiuriqi`, `weixiujieguo`) VALUES
-	(101, '2021-05-17 00:46:26', '设备编号1', '设备名称1', '型号1', 1, '2021-05-17', '维修结果1'),
-	(102, '2021-05-17 00:46:26', '设备编号2', '设备名称2', '型号2', 2, '2021-05-17', '维修结果2'),
-	(103, '2021-05-17 00:46:26', '设备编号3', '设备名称3', '型号3', 3, '2021-05-17', '维修结果3'),
-	(104, '2021-05-17 00:46:26', '设备编号4', '设备名称4', '型号4', 4, '2021-05-17', '维修结果4'),
-	(105, '2021-05-17 00:46:26', '设备编号5', '设备名称5', '型号5', 5, '2021-05-17', '维修结果5'),
-	(106, '2021-05-17 00:46:26', '设备编号6', '设备名称6', '型号6', 6, '2021-05-17', '维修结果6'),
-	(1621212728953, '2021-05-17 00:52:08', '1', 'XX设备', 'A101', 10, '2021-05-18', '都已经修好');
+--
+-- Table structure for table `xuesheng`
+--
 
-DROP TABLE IF EXISTS `xuesheng`;
-CREATE TABLE IF NOT EXISTS `xuesheng` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `xuesheng` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `xuehao` varchar(200) NOT NULL COMMENT '学号',
@@ -338,19 +549,15 @@ CREATE TABLE IF NOT EXISTS `xuesheng` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `xuehao` (`xuehao`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212542868 DEFAULT CHARSET=utf8mb3 COMMENT='学生';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-DELETE FROM `xuesheng`;
-INSERT INTO `xuesheng` (`id`, `addtime`, `xuehao`, `mima`, `xueshengxingming`, `xingbie`, `touxiang`, `banji`, `shouji`) VALUES
-	(11, '2021-05-17 00:46:26', '学生1', '123456', '学生姓名1', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang1.jpg', '班级1', '13823888881'),
-	(12, '2021-05-17 00:46:26', '学生2', '123456', '学生姓名2', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang2.jpg', '班级2', '13823888882'),
-	(13, '2021-05-17 00:46:26', '学生3', '123456', '学生姓名3', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang3.jpg', '班级3', '13823888883'),
-	(14, '2021-05-17 00:46:26', '学生4', '123456', '学生姓名4', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang4.jpg', '班级4', '13823888884'),
-	(15, '2021-05-17 00:46:26', '学生5', '123456', '学生姓名5', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang5.jpg', '班级5', '13823888885'),
-	(16, '2021-05-17 00:46:26', '学生6', '123456', '学生姓名6', '男', 'http://localhost:8080/springboote51e2/upload/xuesheng_touxiang6.jpg', '班级6', '13823888886'),
-	(1621212542867, '2021-05-17 00:49:02', '2', '1', '李四', '男', 'http://localhost:8080/springboote51e2/upload/1621212574316.png', '201', '15214121411');
+--
+-- Table structure for table `zhishiku`
+--
 
-DROP TABLE IF EXISTS `zhishiku`;
-CREATE TABLE IF NOT EXISTS `zhishiku` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `zhishiku` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `mingcheng` varchar(200) NOT NULL COMMENT '名称',
@@ -363,19 +570,15 @@ CREATE TABLE IF NOT EXISTS `zhishiku` (
   `xiangqing` longtext COMMENT '详情',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1621212826429 DEFAULT CHARSET=utf8mb3 COMMENT='知识库';
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-DELETE FROM `zhishiku`;
-INSERT INTO `zhishiku` (`id`, `addtime`, `mingcheng`, `banji`, `tupian`, `wenjian`, `gonghao`, `jiaoshixingming`, `faburiqi`, `xiangqing`) VALUES
-	(41, '2021-05-17 00:46:26', '名称1', '班级1', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian1.jpg', '', '工号1', '教师姓名1', '2021-05-17', '详情1'),
-	(42, '2021-05-17 00:46:26', '名称2', '班级2', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian2.jpg', '', '工号2', '教师姓名2', '2021-05-17', '详情2'),
-	(43, '2021-05-17 00:46:26', '名称3', '班级3', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian3.jpg', '', '工号3', '教师姓名3', '2021-05-17', '详情3'),
-	(44, '2021-05-17 00:46:26', '名称4', '班级4', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian4.jpg', '', '工号4', '教师姓名4', '2021-05-17', '详情4'),
-	(45, '2021-05-17 00:46:26', '名称5', '班级5', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian5.jpg', '', '工号5', '教师姓名5', '2021-05-17', '详情5'),
-	(46, '2021-05-17 00:46:26', '名称6', '班级6', 'http://localhost:8080/springboote51e2/upload/zhishiku_tupian6.jpg', '', '工号6', '教师姓名6', '2021-05-17', '详情6'),
-	(1621212826428, '2021-05-17 00:53:46', 'XX知识库', '201', 'http://localhost:8080/springboote51e2/upload/1621212817212.jpg', 'http://localhost:8080/springboote51e2/upload/1621212823913.doc', '1', '王老师', NULL, '<p>测试</p>');
-
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-09-08 14:28:32

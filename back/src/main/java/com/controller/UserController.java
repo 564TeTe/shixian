@@ -31,6 +31,7 @@ import com.utils.MPUtil;
 import com.utils.PageUtils;
 import com.utils.R;
 import com.utils.ValidatorUtils;
+import com.teaching.TeachingPasswords;
 
 /**
  * 登录相关
@@ -52,7 +53,7 @@ public class UserController{
 	@PostMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
 		UserEntity user = userService.selectOne(new EntityWrapper<UserEntity>().eq("username", username));
-		if(user==null || !user.getPassword().equals(password)) {
+		if(user==null || !TeachingPasswords.matches(password, user.getPassword())) {
 			return R.error("账号或密码不正确");
 		}
 		String token = tokenService.generateToken(user.getId(),username, "users", user.getRole());
@@ -76,8 +77,9 @@ public class UserController{
 	/**
 	 * 退出
 	 */
-	@GetMapping(value = "logout")
+	@PostMapping(value = "logout")
 	public R logout(HttpServletRequest request) {
+		tokenService.delete(new EntityWrapper<TokenEntity>().eq("token", request.getHeader("Token")));
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}

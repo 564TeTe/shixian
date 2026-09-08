@@ -180,7 +180,7 @@ export default {
       shForm: {},
       chartVisiable: false,
       addOrUpdateFlag:false,
-      contents:{"searchBtnFontColor":"#333","pagePosition":"1","inputFontSize":"14px","inputBorderRadius":"16px","tableBtnDelFontColor":"#333","tableBtnIconPosition":"2","searchBtnHeight":"40px","inputIconColor":"#C0C4CC","searchBtnBorderRadius":"4px","tableStripe":false,"btnAdAllWarnFontColor":"#333","tableBtnDelBgColor":"rgba(255, 140, 0, 1)","searchBtnIcon":"1","tableSize":"small","searchBtnBorderStyle":"solid","tableSelection":true,"searchBtnBorderWidth":"1px","tableContentFontSize":"14px","searchBtnBgColor":"#fff","inputTitleSize":"14px","btnAdAllBorderColor":"rgba(31, 147, 255, 0.73)","pageJumper":true,"btnAdAllIconPosition":"1","searchBoxPosition":"2","tableBtnDetailFontColor":"#333","tableBtnHeight":"40px","pagePager":true,"searchBtnBorderColor":"#DCDFE6","tableHeaderFontColor":"rgba(12, 12, 13, 0.67)","inputTitle":"1","tableBtnBorderRadius":"16px","btnAdAllFont":"1","btnAdAllDelFontColor":"#333","tableBtnIcon":"1","btnAdAllHeight":"40px","btnAdAllWarnBgColor":"rgba(190, 163, 18, 1)","btnAdAllBorderWidth":"1px","tableStripeFontColor":"#606266","tableBtnBorderStyle":"solid","inputHeight":"40px","btnAdAllBorderRadius":"16px","btnAdAllDelBgColor":"rgba(255, 215, 0, 1)","pagePrevNext":true,"btnAdAllAddBgColor":"rgba(241, 215, 70, 1)","searchBtnFont":"1","tableIndex":true,"btnAdAllIcon":"1","tableSortable":true,"pageSizes":true,"tableFit":true,"pageBtnBG":true,"searchBtnFontSize":"14px","tableBtnEditBgColor":"rgba(255, 140, 0, 1)","inputBorderWidth":"1px","inputFontPosition":"1","inputFontColor":"rgba(82, 135, 234, 1)","pageEachNum":10,"tableHeaderBgColor":"rgba(227, 226, 226, 0.14)","inputTitleColor":"#333","btnAdAllBoxPosition":"1","tableBtnDetailBgColor":"rgba(255, 140, 0, 1)","inputIcon":"1","searchBtnIconPosition":"1","btnAdAllFontSize":"14px","inputBorderStyle":"solid","inputBgColor":"rgba(224, 220, 220, 0.15)","pageStyle":true,"pageTotal":true,"btnAdAllAddFontColor":"#333","tableBtnFont":"1","tableContentFontColor":"rgba(78, 79, 82, 1)","inputBorderColor":"#DCDFE6","tableShowHeader":true,"tableBtnFontSize":"14px","tableBtnBorderColor":"#DCDFE6","inputIconPosition":"2","tableBorder":true,"btnAdAllBorderStyle":"solid","tableBtnBorderWidth":"1px","tableStripeBgColor":"#F5F7FA","tableBtnEditFontColor":"#333","tableAlign":"center"},
+      contents:{"searchBtnFontColor":"#333","pagePosition":"1","inputFontSize":"14px","inputBorderRadius":"16px","tableBtnDelFontColor":"#fff","tableBtnIconPosition":"2","searchBtnHeight":"40px","inputIconColor":"#C0C4CC","searchBtnBorderRadius":"4px","tableStripe":false,"btnAdAllWarnFontColor":"#fff","tableBtnDelBgColor":"#F56C6C","searchBtnIcon":"1","tableSize":"small","searchBtnBorderStyle":"solid","tableSelection":true,"searchBtnBorderWidth":"1px","tableContentFontSize":"14px","searchBtnBgColor":"#fff","inputTitleSize":"14px","btnAdAllBorderColor":"rgba(31, 147, 255, 0.73)","pageJumper":true,"btnAdAllIconPosition":"1","searchBoxPosition":"2","tableBtnDetailFontColor":"#fff","tableBtnHeight":"40px","pagePager":true,"searchBtnBorderColor":"#DCDFE6","tableHeaderFontColor":"rgba(12, 12, 13, 0.67)","inputTitle":"1","tableBtnBorderRadius":"16px","btnAdAllFont":"1","btnAdAllDelFontColor":"#fff","tableBtnIcon":"1","btnAdAllHeight":"40px","btnAdAllWarnBgColor":"#E6A23C","btnAdAllBorderWidth":"1px","tableStripeFontColor":"#606266","tableBtnBorderStyle":"solid","inputHeight":"40px","btnAdAllBorderRadius":"16px","btnAdAllDelBgColor":"#F56C6C","pagePrevNext":true,"btnAdAllAddBgColor":"#409EFF","searchBtnFont":"1","tableIndex":true,"btnAdAllIcon":"1","tableSortable":true,"pageSizes":true,"tableFit":true,"pageBtnBG":true,"searchBtnFontSize":"14px","tableBtnEditBgColor":"#409EFF","inputBorderWidth":"1px","inputFontPosition":"1","inputFontColor":"rgba(82, 135, 234, 1)","pageEachNum":10,"tableHeaderBgColor":"rgba(227, 226, 226, 0.14)","inputTitleColor":"#333","btnAdAllBoxPosition":"1","tableBtnDetailBgColor":"#409EFF","inputIcon":"1","searchBtnIconPosition":"1","btnAdAllFontSize":"14px","inputBorderStyle":"solid","inputBgColor":"rgba(224, 220, 220, 0.15)","pageStyle":true,"pageTotal":true,"btnAdAllAddFontColor":"#fff","tableBtnFont":"1","tableContentFontColor":"rgba(78, 79, 82, 1)","inputBorderColor":"#DCDFE6","tableShowHeader":true,"tableBtnFontSize":"14px","tableBtnBorderColor":"#DCDFE6","inputIconPosition":"2","tableBorder":true,"btnAdAllBorderStyle":"solid","tableBtnBorderWidth":"1px","tableStripeBgColor":"#F5F7FA","tableBtnEditFontColor":"#fff","tableAlign":"center"},
       layouts: '',
 
 
@@ -507,35 +507,35 @@ export default {
   .tables {
 	& ::v-deep .el-button--success {
 		height: 40px;
-		color: #333;
+		color: #fff;
 		font-size: 14px;
 		border-width: 1px;
 		border-style: solid;
-		border-color: #DCDFE6;
+		border-color: #409EFF;
 		border-radius: 16px;
-		background-color: rgba(255, 140, 0, 1);
+		background-color: #409EFF;
 	}
 	
 	& ::v-deep .el-button--primary {
 		height: 40px;
-		color: #333;
+		color: #fff;
 		font-size: 14px;
 		border-width: 1px;
 		border-style: solid;
-		border-color: #DCDFE6;
+		border-color: #409EFF;
 		border-radius: 16px;
-		background-color: rgba(255, 140, 0, 1);
+		background-color: #409EFF;
 	}
 	
 	& ::v-deep .el-button--danger {
 		height: 40px;
-		color: #333;
+		color: #fff;
 		font-size: 14px;
 		border-width: 1px;
 		border-style: solid;
-		border-color: #DCDFE6;
+		border-color: #F56C6C;
 		border-radius: 16px;
-		background-color: rgba(255, 140, 0, 1);
+		background-color: #F56C6C;
 	}
 
     & ::v-deep .el-button {

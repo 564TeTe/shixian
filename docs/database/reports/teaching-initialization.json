@@ -1,0 +1,18 @@
+{
+  "database": "t132",
+  "backup": "D:\\STUDY\\iahfbiwabidubIO\\database\\generated\\before-demo-cleanup-20260908-142716-6b3f44.sql",
+  "credentials_file": "D:\\STUDY\\iahfbiwabidubIO\\database\\generated\\teaching-accounts.local.json",
+  "counts": {
+    "users": 1,
+    "jiaoshi": 79,
+    "shiyanshixinxi": 14,
+    "course": 93,
+    "academic_term": 3,
+    "teaching_task": 255,
+    "schedule_detail": 2208,
+    "experiment_project": 0
+  },
+  "legacy_demo_rows": 0,
+  "status": "INITIALIZED",
+  "note": "Historical timetable imported row by row, temporary teacher identities and data discrepancies remain explicitly marked."
+}

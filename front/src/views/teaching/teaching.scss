@@ -1,0 +1,339 @@
+:root {
+  --teach-navy: #1e3a5f;
+  --teach-blue: #409eff;
+  --teach-ink: #24364b;
+  --teach-muted: #728198;
+  --teach-line: #e4ebf3;
+}
+.teaching-page {
+  color: var(--teach-ink);
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 0 26px;
+}
+.eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  color: #66819f;
+  margin-bottom: 8px;
+}
+.page-heading h1 {
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 650;
+  color: var(--teach-navy);
+  letter-spacing: 1px;
+}
+.page-heading p {
+  color: var(--teach-muted);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 9px;
+  max-width: 750px;
+}
+.heading-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 16px;
+  flex-shrink: 0;
+}
+.teaching-page .panel {
+  background: white;
+  border: 1px solid var(--teach-line);
+  border-radius: 10px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 14px rgba(36, 54, 75, 0.025);
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 14px;
+}
+.panel-title h2 {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--teach-navy);
+}
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.filter-bar .el-input {
+  width: 240px;
+}
+.filter-bar .el-select .el-input {
+  width: 235px;
+}
+.filter-bar .wide .el-input {
+  width: 400px;
+}
+.muted {
+  color: var(--teach-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.mono {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+.teaching-page .el-table {
+  font-size: 13px;
+}
+.teaching-page .el-table th {
+  background: #f6f9fd;
+  color: #536a83;
+  font-size: 12px;
+  font-weight: 600;
+}
+.teaching-page .el-table td {
+  padding: 14px 0;
+}
+.teaching-page .el-table::before {
+  height: 0;
+}
+.teaching-page .el-pagination {
+  margin-top: 20px;
+  text-align: right;
+}
+.teaching-page .el-dialog {
+  border-radius: 12px;
+}
+.teaching-page .el-dialog__header {
+  padding: 24px 26px 12px;
+}
+.teaching-page .el-dialog__body {
+  padding: 18px 26px 24px;
+}
+.teaching-page .el-dialog__footer {
+  padding: 12px 26px 24px;
+}
+.teaching-page .el-select {
+  max-width: 100%;
+}
+.teaching-page .el-form .el-select {
+  width: 100%;
+}
+.teaching-page .el-input-number {
+  width: 100%;
+}
+.teaching-page .el-form-item {
+  margin-bottom: 19px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+}
+.form-grid .span-two {
+  grid-column: 1 / -1;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 22px;
+  margin-bottom: 24px;
+}
+.detail-grid dt {
+  color: var(--teach-muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.detail-grid dd {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.warning-list {
+  margin-bottom: 18px;
+}
+.warning-list .el-alert + .el-alert {
+  margin-top: 7px;
+}
+.teaching-page .el-alert {
+  margin-bottom: 12px;
+}
+.empty-state {
+  padding: 46px 20px;
+  text-align: center;
+  color: var(--teach-muted);
+  font-size: 13px;
+  line-height: 2;
+}
+.empty-state i {
+  display: block;
+  font-size: 34px;
+  color: #afc3d9;
+  margin-bottom: 12px;
+}
+.file-pick {
+  border: 1px dashed #abc5e1;
+  background: #f6faff;
+  padding: 26px;
+  border-radius: 8px;
+  margin: 18px 0;
+}
+.file-pick input {
+  display: block;
+  max-width: 100%;
+  margin-top: 14px;
+  color: var(--teach-muted);
+}
+.action-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.action-row .el-button + .el-button,
+.heading-actions .el-button + .el-button {
+  margin-left: 0;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #fff;
+  padding: 22px;
+  border: 1px solid var(--teach-line);
+  border-radius: 10px;
+}
+.stat-card .value {
+  font-size: 40px;
+  line-height: 1.4;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--teach-navy);
+}
+.stat-card .label {
+  color: #6c7c91;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.stat-card i {
+  float: right;
+  color: #729cc7;
+  font-size: 22px;
+}
+.stat-card .foot {
+  border-top: 1px solid #edf2f7;
+  padding-top: 12px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #8897a9;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr);
+  gap: 20px;
+}
+.quick-link {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 15px;
+  padding: 17px 0;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid #edf2f7;
+  background: #fff;
+  color: var(--teach-ink);
+  cursor: pointer;
+}
+.quick-link:last-child {
+  border-bottom: 0;
+}
+.quick-link > i {
+  color: #497cac;
+  font-size: 24px;
+  background: #f0f6fc;
+  padding: 10px;
+  border-radius: 8px;
+}
+.quick-link strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.quick-link:hover strong {
+  color: #409eff;
+}
+.teaching-page .el-button--text {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.credential {
+  font-family: Consolas, monospace;
+  font-size: 23px;
+  letter-spacing: 2px;
+  padding: 20px;
+  background: #f0f6fc;
+  border-radius: 8px;
+  user-select: all;
+  margin-top: 16px;
+  color: #1e3a5f;
+}
+.query-sql {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f5f8fc;
+  border: 1px solid #e4ebf3;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+@media (max-width: 1100px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .heading-actions {
+    padding-top: 0;
+  }
+}
+@media (max-width: 700px) {
+  .teaching-page .panel {
+    padding: 15px;
+  }
+  .form-grid,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid .span-two {
+    grid-column: auto;
+  }
+  .filter-bar .wide .el-input {
+    width: 260px;
+  }
+  .teaching-page .el-dialog {
+    width: 94% !important;
+  }
+  .page-heading h1 {
+    font-size: 23px;
+  }
+}

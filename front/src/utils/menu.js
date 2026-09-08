@@ -1,6 +1,31 @@
-const menu = {
-    list() {
-        return [{"backMenu":[{"child":[{"buttons":["查看","修改","删除"],"menu":"学生","menuJump":"列表","tableName":"xuesheng"}],"menu":"学生管理"},{"child":[{"buttons":["查看","修改","删除"],"menu":"教师","menuJump":"列表","tableName":"jiaoshi"}],"menu":"教师管理"},{"child":[{"buttons":["新增","查看","修改","删除","查看评论"],"menu":"公告信息","menuJump":"列表","tableName":"gonggaoxinxi"}],"menu":"公告信息管理"},{"child":[{"buttons":["查看","修改","删除"],"menu":"知识库","menuJump":"列表","tableName":"zhishiku"}],"menu":"知识库管理"},{"child":[{"buttons":["查看","修改","删除","查看评论"],"menu":"实验课程","menuJump":"列表","tableName":"shiyankecheng"}],"menu":"实验课程管理"},{"child":[{"buttons":["新增","查看","修改","删除"],"menu":"实验室信息","menuJump":"列表","tableName":"shiyanshixinxi"}],"menu":"实验室信息管理"},{"child":[{"buttons":["查看","修改","删除"],"menu":"实验室预约","menuJump":"列表","tableName":"shiyanshiyuyue"}],"menu":"实验室预约管理"},{"child":[{"buttons":["新增","查看","修改","删除"],"menu":"实验设备","menuJump":"列表","tableName":"shiyanshebei"}],"menu":"实验设备管理"},{"child":[{"buttons":["新增","查看","修改","删除"],"menu":"采购记录","menuJump":"列表","tableName":"caigoujilu"}],"menu":"采购记录管理"},{"child":[{"buttons":["新增","查看","修改","删除"],"menu":"维修记录","menuJump":"列表","tableName":"weixiujilu"}],"menu":"维修记录管理"},{"child":[{"buttons":["查看","修改"],"menu":"轮播图管理","tableName":"config"}],"menu":"系统管理"}],"frontMenu":[{"child":[{"buttons":["查看"],"menu":"公告信息列表","menuJump":"列表","tableName":"gonggaoxinxi"}],"menu":"公告信息模块"},{"child":[{"buttons":["查看"],"menu":"知识库列表","menuJump":"列表","tableName":"zhishiku"}],"menu":"知识库模块"},{"child":[{"buttons":["查看"],"menu":"实验课程列表","menuJump":"列表","tableName":"shiyankecheng"}],"menu":"实验课程模块"},{"child":[{"buttons":["查看","预约"],"menu":"实验室信息列表","menuJump":"列表","tableName":"shiyanshixinxi"}],"menu":"实验室信息模块"}],"hasBackLogin":"是","hasBackRegister":"否","hasFrontLogin":"否","hasFrontRegister":"否","roleName":"管理员","tableName":"users"},{"backMenu":[{"child":[{"buttons":["查看","删除"],"menu":"实验室预约","menuJump":"列表","tableName":"shiyanshiyuyue"}],"menu":"实验室预约管理"},{"child":[{"buttons":["查看"],"menu":"我的收藏管理","tableName":"storeup"}],"menu":"我的收藏管理"}],"frontMenu":[{"child":[{"buttons":["查看"],"menu":"公告信息列表","menuJump":"列表","tableName":"gonggaoxinxi"}],"menu":"公告信息模块"},{"child":[{"buttons":["查看"],"menu":"知识库列表","menuJump":"列表","tableName":"zhishiku"}],"menu":"知识库模块"},{"child":[{"buttons":["查看"],"menu":"实验课程列表","menuJump":"列表","tableName":"shiyankecheng"}],"menu":"实验课程模块"},{"child":[{"buttons":["查看","预约"],"menu":"实验室信息列表","menuJump":"列表","tableName":"shiyanshixinxi"}],"menu":"实验室信息模块"}],"hasBackLogin":"是","hasBackRegister":"否","hasFrontLogin":"是","hasFrontRegister":"是","roleName":"学生","tableName":"xuesheng"},{"backMenu":[{"child":[{"buttons":["新增","查看","修改","删除","查看评论"],"menu":"公告信息","menuJump":"列表","tableName":"gonggaoxinxi"}],"menu":"公告信息管理"},{"child":[{"buttons":["新增","查看","修改","删除"],"menu":"知识库","menuJump":"列表","tableName":"zhishiku"}],"menu":"知识库管理"},{"child":[{"buttons":["新增","查看","修改","删除","查看评论"],"menu":"实验课程","menuJump":"列表","tableName":"shiyankecheng"}],"menu":"实验课程管理"},{"child":[{"buttons":["查看","删除","审核"],"menu":"实验室预约","menuJump":"列表","tableName":"shiyanshiyuyue"}],"menu":"实验室预约管理"}],"frontMenu":[{"child":[{"buttons":["查看"],"menu":"公告信息列表","menuJump":"列表","tableName":"gonggaoxinxi"}],"menu":"公告信息模块"},{"child":[{"buttons":["查看"],"menu":"知识库列表","menuJump":"列表","tableName":"zhishiku"}],"menu":"知识库模块"},{"child":[{"buttons":["查看"],"menu":"实验课程列表","menuJump":"列表","tableName":"shiyankecheng"}],"menu":"实验课程模块"},{"child":[{"buttons":["查看","预约"],"menu":"实验室信息列表","menuJump":"列表","tableName":"shiyanshixinxi"}],"menu":"实验室信息模块"}],"hasBackLogin":"是","hasBackRegister":"否","hasFrontLogin":"否","hasFrontRegister":"是","roleName":"教师","tableName":"jiaoshi"}]
-    }
+export const navigation = [
+  { path: '/index', title: '教学概览', icon: 'el-icon-data-board' },
+  { path: '/teaching/tasks', title: '课程与课表', icon: 'el-icon-date' },
+  { path: '/teaching/projects', title: '实验项目', icon: 'el-icon-notebook-2' },
+  { path: '/teaching/terms', title: '学年学期', icon: 'el-icon-calendar' },
+  { path: '/teaching/labs', title: '实验室', icon: 'el-icon-office-building' },
+  { path: '/teaching/teachers', title: '教师账号', icon: 'el-icon-user', admin: true },
+  { path: '/teaching/imports', title: '导入中心', icon: 'el-icon-upload', admin: true },
+  { path: '/teaching/reports', title: '统计报表', icon: 'el-icon-pie-chart' },
+  { path: '/teaching/ai', title: '智能查询', icon: 'el-icon-chat-dot-round', admin: true }
+]
+export default {
+  list() {
+    return [
+      { roleName: '管理员', tableName: 'users' },
+      { roleName: '教师', tableName: 'jiaoshi' }
+    ].map(role =>
+      Object.assign(role, {
+        hasBackLogin: '是',
+        hasBackRegister: '否',
+        frontMenu: [],
+        backMenu: navigation
+          .filter(item => !item.admin || role.tableName === 'users')
+          .map(item => ({
+            menu: item.title,
+            child: [{ menu: item.title, tableName: item.path.substring(1), buttons: ['查看'] }]
+          }))
+      })
+    )
+  }
 }
-export default menu;

@@ -34,6 +34,7 @@ import com.utils.R;
 import com.utils.MD5Util;
 import com.utils.MPUtil;
 import com.utils.CommonUtil;
+import com.teaching.TeachingPasswords;
 
 
 /**
@@ -59,7 +60,7 @@ public class JiaoshiController {
 	@RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
 		JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", username));
-		if(user==null || !user.getMima().equals(password)) {
+		if(user==null || !TeachingPasswords.matches(password, user.getMima())) {
 			return R.error("账号或密码不正确");
 		}
 		
@@ -87,8 +88,9 @@ public class JiaoshiController {
 	/**
 	 * 退出
 	 */
-	@RequestMapping("/logout")
+	@org.springframework.web.bind.annotation.PostMapping("/logout")
 	public R logout(HttpServletRequest request) {
+		tokenService.delete(new EntityWrapper<com.entity.TokenEntity>().eq("token", request.getHeader("Token")));
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}

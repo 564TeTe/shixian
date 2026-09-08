@@ -1,396 +1,278 @@
 <template>
-  <div>
-    <div class="container loginIn" style="backgroundImage: url(http://codegen.caihongy.cn/20210328/02d8ddf00bed4d36a2b9271894f4b1b8.jpg)">
-
-      <div :class="2 == 1 ? 'left' : 2 == 2 ? 'left center' : 'left right'" style="backgroundColor: rgba(221, 239, 223, 0.3)">
-        <el-form class="login-form" label-position="left" :label-width="1 == 3 ? '56px' : '0px'">
-          <div class="title-container"><h3 class="title" style="color: rgba(86, 188, 225, 0.89)">实验室管理系统登录</h3></div>
-          <el-form-item :label="1 == 3 ? '用户名' : ''" :class="'style'+1">
-            <span v-if="1 != 3" class="svg-container" style="color:rgba(16, 15, 15, 0.97);line-height:44px"><svg-icon icon-class="user" /></span>
-            <el-input placeholder="请输入用户名" name="username" type="text" v-model="rulesForm.username" />
-          </el-form-item>
-          <el-form-item :label="1 == 3 ? '密码' : ''" :class="'style'+1">
-            <span v-if="1 != 3" class="svg-container" style="color:rgba(16, 15, 15, 0.97);line-height:44px"><svg-icon icon-class="password" /></span>
-            <el-input placeholder="请输入密码" name="password" type="password" v-model="rulesForm.password" />
-          </el-form-item>
-          <el-form-item v-if="0 == '1'" class="code" :label="1 == 3 ? '验证码' : ''" :class="'style'+1">
-            <span v-if="1 != 3" class="svg-container" style="color:rgba(16, 15, 15, 0.97);line-height:44px"><svg-icon icon-class="code" /></span>
-            <el-input placeholder="请输入验证码" name="code" type="text" v-model="rulesForm.code" />
-            <div class="getCodeBt" @click="getRandCode(4)" style="height:44px;line-height:44px">
-              <span v-for="(item, index) in codes" :key="index" :style="{color:item.color,transform:item.rotate,fontSize:item.size}">{{ item.num }}</span>
-            </div>
-          </el-form-item>
-          <el-form-item label="角色" prop="loginInRole" class="role">
-            <el-radio
-              v-for="item in menus"
-	      v-if="item.hasBackLogin=='是'"
-              v-bind:key="item.roleName"
-              v-model="rulesForm.role"
-              :label="item.roleName"
-            >{{item.roleName}}</el-radio>
-          </el-form-item>
-          <el-button type="primary" @click="login()" class="loginInBt" style="padding:0;font-size:16px;border-radius:20px;height:44px;line-height:44px;width:100%;backgroundColor:rgba(64, 158, 255, 1); borderColor:rgba(64, 158, 255, 1); color:rgba(17, 17, 17, 1)">{{'1' == '1' ? '登录' : 'login'}}</el-button>
-          <el-form-item class="setting">
-            <!-- <div style="color:rgba(10, 10, 10, 1)" class="reset">修改密码</div> -->
-          </el-form-item>
-        </el-form>
+  <main class="teaching-login">
+    <section class="login-intro">
+      <div class="login-wordmark">
+        <i class="el-icon-s-grid" />
+        LAB TEACHING
       </div>
-
-    </div>
-  </div>
+      <div class="intro-copy">
+        <span class="intro-label">实验教学 · 有序协同</span>
+        <h1>
+          让每一次实验，
+          <br />
+          都有清晰的安排。
+        </h1>
+        <p>
+          连接课程、教学任务与实验项目，
+          <br />
+          让教学数据回到真实、可追溯的工作流程。
+        </p>
+        <div class="intro-lines">
+          <span>01 / 课程与课表</span>
+          <span>02 / 实验项目</span>
+          <span>03 / 教学统计</span>
+        </div>
+      </div>
+      <span class="intro-footer">实验教学项目管理系统</span>
+    </section>
+    <section class="login-form-area">
+      <div class="signin-card">
+        <div class="signin-eyebrow">WELCOME TO YOUR WORKSPACE</div>
+        <h2>登录教学工作台</h2>
+        <p class="signin-help">使用管理员分配的账号登录</p>
+        <el-form ref="form" :model="form" :rules="rules" label-position="top" @submit.native.prevent="login">
+          <el-form-item label="登录身份">
+            <el-radio-group v-model="form.role">
+              <el-radio-button label="管理员" />
+              <el-radio-button label="教师" />
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="用户名 / 教师工号" prop="username">
+            <el-input
+              v-model.trim="form.username"
+              autocomplete="username"
+              placeholder="请输入账号"
+              prefix-icon="el-icon-user"
+            />
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              show-password
+              autocomplete="current-password"
+              placeholder="请输入密码"
+              prefix-icon="el-icon-lock"
+            />
+          </el-form-item>
+          <el-alert
+            v-if="error"
+            :title="error"
+            type="error"
+            :closable="false"
+            show-icon
+            class="login-error"
+          />
+          <el-button type="primary" native-type="submit" :loading="loading" class="signin-button">
+            进入工作台
+            <i class="el-icon-right" />
+          </el-button>
+        </el-form>
+        <p class="signin-note">
+          <i class="el-icon-info" />
+          系统分配的临时教师账号，请在首次登录后修改密码。
+        </p>
+      </div>
+    </section>
+  </main>
 </template>
 <script>
-import menu from "@/utils/menu";
 export default {
   data() {
     return {
-      rulesForm: {
-        username: "",
-        password: "",
-        role: "",
-        code: '',
-      },
-      menus: [],
-      tableName: "",
-      codes: [{
-        num: 1,
-        color: '#000',
-        rotate: '10deg',
-        size: '16px'
-      },{
-        num: 2,
-        color: '#000',
-        rotate: '10deg',
-        size: '16px'
-      },{
-        num: 3,
-        color: '#000',
-        rotate: '10deg',
-        size: '16px'
-      },{
-        num: 4,
-        color: '#000',
-        rotate: '10deg',
-        size: '16px'
-      }],
-    };
-  },
-  mounted() {
-    let menus = menu.list();
-    this.menus = menus;
-  },
-  created() {
-    this.setInputColor()
-    this.getRandCode()
+      loading: false,
+      error: '',
+      form: { username: '', password: '', role: '教师' },
+      rules: {
+        username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+      }
+    }
   },
   methods: {
-    setInputColor(){
-      this.$nextTick(()=>{
-        document.querySelectorAll('.loginIn .el-input__inner').forEach(el=>{
-          el.style.backgroundColor = "rgba(255, 255, 255, 1)"
-          el.style.color = "rgba(51, 51, 51, 1)"
-          el.style.height = "44px"
-          el.style.lineHeight = "44px"
-          el.style.borderRadius = "20px"
+    async login() {
+      if (this.loading) return
+      const valid = await this.$refs.form.validate().catch(() => false)
+      if (!valid) return
+      this.loading = true
+      this.error = ''
+      try {
+        const table = this.form.role === '管理员' ? 'users' : 'jiaoshi'
+        const data = new URLSearchParams()
+        data.append('username', this.form.username)
+        data.append('password', this.form.password)
+        const response = await this.$http({
+          url: table + '/login',
+          method: 'post',
+          data,
+          timeout: 30000,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
         })
-        document.querySelectorAll('.loginIn .style3 .el-form-item__label').forEach(el=>{
-          el.style.height = "44px"
-          el.style.lineHeight = "44px"
-        })
-        document.querySelectorAll('.loginIn .el-form-item__label').forEach(el=>{
-          el.style.color = "rgba(16, 15, 15, 0.97)"
-        })
-        setTimeout(()=>{
-          document.querySelectorAll('.loginIn .role .el-radio__label').forEach(el=>{
-            el.style.color = "rgba(6, 5, 5, 0.97)"
-          })
-        },350)
-      })
-
-    },
-    register(tableName){
-      this.$storage.set("loginTable", tableName);
-      this.$router.push({path:'/register'})
-    },
-    // 登陆
-    login() {
-      let code = ''
-      for(let i in this.codes) {
-        code += this.codes[i].num
+        const body = response.data
+        if (!body || Number(body.code) !== 0 || !body.token) throw new Error((body && body.msg) || '登录失败')
+        this.$storage.set('Token', body.token)
+        this.$storage.set('role', this.form.role)
+        this.$storage.set('sessionTable', table)
+        this.$storage.set('adminName', this.form.username)
+        this.$router.replace('/index')
+      } catch (e) {
+        this.error =
+          (e.response && e.response.data && e.response.data.msg) ||
+          (e.message === 'Network Error' ? '无法连接服务，请确认后端已启动' : e.message)
+      } finally {
+        this.loading = false
       }
-	  if ('0' == '1' && !this.rulesForm.code) {
-	     this.$message.error("请输入验证码");
-	    return;
-	  }
-      if ('0' == '1' && this.rulesForm.code.toLowerCase() != code.toLowerCase()) {
-         this.$message.error("验证码输入有误");
-		this.getRandCode()
-        return;
-      }
-      if (!this.rulesForm.username) {
-         this.$message.error("请输入用户名");
-        return;
-      }
-      if (!this.rulesForm.password) {
-         this.$message.error("请输入密码");
-        return;
-      }
-      if (!this.rulesForm.role) {
-         this.$message.error("请选择角色");
-        return;
-      }
-      let menus = this.menus;
-      for (let i = 0; i < menus.length; i++) {
-        if (menus[i].roleName == this.rulesForm.role) {
-          this.tableName = menus[i].tableName;
-        }
-      }
-      this.$http({
-        url: `${this.tableName}/login?username=${this.rulesForm.username}&password=${this.rulesForm.password}`,
-        method: "post"
-      }).then(({ data }) => {
-        if (data && data.code === 0) {
-          this.$storage.set("Token", data.token);
-          this.$storage.set("role", this.rulesForm.role);
-          this.$storage.set("sessionTable", this.tableName);
-          this.$storage.set("adminName", this.rulesForm.username);
-          this.$router.replace({ path: "/index/" });
-        } else {
-          this.$message.error(data.msg);
-        }
-      });
-    },
-    getRandCode(len = 4){
-      this.randomString(len)
-    },
-    randomString(len = 4) {
-      let chars = [
-          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
-          "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
-          "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G",
-          "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
-          "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2",
-          "3", "4", "5", "6", "7", "8", "9"
-      ]
-      let colors = ["0", "1", "2","3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
-      let sizes = ['14', '15', '16', '17', '18']
-
-      let output = [];
-      for (let i = 0; i < len; i++) {
-        // 随机验证码
-        let key = Math.floor(Math.random()*chars.length)
-        this.codes[i].num = chars[key]
-        // 随机验证码颜色
-        let code = '#'
-        for (let j = 0; j < 6; j++) {
-          let key = Math.floor(Math.random()*colors.length)
-          code += colors[key]
-        }
-        this.codes[i].color = code
-        // 随机验证码方向
-        let rotate = Math.floor(Math.random()*60)
-        let plus = Math.floor(Math.random()*2)
-        if(plus == 1) rotate = '-'+rotate
-        this.codes[i].rotate = 'rotate('+rotate+'deg)'
-        // 随机验证码字体大小
-        let size = Math.floor(Math.random()*sizes.length)
-        this.codes[i].size = sizes[size]+'px'
-      }
-    },
+    }
   }
-};
+}
 </script>
-<style lang="scss" scoped>
-.loginIn {
+<style scoped>
+.teaching-login {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
   min-height: 100vh;
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+}
+.login-intro {
+  background: #1e3a5f;
+  color: #fff;
+  padding: 50px 10%;
   position: relative;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-
-  .left {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 360px;
-    height: 100%;
-
-    .login-form {
-      background-color: transparent;
-      width: 100%;
-      right: inherit;
-      padding: 0 12px;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .title-container {
-      text-align: center;
-      font-size: 24px;
-
-      .title {
-        margin: 20px 0;
-      }
-    }
-
-    .el-form-item {
-      position: relative;
-
-      .svg-container {
-        padding: 6px 5px 6px 15px;
-        color: #889aa4;
-        vertical-align: middle;
-        display: inline-block;
-        position: absolute;
-        left: 0;
-        top: 0;
-        z-index: 1;
-        padding: 0;
-        line-height: 40px;
-        width: 30px;
-        text-align: center;
-      }
-
-      .el-input {
-        display: inline-block;
-        height: 40px;
-        width: 100%;
-
-        & ::v-deep input {
-          background: transparent;
-          border: 0px;
-          -webkit-appearance: none;
-          padding: 0 15px 0 30px;
-          color: #fff;
-          height: 40px;
-        }
-      }
-
-    }
-
-
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.login-intro::after {
+  content: '';
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  right: -210px;
+  bottom: -180px;
+  border: 1px solid #486689;
+  border-radius: 50%;
+  box-shadow: 0 0 0 60px rgba(112, 156, 200, 0.04), 0 0 0 120px rgba(112, 156, 200, 0.025);
+}
+.login-wordmark {
+  font-size: 13px;
+  letter-spacing: 3px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.login-wordmark i {
+  font-size: 29px;
+  color: #88bdfa;
+}
+.intro-copy {
+  margin: 80px 0 100px;
+  position: relative;
+  z-index: 1;
+}
+.intro-label {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: #93b7e1;
+}
+.intro-copy h1 {
+  font-size: 38px;
+  line-height: 1.65;
+  letter-spacing: 3px;
+  font-weight: 500;
+  margin: 24px 0;
+}
+.intro-copy p {
+  font-size: 13px;
+  line-height: 2.2;
+  color: #adc2dc;
+}
+.intro-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  border-left: 1px solid #597899;
+  padding-left: 19px;
+  margin-top: 47px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #acc2dc;
+}
+.intro-footer {
+  color: #7292b6;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.login-form-area {
+  background: #f7f9fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+.signin-card {
+  width: 100%;
+  max-width: 365px;
+}
+.signin-eyebrow {
+  color: #7890aa;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+.signin-card h2 {
+  color: #1e3a5f;
+  font-size: 27px;
+  font-weight: 600;
+}
+.signin-help {
+  color: #8190a4;
+  font-size: 12px;
+  margin: 13px 0 36px;
+}
+.signin-card .el-form-item {
+  margin-bottom: 24px;
+}
+.signin-button {
+  width: 100%;
+  margin-top: 8px;
+  height: 45px;
+  letter-spacing: 2px;
+}
+.signin-button i {
+  margin-left: 12px;
+}
+.signin-note {
+  color: #8797aa;
+  font-size: 11px;
+  line-height: 1.9;
+  margin-top: 24px;
+}
+.login-error {
+  margin-bottom: 18px;
+}
+@media (max-width: 900px) {
+  .intro-copy h1 {
+    font-size: 29px;
   }
-
-  .center {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 360px;
-    transform: translate3d(-50%,-50%,0);
-    height: 446px;
-    border-radius: 8px;
+  .login-form-area {
+    padding: 30px;
   }
-
-  .right {
-    position: absolute;
-    left: inherit;
-    right: 0;
-    top: 0;
-    width: 360px;
-    height: 100%;
+}
+@media (max-width: 680px) {
+  .teaching-login {
+    grid-template-columns: 1fr;
   }
-
-  .code {
-    .el-form-item__content {
-      position: relative;
-
-      .getCodeBt {
-        position: absolute;
-        right: 0;
-        top: 0;
-        line-height: 40px;
-        width: 100px;
-        background-color: rgba(51,51,51,0.4);
-        color: #fff;
-        text-align: center;
-        border-radius: 0 4px 4px 0;
-        height: 40px;
-        overflow: hidden;
-
-        span {
-          padding: 0 5px;
-          display: inline-block;
-          font-size: 16px;
-          font-weight: 600;
-        }
-      }
-
-      .el-input {
-        & ::v-deep input {
-          padding: 0 130px 0 30px;
-        }
-      }
-    }
+  .login-intro {
+    min-height: auto;
+    padding: 25px;
   }
-
-  .setting {
-    & ::v-deep .el-form-item__content {
-      padding: 0 15px;
-      box-sizing: border-box;
-      line-height: 32px;
-      height: 32px;
-      font-size: 14px;
-      color: #999;
-      margin: 0 !important;
-
-      .register {
-        float: left;
-        width: 50%;
-      }
-
-      .reset {
-        float: right;
-        width: 50%;
-        text-align: right;
-      }
-    }
+  .intro-copy,
+  .intro-footer {
+    display: none;
   }
-
-  .style2 {
-    padding-left: 30px;
-
-    .svg-container {
-      left: -30px !important;
-    }
-
-    .el-input {
-      & ::v-deep input {
-        padding: 0 15px !important;
-      }
-    }
+  .login-form-area {
+    min-height: 75vh;
   }
-
-  .code.style2, .code.style3 {
-    .el-input {
-      & ::v-deep input {
-        padding: 0 115px 0 15px;
-      }
-    }
-  }
-
-  .style3 {
-    & ::v-deep .el-form-item__label {
-      padding-right: 6px;
-    }
-
-    .el-input {
-      & ::v-deep input {
-        padding: 0 15px !important;
-      }
-    }
-  }
-
-  .role {
-    & ::v-deep .el-form-item__label {
-      width: 56px !important;
-    }
-
-    & ::v-deep .el-radio {
-      margin-right: 12px;
-    }
-  }
-
 }
 </style>

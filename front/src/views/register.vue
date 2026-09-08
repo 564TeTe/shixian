@@ -193,30 +193,30 @@ export default {
 </script>
 <style lang="scss" scoped>
 	.el-radio__input.is-checked .el-radio__inner {
-		border-color: #00c292;
-		background: #00c292;
+		border-color: #409EFF;
+		background: #409EFF;
 	}
 
 	.el-radio__input.is-checked .el-radio__inner {
-		border-color: #00c292;
-		background: #00c292;
+		border-color: #409EFF;
+		background: #409EFF;
 	}
 
 	.el-radio__input.is-checked .el-radio__inner {
-		border-color: #00c292;
-		background: #00c292;
+		border-color: #409EFF;
+		background: #409EFF;
 	}
 
 	.el-radio__input.is-checked+.el-radio__label {
-		color: #00c292;
+		color: #409EFF;
 	}
 
 	.el-radio__input.is-checked+.el-radio__label {
-		color: #00c292;
+		color: #409EFF;
 	}
 
 	.el-radio__input.is-checked+.el-radio__label {
-		color: #00c292;
+		color: #409EFF;
 	}
 
 	.h1 {
@@ -231,7 +231,7 @@ export default {
 	// .container {
  //    min-height: 100vh;
  //    text-align: center;
- //    // background-color: #00c292;
+ //    // background-color: #409EFF;
  //    padding-top: 20vh;
  //    background-image: url(../assets/img/bg.jpg);
  //    background-size: 100% 100%;
