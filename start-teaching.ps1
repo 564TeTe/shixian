@@ -3,13 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 $runtimeFolder = Join-Path $projectRoot 'database/generated'
 New-Item -ItemType Directory -Path $runtimeFolder -Force | Out-Null
-if ($Build) {
-    Push-Location (Join-Path $projectRoot 'back')
-    try { & mvn.cmd -q package; if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' } }
-    finally { Pop-Location }
-}
 $jarPath = Join-Path $projectRoot 'back/target/springboote51e2-0.0.1-SNAPSHOT.jar'
-if (-not (Test-Path -LiteralPath $jarPath)) { throw 'Run .\start-teaching.ps1 -Build first.' }
 $readerConfig = Join-Path $runtimeFolder 'ai-database.local.json'
 if (Test-Path -LiteralPath $readerConfig) {
     $config = Get-Content -LiteralPath $readerConfig -Raw | ConvertFrom-Json
@@ -24,6 +18,12 @@ if ($Restart -and (Test-Path -LiteralPath $pidPath)) {
         Stop-Process -Id $savedProcessId
     }
 }
+if ($Build) {
+    Push-Location (Join-Path $projectRoot 'back')
+    try { & mvn.cmd -q package; if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' } }
+    finally { Pop-Location }
+}
+if (-not (Test-Path -LiteralPath $jarPath)) { throw 'Run .\start-teaching.ps1 -Build first.' }
 $backend = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue
 if (-not $backend) {
     $java = (Get-Command java.exe).Source

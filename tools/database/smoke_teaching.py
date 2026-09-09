@@ -65,6 +65,8 @@ def main():
         assert call('/teaching/dashboard')['code']==401
         for old in ['/users/resetPass?username=admin', '/jiaoshi/page', '/shiyankecheng/list']:
             assert call(old,admin)['code'] != 0, old
+        for path in ['/teaching/../users/list', '/teaching/%2e%2e/users/list']:
+            assert call(path, other_token)['code'] == 404, 'Resolved legacy route must remain disabled'
         dashboard=ok(call('/teaching/dashboard',admin))
         assert dashboard['counts']['tasks'] >= 255
         checks.append('管理员登录、真实概览、未登录拒绝与旧入口关闭')
@@ -145,7 +147,11 @@ def main():
         teacher_ids.append(teacher_record['id'])
         reset=ok(call('/teaching/teachers/'+str(teacher_record['id'])+'/reset-password',admin,'POST',{}))
         assert len(reset['password'])>=8
+        reset_token=login(dict(role='教师', username=marker, password=reset['password']))
+        ok(call('/jiaoshi/logout',reset_token,'POST'))
+        assert call('/teaching/dashboard',reset_token)['code']==401
         checks.append('实验室维护、教师创建与密码重置')
+        checks.append('特殊路径仍禁用旧接口、密码重置后可登录、退出使Token失效')
         result=dict(status='PASS',checks=checks,temporary_records_removed=True)
     finally:
         connection=pymysql.connect(host='127.0.0.1',user='root',password=os.environ['MYSQL_PWD'],database='t132',charset='utf8mb4')
