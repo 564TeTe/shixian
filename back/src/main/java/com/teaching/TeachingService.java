@@ -24,12 +24,12 @@ public class TeachingService {
         "JOIN academic_term a ON a.id=t.term_id JOIN academic_year y ON y.id=a.academic_year_id ";
     private static final String TASK_SELECT = "SELECT t.*,c.course_code,t.course_name_snapshot course_name," +
         "CONCAT(y.name,'-',a.term_no) term_name,a.status,y.start_year,a.term_no," +
-        "COALESCE((SELECT GROUP_CONCAT(j.jiaoshixingming ORDER BY j.id SEPARATOR '、') FROM teaching_task_teacher tt " +
-        "JOIN jiaoshi j ON j.id=tt.teacher_id WHERE tt.task_id=t.id),'') teacher_names," +
+        "COALESCE((SELECT GROUP_CONCAT(j.teacher_name ORDER BY j.id SEPARATOR '、') FROM teaching_task_teacher tt " +
+        "JOIN teacher j ON j.id=tt.teacher_id WHERE tt.task_id=t.id),'') teacher_names," +
         "COALESCE((SELECT SUM(s.hours) FROM schedule_detail s WHERE s.task_id=t.id),0) scheduled_hours," +
-        "COALESCE((SELECT GROUP_CONCAT(DISTINCT l.shiyanshimingcheng ORDER BY l.shiyanshimingcheng SEPARATOR '、') " +
-        "FROM schedule_detail s JOIN shiyanshixinxi l ON l.id=s.lab_id WHERE s.task_id=t.id)," +
-        "(SELECT dl.shiyanshimingcheng FROM shiyanshixinxi dl WHERE dl.id=t.default_lab_id),'') lab_names," +
+        "COALESCE((SELECT GROUP_CONCAT(DISTINCT l.lab_name ORDER BY l.lab_name SEPARATOR '、') " +
+        "FROM schedule_detail s JOIN laboratory l ON l.id=s.lab_id WHERE s.task_id=t.id)," +
+        "(SELECT dl.lab_name FROM laboratory dl WHERE dl.id=t.default_lab_id),'') lab_names," +
         "(SELECT COUNT(*) FROM experiment_project p WHERE p.task_id=t.id) project_count";
 
     private String scope(Long teacher, String alias, List<Object> args) {
@@ -94,8 +94,8 @@ public class TeachingService {
     public Map<String,Object> task(HttpServletRequest request,long id) {
         access.requireTask(request,id,false);
         Map<String,Object> result=jdbc.queryForMap(TASK_SELECT+TASK_FROM+" WHERE t.id=?",id);
-        result.put("schedule",jdbc.queryForList("SELECT s.*,l.shiyanshibianhao lab_code,l.shiyanshimingcheng lab_name " +
-            "FROM schedule_detail s JOIN shiyanshixinxi l ON l.id=s.lab_id WHERE s.task_id=? ORDER BY s.teaching_week,s.weekday,s.period_start",id));
+        result.put("schedule",jdbc.queryForList("SELECT s.*,l.lab_code lab_code,l.lab_name lab_name " +
+            "FROM schedule_detail s JOIN laboratory l ON l.id=s.lab_id WHERE s.task_id=? ORDER BY s.teaching_week,s.weekday,s.period_start",id));
         result.put("teacher_ids",jdbc.queryForList("SELECT teacher_id FROM teaching_task_teacher WHERE task_id=? ORDER BY teacher_id",Long.class,id));
         result.put("editable",TeachingAccess.writable(result));
         return result;
@@ -115,12 +115,12 @@ public class TeachingService {
         for(Object input:(Collection<?>)teacherInput){
             long id=integer(input,"teacherIds",1,Long.MAX_VALUE);
             if(!teacherIds.add(id))continue;
-            List<String> found=jdbc.queryForList("SELECT jiaoshixingming FROM jiaoshi WHERE id=?",String.class,id);
+            List<String> found=jdbc.queryForList("SELECT teacher_name FROM teacher WHERE id=?",String.class,id);
             if(found.isEmpty())throw new IllegalArgumentException("所选教师不存在");names.add(found.get(0));
         }
         Long labId=optionalId(body.get("labId"),"labId"); String location="";
         if(labId!=null){
-            List<String> found=jdbc.queryForList("SELECT shiyanshimingcheng FROM shiyanshixinxi WHERE id=?",String.class,labId);
+            List<String> found=jdbc.queryForList("SELECT lab_name FROM laboratory WHERE id=?",String.class,labId);
             if(found.isEmpty())throw new IllegalArgumentException("实验室不存在");location=found.get(0);
         }
         String classes=requiredText(body,"classComposition",4000);
@@ -230,10 +230,10 @@ public class TeachingService {
         List<Object> args=new ArrayList<>();String where=" WHERE 1=1";
         if(teacher!=null){where+=" AND EXISTS (SELECT 1 FROM teaching_task t JOIN teaching_task_teacher own ON own.task_id=t.id "+
             "WHERE own.teacher_id=? AND (t.default_lab_id=l.id OR EXISTS (SELECT 1 FROM schedule_detail s WHERE s.task_id=t.id AND s.lab_id=l.id)))";args.add(teacher);}
-        if(q!=null&&!q.trim().isEmpty()){where+=" AND (l.shiyanshibianhao LIKE ? OR l.shiyanshimingcheng LIKE ? OR l.shiyanshiweizhi LIKE ?)";
+        if(q!=null&&!q.trim().isEmpty()){where+=" AND (l.lab_code LIKE ? OR l.lab_name LIKE ? OR l.location LIKE ?)";
             for(int i=0;i<3;i++)args.add("%"+q.trim()+"%");}
-        return jdbc.queryForList("SELECT l.id,l.shiyanshibianhao,l.shiyanshimingcheng,l.shiyanshiweizhi,l.manager_teacher_id,l.equipment_count,"+
-            "j.jiaoshixingming manager_name FROM shiyanshixinxi l LEFT JOIN jiaoshi j ON j.id=l.manager_teacher_id"+where+" ORDER BY l.shiyanshibianhao",args.toArray());
+        return jdbc.queryForList("SELECT l.id,l.lab_code AS shiyanshibianhao,l.lab_name AS shiyanshimingcheng,l.location AS shiyanshiweizhi,l.manager_teacher_id,l.equipment_count,"+
+            "j.teacher_name manager_name FROM laboratory l LEFT JOIN teacher j ON j.id=l.manager_teacher_id"+where+" ORDER BY l.lab_code",args.toArray());
     }
     @Transactional
     public Map<String,Object> saveLab(HttpServletRequest request,Long id,Map<String,Object> body) {
@@ -241,20 +241,20 @@ public class TeachingService {
         String code=requiredText(body,"shiyanshibianhao",200),name=requiredText(body,"shiyanshimingcheng",200),location=optionalText(body,"shiyanshiweizhi",200);
         Long manager=optionalId(body.get("manager_teacher_id"),"manager_teacher_id");
         Long equipment=body.get("equipment_count")==null||"".equals(body.get("equipment_count"))?null:integer(body.get("equipment_count"),"equipment_count",0,Integer.MAX_VALUE);
-        if(manager!=null&&count("SELECT COUNT(*) FROM jiaoshi WHERE id=?",manager)!=1)throw new IllegalArgumentException("负责人教师不存在");
-        if(id==null)id=insert("INSERT INTO shiyanshixinxi(shiyanshibianhao,shiyanshimingcheng,shiyanshiweizhi,manager_teacher_id,equipment_count,shiyanshizhuangtai,shiyanshiguimo) VALUES (?,?,?,?,?,?,'')",code,name,location,manager,equipment,"可用");
+        if(manager!=null&&count("SELECT COUNT(*) FROM teacher WHERE id=?",manager)!=1)throw new IllegalArgumentException("负责人教师不存在");
+        if(id==null)id=insert("INSERT INTO laboratory(lab_code,lab_name,location,manager_teacher_id,equipment_count,status,lab_size) VALUES (?,?,?,?,?,?,'')",code,name,location,manager,equipment,"可用");
         else {
-            requireExists("shiyanshixinxi",id,"实验室");
-            jdbc.update("UPDATE shiyanshixinxi SET shiyanshibianhao=?,shiyanshimingcheng=?,shiyanshiweizhi=?,manager_teacher_id=?,equipment_count=? WHERE id=?",code,name,location,manager,equipment,id);
+            requireExists("laboratory",id,"实验室");
+            jdbc.update("UPDATE laboratory SET lab_code=?,lab_name=?,location=?,manager_teacher_id=?,equipment_count=? WHERE id=?",code,name,location,manager,equipment,id);
         }
         return map("id",id);
     }
     @Transactional
     public void deleteLab(HttpServletRequest request,long id) {
-        access.requireAdmin(request);requireExists("shiyanshixinxi",id,"实验室");
+        access.requireAdmin(request);requireExists("laboratory",id,"实验室");
         if(count("SELECT COUNT(*) FROM schedule_detail WHERE lab_id=?",id)>0||count("SELECT COUNT(*) FROM teaching_task WHERE default_lab_id=?",id)>0)
             throw new IllegalArgumentException("实验室已有教学任务或排课，不能删除");
-        jdbc.update("DELETE FROM shiyanshixinxi WHERE id=?",id);
+        jdbc.update("DELETE FROM laboratory WHERE id=?",id);
     }
 
     public Map<String,Object> teachers(HttpServletRequest request,String q) {
@@ -263,8 +263,8 @@ public class TeachingService {
     private List<Map<String,Object>> teacherRows(Long teacher,String q) {
         List<Object> args=new ArrayList<>();String where=" WHERE 1=1";
         if(teacher!=null){where+=" AND (j.id=? OR EXISTS (SELECT 1 FROM teaching_task_teacher co JOIN teaching_task_teacher own ON own.task_id=co.task_id WHERE co.teacher_id=j.id AND own.teacher_id=?))";args.add(teacher);args.add(teacher);}
-        if(q!=null&&!q.trim().isEmpty()){where+=" AND (j.gonghao LIKE ? OR j.jiaoshixingming LIKE ? OR j.xueyuan LIKE ?)";for(int i=0;i<3;i++)args.add("%"+q.trim()+"%");}
-        List<Map<String,Object>> rows=jdbc.queryForList("SELECT j.id,j.gonghao,j.jiaoshixingming,j.xueyuan FROM jiaoshi j"+where+" ORDER BY j.gonghao",args.toArray());
+        if(q!=null&&!q.trim().isEmpty()){where+=" AND (j.teacher_no LIKE ? OR j.teacher_name LIKE ? OR j.college LIKE ?)";for(int i=0;i<3;i++)args.add("%"+q.trim()+"%");}
+        List<Map<String,Object>> rows=jdbc.queryForList("SELECT j.id,j.teacher_no AS gonghao,j.teacher_name AS jiaoshixingming,j.college AS xueyuan FROM teacher j"+where+" ORDER BY j.teacher_no",args.toArray());
         for(Map<String,Object> row:rows)row.put("is_temporary",String.valueOf(row.get("gonghao")).toUpperCase(Locale.ROOT).startsWith("TMP"));
         return rows;
     }
@@ -273,27 +273,27 @@ public class TeachingService {
         access.requireAdmin(request);
         String code=requiredText(body,"gonghao",200),name=requiredText(body,"jiaoshixingming",200),school=optionalText(body,"xueyuan",200);
         if(id==null){String password=TeachingPasswords.newPassword();
-            id=insert("INSERT INTO jiaoshi(gonghao,jiaoshixingming,xueyuan,mima) VALUES (?,?,?,?)",code,name,school,TeachingPasswords.hash(password));
+            id=insert("INSERT INTO teacher(teacher_no,teacher_name,college,password) VALUES (?,?,?,?)",code,name,school,TeachingPasswords.hash(password));
             return map("id",id,"password",password);
         }
-        requireExists("jiaoshi",id,"教师");
-        jdbc.update("UPDATE jiaoshi SET gonghao=?,jiaoshixingming=?,xueyuan=? WHERE id=?",code,name,school,id);
+        requireExists("teacher",id,"教师");
+        jdbc.update("UPDATE teacher SET teacher_no=?,teacher_name=?,college=? WHERE id=?",code,name,school,id);
         return map("id",id);
     }
     @Transactional
     public Map<String,Object> resetTeacherPassword(HttpServletRequest request,long id) {
-        access.requireAdmin(request);requireExists("jiaoshi",id,"教师");String password=TeachingPasswords.newPassword();
-        jdbc.update("UPDATE jiaoshi SET mima=? WHERE id=?",TeachingPasswords.hash(password),id);
-        jdbc.update("DELETE FROM token WHERE userid=? AND tablename='jiaoshi'",id);
+        access.requireAdmin(request);requireExists("teacher",id,"教师");String password=TeachingPasswords.newPassword();
+        jdbc.update("UPDATE teacher SET password=? WHERE id=?",TeachingPasswords.hash(password),id);
+        jdbc.update("DELETE FROM token WHERE userid=? AND tablename='teacher'",id);
         return map("password",password);
     }
     @Transactional
     public void deleteTeacher(HttpServletRequest request,long id) {
-        access.requireAdmin(request);requireExists("jiaoshi",id,"教师");
-        if(count("SELECT COUNT(*) FROM teaching_task_teacher WHERE teacher_id=?",id)>0||count("SELECT COUNT(*) FROM shiyanshixinxi WHERE manager_teacher_id=?",id)>0||
+        access.requireAdmin(request);requireExists("teacher",id,"教师");
+        if(count("SELECT COUNT(*) FROM teaching_task_teacher WHERE teacher_id=?",id)>0||count("SELECT COUNT(*) FROM laboratory WHERE manager_teacher_id=?",id)>0||
             count("SELECT COUNT(*) FROM experiment_project WHERE created_by_teacher_id=? OR updated_by_teacher_id=?",id,id)>0)
             throw new IllegalArgumentException("教师已关联任务、实验室或项目记录，不能删除");
-        jdbc.update("DELETE FROM token WHERE userid=? AND tablename='jiaoshi'",id);jdbc.update("DELETE FROM jiaoshi WHERE id=?",id);
+        jdbc.update("DELETE FROM token WHERE userid=? AND tablename='teacher'",id);jdbc.update("DELETE FROM teacher WHERE id=?",id);
     }
 
     @Transactional
@@ -305,7 +305,7 @@ public class TeachingService {
         if(password.length()<8||password.length()>64||password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)
             throw new IllegalArgumentException("新密码长度应为8至64位，UTF-8编码不超过72字节");
         if(password.equals(oldPassword))throw new IllegalArgumentException("新密码不能与原密码相同");
-        String table=teacher==null?"users":"jiaoshi",column=teacher==null?"password":"mima";
+        String table=teacher==null?"users":"teacher",column="password";
         String stored=jdbc.queryForObject("SELECT "+column+" FROM "+table+" WHERE id=?",String.class,id);
         if(!TeachingPasswords.matches(oldPassword,stored))throw new IllegalArgumentException("原密码不正确");
         jdbc.update("UPDATE "+table+" SET "+column+"=? WHERE id=?",TeachingPasswords.hash(password),id);

@@ -28,7 +28,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @email 
  * @date 2021-05-17 08:45:45
  */
-@TableName("jiaoshi")
+@TableName("teacher")
 public class JiaoshiEntity<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -55,48 +55,56 @@ public class JiaoshiEntity<T> implements Serializable {
 	 * 工号
 	 */
 					
+	@TableField("teacher_no")
 	private String gonghao;
 	
 	/**
 	 * 密码
 	 */
 					
+	@TableField("password")
 	private String mima;
 	
 	/**
 	 * 教师姓名
 	 */
 					
+	@TableField("teacher_name")
 	private String jiaoshixingming;
 	
 	/**
 	 * 性别
 	 */
 					
+	@TableField("gender")
 	private String xingbie;
 	
 	/**
 	 * 头像
 	 */
 					
+	@TableField("avatar_url")
 	private String touxiang;
 	
 	/**
 	 * 学院
 	 */
 					
+	@TableField("college")
 	private String xueyuan;
 	
 	/**
 	 * 职称
 	 */
 					
+	@TableField("job_title")
 	private String zhicheng;
 	
 	/**
 	 * 电话
 	 */
 					
+	@TableField("phone")
 	private String dianhua;
 	
 	

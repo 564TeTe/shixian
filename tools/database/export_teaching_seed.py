@@ -22,8 +22,8 @@ INITIAL_ADMIN_PASSWORD = 'Teaching2026!'
 FIELDS = {
     'academic_year': 'id,name,start_year',
     'academic_term': 'id,academic_year_id,term_no,starts_on,ends_on,status',
-    'jiaoshi': 'id,gonghao,jiaoshixingming,xueyuan',
-    'shiyanshixinxi': 'id,shiyanshibianhao,shiyanshimingcheng,shiyanshiguimo,shiyanshiweizhi,shiyanshizhuangtai,manager_teacher_id,equipment_count',
+    'teacher': 'id,teacher_no,teacher_name,college',
+    'laboratory': 'id,lab_code,lab_name,lab_size,location,status,manager_teacher_id,equipment_count',
     'course': 'id,course_code,course_name',
     'teaching_import_batch': 'id,file_sha256,file_name,parser_version,row_count',
     'teaching_import_row': 'id,batch_id,sheet_name,source_row,raw_data,parsed_schedule,issues,status',
@@ -60,10 +60,10 @@ def export(connection):
     # The shared dataset follows the timetable. Keep later local-only, unused rooms local.
     lab_ids = {row['lab_id'] for row in snapshot['schedule_detail']}
     lab_ids.update(row['default_lab_id'] for row in snapshot['teaching_task'] if row['default_lab_id'] is not None)
-    snapshot['shiyanshixinxi'] = [row for row in snapshot['shiyanshixinxi'] if row['id'] in lab_ids]
-    for teacher in snapshot['jiaoshi']:
+    snapshot['laboratory'] = [row for row in snapshot['laboratory'] if row['id'] in lab_ids]
+    for teacher in snapshot['teacher']:
         # Unknown random passwords; the new site's administrator resets each teacher password.
-        teacher['mima'] = bcrypt.hashpw(secrets.token_urlsafe(32).encode(), bcrypt.gensalt(10)).decode()
+        teacher['password'] = bcrypt.hashpw(secrets.token_urlsafe(32).encode(), bcrypt.gensalt(10)).decode()
     for batch in snapshot['teaching_import_batch']:
         batch['file_name'] = batch['file_name'].replace('\\', '/').rsplit('/', 1)[-1]
     if any(row['copied_from_id'] is not None for row in snapshot['experiment_project']):

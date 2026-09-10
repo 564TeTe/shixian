@@ -19,7 +19,7 @@ public class TeachingAccess {
         HttpSession session = request.getSession(false);
         if (session == null) throw new AccessException(401, "请先登录");
         String table = String.valueOf(session.getAttribute("tableName"));
-        if (!"users".equals(table) && !"jiaoshi".equals(table))
+        if (!"users".equals(table) && !"teacher".equals(table))
             throw new AccessException(403, "当前账号没有教学管理权限");
         long id;
         try { id = Long.parseLong(String.valueOf(session.getAttribute("userId"))); }

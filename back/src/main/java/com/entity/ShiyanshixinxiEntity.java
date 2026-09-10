@@ -28,7 +28,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @email 
  * @date 2021-05-17 08:45:45
  */
-@TableName("shiyanshixinxi")
+@TableName("laboratory")
 public class ShiyanshixinxiEntity<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -55,48 +55,56 @@ public class ShiyanshixinxiEntity<T> implements Serializable {
 	 * 实验室编号
 	 */
 					
+	@TableField("lab_code")
 	private String shiyanshibianhao;
 	
 	/**
 	 * 实验室名称
 	 */
 					
+	@TableField("lab_name")
 	private String shiyanshimingcheng;
 	
 	/**
 	 * 实验室规模
 	 */
 					
+	@TableField("lab_size")
 	private String shiyanshiguimo;
 	
 	/**
 	 * 实验室图片
 	 */
 					
+	@TableField("image_url")
 	private String shiyanshitupian;
 	
 	/**
 	 * 实验室位置
 	 */
 					
+	@TableField("location")
 	private String shiyanshiweizhi;
 	
 	/**
 	 * 可约时间
 	 */
 					
+	@TableField("available_hours")
 	private String keyueshijian;
 	
 	/**
 	 * 实验室详情
 	 */
 					
+	@TableField("description")
 	private String shiyanshixiangqing;
 	
 	/**
 	 * 实验室状态
 	 */
 					
+	@TableField("status")
 	private String shiyanshizhuangtai;
 	
 	

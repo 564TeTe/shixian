@@ -3,7 +3,7 @@
 -- Teacher passwords are new random hashes; use administrator password reset.
 -- No source passwords, tokens, AI keys or MySQL users are exported.
 -- Existing records cause an error; all inserts run in one rollback-protected transaction.
--- Counts: {"academic_year": 2, "academic_term": 4, "jiaoshi": 79, "shiyanshixinxi": 14, "course": 93, "teaching_import_batch": 1, "teaching_import_row": 255, "teaching_task": 255, "teaching_task_teacher": 269, "schedule_detail": 2208, "experiment_project": 0, "users": 1}
+-- Counts: {"academic_year": 2, "academic_term": 4, "teacher": 79, "laboratory": 14, "course": 93, "teaching_import_batch": 1, "teaching_import_row": 255, "teaching_task": 255, "teaching_task_teacher": 269, "schedule_detail": 2208, "experiment_project": 0, "users": 1}
 SET NAMES utf8mb4;
 SET @teaching_seed_old_mode = @@SESSION.sql_mode;
 SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_BACKSLASH_ESCAPES';
@@ -12,7 +12,7 @@ CREATE PROCEDURE install_teaching_seed_20260908()
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; RESIGNAL; END;
   START TRANSACTION;
-  IF ((SELECT COUNT(*) FROM `academic_year`) + (SELECT COUNT(*) FROM `academic_term`) + (SELECT COUNT(*) FROM `jiaoshi`) + (SELECT COUNT(*) FROM `shiyanshixinxi`) + (SELECT COUNT(*) FROM `course`) + (SELECT COUNT(*) FROM `teaching_import_batch`) + (SELECT COUNT(*) FROM `teaching_import_row`) + (SELECT COUNT(*) FROM `teaching_task`) + (SELECT COUNT(*) FROM `teaching_task_teacher`) + (SELECT COUNT(*) FROM `schedule_detail`) + (SELECT COUNT(*) FROM `experiment_project`) + (SELECT COUNT(*) FROM `users`)) <> 0 THEN
+  IF ((SELECT COUNT(*) FROM `academic_year`) + (SELECT COUNT(*) FROM `academic_term`) + (SELECT COUNT(*) FROM `teacher`) + (SELECT COUNT(*) FROM `laboratory`) + (SELECT COUNT(*) FROM `course`) + (SELECT COUNT(*) FROM `teaching_import_batch`) + (SELECT COUNT(*) FROM `teaching_import_row`) + (SELECT COUNT(*) FROM `teaching_task`) + (SELECT COUNT(*) FROM `teaching_task_teacher`) + (SELECT COUNT(*) FROM `schedule_detail`) + (SELECT COUNT(*) FROM `experiment_project`) + (SELECT COUNT(*) FROM `users`)) <> 0 THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Teaching seed requires empty tables; existing data was not changed';
   END IF;
   INSERT INTO `academic_year` (`id`,`name`,`start_year`) VALUES
@@ -23,7 +23,7 @@ BEGIN
     (2,1,2,'2026-02-01','2026-08-30','ARCHIVED'),
     (3,2,1,'2026-08-31','2027-01-31','OPEN'),
     (13,2,2,'2027-02-01','2027-08-30','DRAFT');
-  INSERT INTO `jiaoshi` (`id`,`gonghao`,`jiaoshixingming`,`xueyuan`,`mima`) VALUES
+  INSERT INTO `teacher` (`id`,`teacher_no`,`teacher_name`,`college`,`password`) VALUES
     (27,'TMP0001','丁辉','人工智能与大数据学院','$2b$10$H2GkqjaAxtmRE79ITGEKNO7yAj3H3/cKeJFcprxAsrX74JDZl/XrW'),
     (28,'TMP0002','何立新','人工智能与大数据学院','$2b$10$/wqloDQ/QwZDgtgT8rLWWu9Rd87qeo8It407RZP4iUilx4vS6EXKq'),
     (29,'TMP0003','刘振华','人工智能与大数据学院','$2b$10$XmWlC1CtgZ9mevKJ3daqfeaD0WY2IZVVP1ZVrbFPAu8wLJQrGH8qa'),
@@ -74,7 +74,7 @@ BEGIN
     (74,'TMP0048','盛鹏','人工智能与大数据学院','$2b$10$jKIlcKXctuJg5g10tZH.FOZibWAfaMgUn7TaxL7bDqFzkZrGVAydC'),
     (75,'TMP0049','程知','人工智能与大数据学院','$2b$10$vvvB2YHAnv7CwCSYnhi85.Js4dNfgiQ0/7lVSHKgNcKb2ai2jpf1O'),
     (76,'TMP0050','胡春玲','人工智能与大数据学院','$2b$10$U5xYsm02HEJHqn1pXD6jgeDKY6YZuj8ntfedIerRxg9hwd4P74ZJe');
-  INSERT INTO `jiaoshi` (`id`,`gonghao`,`jiaoshixingming`,`xueyuan`,`mima`) VALUES
+  INSERT INTO `teacher` (`id`,`teacher_no`,`teacher_name`,`college`,`password`) VALUES
     (77,'TMP0051','胡松华','人工智能与大数据学院','$2b$10$JuX26zaCZMzOo774q9vNOuxTFhDL/IqbspFLl4p72AqKroLDTxNju'),
     (78,'TMP0052','艾兵','人工智能与大数据学院','$2b$10$SRpKZNRW17tadZyrJZn6SOkQkODXG.evRyAbbGT8v23NHLZGgpQpy'),
     (79,'TMP0053','蒋越','人工智能与大数据学院','$2b$10$Tsb76DPCH8RW8QUy2TVCL.kzSo6lGMzsg4pXcYeRew3mAUhDUDf4K'),
@@ -104,7 +104,7 @@ BEGIN
     (103,'TMP0077','黄戈','人工智能与大数据学院','$2b$10$tXKHtZNRi3LS7K362QBNbuYeW06L6iPI49.UysumRCNexdDLOKGP.'),
     (104,'TMP0078','黄炎','人工智能与大数据学院','$2b$10$wbpFcMzAh3PU6Tt2uQ2O5efdQOjixj8Bpk2cubjC2tHdNyEipN7FG'),
     (105,'TMP0079','龙夏','人工智能与大数据学院','$2b$10$xHyP8TiH8FJ4L1uy2mIx3O/JCUS9yTQg5qlhJVYzCdJm9UwxPLfFm');
-  INSERT INTO `shiyanshixinxi` (`id`,`shiyanshibianhao`,`shiyanshimingcheng`,`shiyanshiguimo`,`shiyanshiweizhi`,`shiyanshizhuangtai`,`manager_teacher_id`,`equipment_count`) VALUES
+  INSERT INTO `laboratory` (`id`,`lab_code`,`lab_name`,`lab_size`,`location`,`status`,`manager_teacher_id`,`equipment_count`) VALUES
     (67,'36-401','36-401实验室','待完善','36-401','使用中',NULL,NULL),
     (68,'36-403','36-403实验室','待完善','36-403','使用中',NULL,NULL),
     (69,'36-405','36-405实验室','待完善','36-405','使用中',NULL,NULL),

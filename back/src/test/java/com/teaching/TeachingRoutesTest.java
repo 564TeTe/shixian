@@ -23,7 +23,7 @@ class TeachingRoutesTest {
     }
     @Test void oldAnonymousResetAndGenericDatabaseRoutesAreClosed() {
         for (String path : new String[]{"/users/resetPass", "/jiaoshi/resetPass", "/users/register",
-                "/shiyankecheng/detail/1", "/option/jiaoshi/gonghao", "/users/update", "/jiaoshi/info/1"}) {
+                "/shiyankecheng/detail/1", "/option/jiaoshi/gonghao", "/option/teacher/teacher_no", "/users/update", "/jiaoshi/info/1"}) {
             assertFalse(AuthorizationInterceptor.isApplicationPath(path), path);
             assertFalse(AuthorizationInterceptor.isLogin(path, "POST"), path);
         }

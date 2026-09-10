@@ -22,7 +22,7 @@ import pymysql
 from export_teaching_seed import FIELDS, INITIAL_ADMIN_PASSWORD, LEGACY, ROOT
 
 
-EXPECTED = {'users': 1, 'jiaoshi': 79, 'shiyanshixinxi': 14, 'course': 93,
+EXPECTED = {'users': 1, 'teacher': 79, 'laboratory': 14, 'course': 93,
             'teaching_task': 255, 'schedule_detail': 2208, 'experiment_project': 0,
             'teaching_import_batch': 1, 'teaching_import_row': 255}
 
@@ -72,7 +72,10 @@ def main():
     try:
         # Secret comparisons occur in memory; neither hashes nor tokens are printed.
         with connection.cursor() as cursor:
-            for table, column in [('users','password'),('jiaoshi','mima'),('token','token')]:
+            cursor.execute('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=%s AND table_name=%s',
+                           (args.source_database, 'teacher'))
+            teacher_credentials = ('teacher', 'password') if cursor.fetchone()[0] else ('jiaoshi', 'mima')
+            for table, column in [('users','password'),teacher_credentials,('token','token')]:
                 cursor.execute(f'SELECT `{column}` FROM `{args.source_database}`.`{table}`')
                 assert all(not value or value not in seed for (value,) in cursor.fetchall()), 'Local credential found in seed'
             for database in databases:
@@ -89,7 +92,7 @@ def main():
             assert bcrypt.checkpw(INITIAL_ADMIN_PASSWORD.encode(), cursor.fetchone()[0].encode())
             cursor.execute(f'SELECT COUNT(*) FROM `{scratch}`.teaching_import_row WHERE JSON_VALID(raw_data) AND JSON_VALID(issues)')
             assert cursor.fetchone()[0] == 255
-            cursor.execute(f'SELECT COUNT(*) FROM `{scratch}`.jiaoshi WHERE dianhua IS NOT NULL OR touxiang IS NOT NULL')
+            cursor.execute(f'SELECT COUNT(*) FROM `{scratch}`.teacher WHERE phone IS NOT NULL OR avatar_url IS NOT NULL')
             assert cursor.fetchone()[0] == 0
             cursor.execute(f'SELECT SUM(s.hours*t.enrollment_count) FROM `{scratch}`.schedule_detail s JOIN `{scratch}`.teaching_task t ON t.id=s.task_id')
             shared_hours = str(cursor.fetchone()[0])

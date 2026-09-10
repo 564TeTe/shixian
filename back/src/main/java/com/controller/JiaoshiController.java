@@ -59,12 +59,12 @@ public class JiaoshiController {
 	@IgnoreAuth
 	@RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
-		JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", username));
+		JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("teacher_no", username));
 		if(user==null || !TeachingPasswords.matches(password, user.getMima())) {
 			return R.error("账号或密码不正确");
 		}
 		
-		String token = tokenService.generateToken(user.getId(), username,"jiaoshi",  "教师" );
+		String token = tokenService.generateToken(user.getId(), username,"teacher",  "教师" );
 		return R.ok().put("token", token);
 	}
 	
@@ -75,7 +75,7 @@ public class JiaoshiController {
     @RequestMapping("/register")
     public R register(@RequestBody JiaoshiEntity jiaoshi){
     	//ValidatorUtils.validateEntity(jiaoshi);
-    	JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", jiaoshi.getGonghao()));
+        JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("teacher_no", jiaoshi.getGonghao()));
 		if(user!=null) {
 			return R.error("注册用户已存在");
 		}
@@ -111,7 +111,7 @@ public class JiaoshiController {
     @IgnoreAuth
 	@RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request){
-    	JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", username));
+        JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("teacher_no", username));
     	if(user==null) {
     		return R.error("账号不存在");
     	}
@@ -193,7 +193,7 @@ public class JiaoshiController {
     public R save(@RequestBody JiaoshiEntity jiaoshi, HttpServletRequest request){
     	jiaoshi.setId(new Date().getTime()+new Double(Math.floor(Math.random()*1000)).longValue());
     	//ValidatorUtils.validateEntity(jiaoshi);
-    	JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", jiaoshi.getGonghao()));
+        JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("teacher_no", jiaoshi.getGonghao()));
 		if(user!=null) {
 			return R.error("用户已存在");
 		}
@@ -209,7 +209,7 @@ public class JiaoshiController {
     public R add(@RequestBody JiaoshiEntity jiaoshi, HttpServletRequest request){
     	jiaoshi.setId(new Date().getTime()+new Double(Math.floor(Math.random()*1000)).longValue());
     	//ValidatorUtils.validateEntity(jiaoshi);
-    	JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("gonghao", jiaoshi.getGonghao()));
+        JiaoshiEntity user = jiaoshiService.selectOne(new EntityWrapper<JiaoshiEntity>().eq("teacher_no", jiaoshi.getGonghao()));
 		if(user!=null) {
 			return R.error("用户已存在");
 		}

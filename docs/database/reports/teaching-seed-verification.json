@@ -3,8 +3,8 @@
   "counts": {
     "academic_year": 2,
     "academic_term": 4,
-    "jiaoshi": 79,
-    "shiyanshixinxi": 14,
+    "teacher": 79,
+    "laboratory": 14,
     "course": 93,
     "teaching_import_batch": 1,
     "teaching_import_row": 255,
@@ -12,20 +12,7 @@
     "teaching_task_teacher": 269,
     "schedule_detail": 2208,
     "experiment_project": 0,
-    "users": 1,
-    "caigoujilu": 0,
-    "config": 0,
-    "discussgonggaoxinxi": 0,
-    "discussshiyankecheng": 0,
-    "gonggaoxinxi": 0,
-    "shiyankecheng": 0,
-    "shiyanshebei": 0,
-    "shiyanshiyuyue": 0,
-    "storeup": 0,
-    "token": 0,
-    "weixiujilu": 0,
-    "xuesheng": 0,
-    "zhishiku": 0
+    "users": 1
   },
   "person_hours": "169784.00",
   "checks": [

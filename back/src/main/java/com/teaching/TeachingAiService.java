@@ -77,7 +77,7 @@ public class TeachingAiService {
             for(Map<String,Object> column:columns) result.append(column.get("COLUMN_NAME")).append(" ").append(column.get("DATA_TYPE")).append(",");
             result.append(")\n");
         }
-        result.append("关联：teaching_task.term_id=academic_term.id; academic_term.academic_year_id=academic_year.id; teaching_task.course_id=course.id; schedule_detail.task_id=teaching_task.id; schedule_detail.lab_id=shiyanshixinxi.id; experiment_project.task_id=teaching_task.id; teaching_task_teacher.task_id=teaching_task.id。\n");
+        result.append("关联：teaching_task.term_id=academic_term.id; academic_term.academic_year_id=academic_year.id; teaching_task.course_id=course.id; schedule_detail.task_id=teaching_task.id; schedule_detail.lab_id=laboratory.id; experiment_project.task_id=teaching_task.id; teaching_task_teacher.task_id=teaching_task.id。\n");
         return result.toString();
     }
 }

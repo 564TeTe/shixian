@@ -5,38 +5,38 @@
 
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.entity.ShiyanshixinxiEntity" id="shiyanshixinxiMap">
-        <result property="shiyanshibianhao" column="shiyanshibianhao"/>
-        <result property="shiyanshimingcheng" column="shiyanshimingcheng"/>
-        <result property="shiyanshiguimo" column="shiyanshiguimo"/>
-        <result property="shiyanshitupian" column="shiyanshitupian"/>
-        <result property="shiyanshiweizhi" column="shiyanshiweizhi"/>
-        <result property="keyueshijian" column="keyueshijian"/>
-        <result property="shiyanshixiangqing" column="shiyanshixiangqing"/>
-        <result property="shiyanshizhuangtai" column="shiyanshizhuangtai"/>
+        <result property="shiyanshibianhao" column="lab_code"/>
+        <result property="shiyanshimingcheng" column="lab_name"/>
+        <result property="shiyanshiguimo" column="lab_size"/>
+        <result property="shiyanshitupian" column="image_url"/>
+        <result property="shiyanshiweizhi" column="location"/>
+        <result property="keyueshijian" column="available_hours"/>
+        <result property="shiyanshixiangqing" column="description"/>
+        <result property="shiyanshizhuangtai" column="status"/>
     </resultMap>
 
 	<select id="selectListVO"
 		resultType="com.entity.vo.ShiyanshixinxiVO" >
-		SELECT * FROM shiyanshixinxi  shiyanshixinxi         
+		SELECT id, addtime, lab_code AS shiyanshibianhao, lab_name AS shiyanshimingcheng, lab_size AS shiyanshiguimo, image_url AS shiyanshitupian, location AS shiyanshiweizhi, available_hours AS keyueshijian, description AS shiyanshixiangqing, status AS shiyanshizhuangtai FROM laboratory laboratory
         <where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 	
 	<select id="selectVO"
 		resultType="com.entity.vo.ShiyanshixinxiVO" >
-		SELECT  shiyanshixinxi.* FROM shiyanshixinxi  shiyanshixinxi 	
+		SELECT id, addtime, lab_code AS shiyanshibianhao, lab_name AS shiyanshimingcheng, lab_size AS shiyanshiguimo, image_url AS shiyanshitupian, location AS shiyanshiweizhi, available_hours AS keyueshijian, description AS shiyanshixiangqing, status AS shiyanshizhuangtai FROM laboratory laboratory
  		<where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 
     <select id="selectListView"
 		resultType="com.entity.view.ShiyanshixinxiView" >
 
-		SELECT  shiyanshixinxi.* FROM shiyanshixinxi  shiyanshixinxi 	        
+		SELECT id, addtime, lab_code AS shiyanshibianhao, lab_name AS shiyanshimingcheng, lab_size AS shiyanshiguimo, image_url AS shiyanshitupian, location AS shiyanshiweizhi, available_hours AS keyueshijian, description AS shiyanshixiangqing, status AS shiyanshizhuangtai FROM laboratory laboratory
         <where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 	
 	<select id="selectView"
 		resultType="com.entity.view.ShiyanshixinxiView" >
-		SELECT * FROM shiyanshixinxi  shiyanshixinxi <where> 1=1 ${ew.sqlSegment}</where>
+		SELECT id, addtime, lab_code AS shiyanshibianhao, lab_name AS shiyanshimingcheng, lab_size AS shiyanshiguimo, image_url AS shiyanshitupian, location AS shiyanshiweizhi, available_hours AS keyueshijian, description AS shiyanshixiangqing, status AS shiyanshizhuangtai FROM laboratory laboratory <where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 	
 </mapper>

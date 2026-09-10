@@ -72,20 +72,20 @@ def main():
             for table in ['experiment_project', 'schedule_detail', 'teaching_task_teacher', 'teaching_task',
                           'teaching_import_row', 'teaching_import_batch', 'academic_term', 'academic_year', 'course']:
                 cursor.execute('DELETE FROM ' + table)
-            cursor.execute('UPDATE shiyanshixinxi SET manager_teacher_id=NULL')
-            for table in LEGACY + ['shiyanshixinxi', 'jiaoshi', 'users']:
+            cursor.execute('UPDATE laboratory SET manager_teacher_id=NULL')
+            for table in LEGACY + ['laboratory', 'teacher', 'users']:
                 cursor.execute('DELETE FROM ' + table)
             cursor.execute("INSERT INTO users (username,password,role) VALUES (%s,%s,%s)",
                            ('admin', bcrypt.hashpw(passwords[0]['password'].encode(), bcrypt.gensalt(10)).decode(), '管理员'))
             teacher_ids = {}
             for account in passwords[1:]:
-                cursor.execute('INSERT INTO jiaoshi (gonghao,mima,jiaoshixingming,xueyuan) VALUES (%s,%s,%s,%s)',
+                cursor.execute('INSERT INTO teacher (teacher_no,password,teacher_name,college) VALUES (%s,%s,%s,%s)',
                                (account['username'], bcrypt.hashpw(account['password'].encode(), bcrypt.gensalt(10)).decode(),
                                 account['name'], '人工智能与大数据学院'))
                 teacher_ids[account['name']] = cursor.lastrowid
             lab_ids = {}
             for code in labs:
-                cursor.execute('INSERT INTO shiyanshixinxi (shiyanshibianhao,shiyanshimingcheng,shiyanshiguimo,shiyanshiweizhi,shiyanshizhuangtai) VALUES (%s,%s,%s,%s,%s)',
+                cursor.execute('INSERT INTO laboratory (lab_code,lab_name,lab_size,location,status) VALUES (%s,%s,%s,%s,%s)',
                                (code, code + '实验室', '待完善', code, '使用中'))
                 lab_ids[code] = cursor.lastrowid
             term_ids, course_ids = {}, {}
@@ -141,7 +141,7 @@ def main():
                 cursor.execute('SELECT COUNT(*) FROM ' + table)
                 assert cursor.fetchone()[0] == 0, table
             counts = {}
-            for table in ['users','jiaoshi','shiyanshixinxi','course','academic_term','teaching_task','schedule_detail','experiment_project']:
+            for table in ['users','teacher','laboratory','course','academic_term','teaching_task','schedule_detail','experiment_project']:
                 cursor.execute('SELECT COUNT(*) FROM ' + table)
                 counts[table] = cursor.fetchone()[0]
             assert counts['teaching_task'] == len(records)
