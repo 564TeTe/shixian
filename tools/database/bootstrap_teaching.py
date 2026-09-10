@@ -19,9 +19,7 @@ import pymysql
 from schedule_import import analyze, PARSER_VERSION
 
 
-LEGACY = ['caigoujilu', 'config', 'discussgonggaoxinxi', 'discussshiyankecheng',
-          'gonggaoxinxi', 'shiyankecheng', 'shiyanshebei', 'shiyanshiyuyue',
-          'storeup', 'token', 'weixiujilu', 'xuesheng', 'zhishiku']
+LEGACY = []
 
 
 def main():

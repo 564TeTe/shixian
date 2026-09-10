@@ -1,7 +1,3 @@
--- Teaching system schema only; no legacy demo records or account passwords.
--- Import into an EMPTY MySQL 8 database, then run database/003_teaching_seed.sql for shared teaching data.
--- Alternative: tools/database/bootstrap_teaching.py initializes from a separately supplied workbook.
--- Existing database upgrades use database/001 and 002 instead.
 -- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: t132
@@ -23,6 +19,7 @@
 -- Table structure for table `academic_term`
 --
 
+DROP TABLE IF EXISTS `academic_term`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `academic_term` (
@@ -38,13 +35,14 @@ CREATE TABLE `academic_term` (
   CONSTRAINT `ck_term_dates` CHECK (((`ends_on` is null) or (`starts_on` is null) or (`ends_on` >= `starts_on`))),
   CONSTRAINT `ck_term_no` CHECK ((`term_no` in (1,2))),
   CONSTRAINT `ck_term_status` CHECK ((`status` in (_utf8mb4'DRAFT',_utf8mb4'OPEN',_utf8mb4'ARCHIVED')))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期，状态与实际校历分别管理';
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期，状态与实际校历分别管理';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `academic_year`
 --
 
+DROP TABLE IF EXISTS `academic_year`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `academic_year` (
@@ -56,48 +54,14 @@ CREATE TABLE `academic_year` (
   UNIQUE KEY `start_year` (`start_year`),
   CONSTRAINT `ck_year_name` CHECK ((`name` = concat(`start_year`,_utf8mb4'-',(`start_year` + 1)))),
   CONSTRAINT `ck_year_start` CHECK ((`start_year` between 1900 and 9998))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学年';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `caigoujilu`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `caigoujilu` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `shebeibianhao` varchar(200) DEFAULT NULL COMMENT '设备编号',
-  `shebeimingcheng` varchar(200) DEFAULT NULL COMMENT '设备名称',
-  `xinghao` varchar(200) DEFAULT NULL COMMENT '型号',
-  `caigoushuliang` int NOT NULL COMMENT '采购数量',
-  `caigoujiage` int NOT NULL COMMENT '采购价格',
-  `caigougongsi` varchar(200) NOT NULL COMMENT '采购公司',
-  `caigouriqi` date DEFAULT NULL COMMENT '采购日期',
-  `beizhu` longtext COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212715410 DEFAULT CHARSET=utf8mb3 COMMENT='采购记录';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `config`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `config` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `name` varchar(100) NOT NULL COMMENT '配置参数名称',
-  `value` varchar(100) DEFAULT NULL COMMENT '配置参数值',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COMMENT='配置文件';
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学年';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `course`
 --
 
+DROP TABLE IF EXISTS `course`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `course` (
@@ -107,49 +71,14 @@ CREATE TABLE `course` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `course_code` (`course_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='跨学期课程基础信息';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `discussgonggaoxinxi`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `discussgonggaoxinxi` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `refid` bigint NOT NULL COMMENT '关联表id',
-  `userid` bigint NOT NULL COMMENT '用户id',
-  `nickname` varchar(200) DEFAULT NULL COMMENT '用户名',
-  `content` longtext NOT NULL COMMENT '评论内容',
-  `reply` longtext COMMENT '回复内容',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212879474 DEFAULT CHARSET=utf8mb3 COMMENT='公告信息评论表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `discussshiyankecheng`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `discussshiyankecheng` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `refid` bigint NOT NULL COMMENT '关联表id',
-  `userid` bigint NOT NULL COMMENT '用户id',
-  `nickname` varchar(200) DEFAULT NULL COMMENT '用户名',
-  `content` longtext NOT NULL COMMENT '评论内容',
-  `reply` longtext COMMENT '回复内容',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212921111 DEFAULT CHARSET=utf8mb3 COMMENT='实验课程评论表';
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='跨学期课程基础信息';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `experiment_project`
 --
 
+DROP TABLE IF EXISTS `experiment_project`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `experiment_project` (
@@ -187,33 +116,14 @@ CREATE TABLE `experiment_project` (
   CONSTRAINT `ck_project_participant` CHECK ((`participant_type_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3',_utf8mb4'4',_utf8mb4'5'))),
   CONSTRAINT `ck_project_requirement` CHECK ((`requirement_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3'))),
   CONSTRAINT `ck_project_type` CHECK ((`type_code` in (_utf8mb4'1',_utf8mb4'2',_utf8mb4'3',_utf8mb4'4',_utf8mb4'5')))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='教学任务的实验项目版本，不自动导入模板示例';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `gonggaoxinxi`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `gonggaoxinxi` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `biaoti` varchar(200) NOT NULL COMMENT '标题',
-  `leixing` varchar(200) NOT NULL COMMENT '类型',
-  `tupian` varchar(200) DEFAULT NULL COMMENT '图片',
-  `gonghao` varchar(200) DEFAULT NULL COMMENT '工号',
-  `jiaoshixingming` varchar(200) DEFAULT NULL COMMENT '教师姓名',
-  `gonggaoneirong` longtext COMMENT '公告内容',
-  `faburiqi` date DEFAULT NULL COMMENT '发布日期',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1788767235686 DEFAULT CHARSET=utf8mb3 COMMENT='公告信息';
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='教学任务的实验项目版本，不自动导入模板示例';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `jiaoshi`
 --
 
+DROP TABLE IF EXISTS `jiaoshi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jiaoshi` (
@@ -229,13 +139,14 @@ CREATE TABLE `jiaoshi` (
   `dianhua` varchar(200) DEFAULT NULL COMMENT '电话',
   PRIMARY KEY (`id`),
   UNIQUE KEY `gonghao` (`gonghao`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb3 COMMENT='教师';
+) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb3 COMMENT='教师';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `schedule_detail`
 --
 
+DROP TABLE IF EXISTS `schedule_detail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `schedule_detail` (
@@ -256,57 +167,14 @@ CREATE TABLE `schedule_detail` (
   CONSTRAINT `ck_schedule_hours` CHECK (((`hours` > 0) and (`source_segment` >= 1))),
   CONSTRAINT `ck_schedule_period` CHECK (((`period_start` >= 1) and (`period_end` >= `period_start`) and (`period_end` <= 24))),
   CONSTRAINT `ck_schedule_week` CHECK (((`teaching_week` between 1 and 53) and (`weekday` between 1 and 7)))
-) ENGINE=InnoDB AUTO_INCREMENT=2209 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='按教学周和连续节次拆分的实验室排课';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `shiyankecheng`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `shiyankecheng` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `kechengmingcheng` varchar(200) NOT NULL COMMENT '课程名称',
-  `tupian` varchar(200) DEFAULT NULL COMMENT '图片',
-  `shiyanriqi` date DEFAULT NULL COMMENT '实验日期',
-  `shiyanshihao` varchar(200) NOT NULL COMMENT '实验室号',
-  `gonghao` varchar(200) DEFAULT NULL COMMENT '工号',
-  `jiaoshixingming` varchar(200) DEFAULT NULL COMMENT '教师姓名',
-  `shiyanneirong` longtext COMMENT '实验内容',
-  `shiyanyaoqiu` longtext COMMENT '实验要求',
-  `userid` bigint DEFAULT NULL COMMENT '用户id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212847329 DEFAULT CHARSET=utf8mb3 COMMENT='实验课程';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `shiyanshebei`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `shiyanshebei` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `shebeibianhao` varchar(200) NOT NULL COMMENT '设备编号',
-  `shebeimingcheng` varchar(200) NOT NULL COMMENT '设备名称',
-  `xinghao` varchar(200) NOT NULL COMMENT '型号',
-  `danwei` varchar(200) DEFAULT NULL COMMENT '单位',
-  `tupian` varchar(200) DEFAULT NULL COMMENT '图片',
-  `shebeishuliang` int NOT NULL COMMENT '设备数量',
-  `shiyongfangfa` longtext COMMENT '使用方法',
-  `shebeizhuangtai` varchar(200) DEFAULT NULL COMMENT '设备状态',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `shebeibianhao` (`shebeibianhao`)
-) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb3 COMMENT='实验设备';
+) ENGINE=InnoDB AUTO_INCREMENT=2221 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='按教学周和连续节次拆分的实验室排课';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `shiyanshixinxi`
 --
 
+DROP TABLE IF EXISTS `shiyanshixinxi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `shiyanshixinxi` (
@@ -327,53 +195,14 @@ CREATE TABLE `shiyanshixinxi` (
   KEY `fk_lab_manager` (`manager_teacher_id`),
   CONSTRAINT `fk_lab_manager` FOREIGN KEY (`manager_teacher_id`) REFERENCES `jiaoshi` (`id`),
   CONSTRAINT `ck_lab_equipment` CHECK ((`equipment_count` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb3 COMMENT='实验室信息';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `shiyanshiyuyue`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `shiyanshiyuyue` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `shiyanshimingcheng` varchar(200) DEFAULT NULL COMMENT '实验室名称',
-  `yuyueneirong` varchar(200) DEFAULT NULL COMMENT '预约内容',
-  `yuyueshijian` varchar(200) DEFAULT NULL COMMENT '预约时间',
-  `xuehao` varchar(200) DEFAULT NULL COMMENT '学号',
-  `xueshengxingming` varchar(200) DEFAULT NULL COMMENT '学生姓名',
-  `banji` varchar(200) DEFAULT NULL COMMENT '班级',
-  `shouji` varchar(200) DEFAULT NULL COMMENT '手机',
-  `sfsh` varchar(200) DEFAULT '否' COMMENT '是否审核',
-  `shhf` longtext COMMENT '审核回复',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212945551 DEFAULT CHARSET=utf8mb3 COMMENT='实验室预约';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `storeup`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `storeup` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `userid` bigint NOT NULL COMMENT '用户id',
-  `refid` bigint DEFAULT NULL COMMENT '收藏id',
-  `tablename` varchar(200) DEFAULT NULL COMMENT '表名',
-  `name` varchar(200) NOT NULL COMMENT '收藏名称',
-  `picture` varchar(200) NOT NULL COMMENT '收藏图片',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1713359105940 DEFAULT CHARSET=utf8mb3 COMMENT='收藏表';
+) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8mb3 COMMENT='实验室信息';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `teaching_import_batch`
 --
 
+DROP TABLE IF EXISTS `teaching_import_batch`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `teaching_import_batch` (
@@ -386,13 +215,14 @@ CREATE TABLE `teaching_import_batch` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `file_sha256` (`file_sha256`),
   CONSTRAINT `ck_import_rows` CHECK ((`row_count` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='课表导入批次，同一文件内容只暂存一次';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='课表导入批次，同一文件内容只暂存一次';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `teaching_import_row`
 --
 
+DROP TABLE IF EXISTS `teaching_import_row`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `teaching_import_row` (
@@ -409,13 +239,14 @@ CREATE TABLE `teaching_import_row` (
   CONSTRAINT `teaching_import_row_ibfk_1` FOREIGN KEY (`batch_id`) REFERENCES `teaching_import_batch` (`id`),
   CONSTRAINT `ck_import_status` CHECK ((`status` in (_utf8mb4'REVIEW',_utf8mb4'ERROR',_utf8mb4'PROMOTED'))),
   CONSTRAINT `ck_source_row` CHECK ((`source_row` > 1))
-) ENGINE=InnoDB AUTO_INCREMENT=511 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='原始课表暂存，未确认身份和口径前不转正式任务';
+) ENGINE=InnoDB AUTO_INCREMENT=517 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='原始课表暂存，未确认身份和口径前不转正式任务';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `teaching_task`
 --
 
+DROP TABLE IF EXISTS `teaching_task`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `teaching_task` (
@@ -458,13 +289,14 @@ CREATE TABLE `teaching_task` (
   CONSTRAINT `ck_task_counts` CHECK (((`class_size` >= 0) and (`enrollment_count` >= 0))),
   CONSTRAINT `ck_task_hours` CHECK (((`credits` >= 0) and (`planned_lab_hours` > 0) and (`weekly_hours` >= 0))),
   CONSTRAINT `ck_task_weeks` CHECK (((`start_week` >= 1) and (`end_week` >= `start_week`) and (`end_week` <= 53)))
-) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期开课任务，不以班级名称去重';
+) ENGINE=InnoDB AUTO_INCREMENT=286 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='学期开课任务，不以班级名称去重';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `teaching_task_teacher`
 --
 
+DROP TABLE IF EXISTS `teaching_task_teacher`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `teaching_task_teacher` (
@@ -481,6 +313,7 @@ CREATE TABLE `teaching_task_teacher` (
 -- Table structure for table `token`
 --
 
+DROP TABLE IF EXISTS `token`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `token` (
@@ -493,13 +326,14 @@ CREATE TABLE `token` (
   `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `expiratedtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '过期时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COMMENT='token表';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3 COMMENT='token表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
@@ -513,65 +347,8 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `weixiujilu`
+-- Dumping routines for database 't132'
 --
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `weixiujilu` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `shebeibianhao` varchar(200) DEFAULT NULL COMMENT '设备编号',
-  `shebeimingcheng` varchar(200) DEFAULT NULL COMMENT '设备名称',
-  `xinghao` varchar(200) DEFAULT NULL COMMENT '型号',
-  `weixiushuliang` int NOT NULL COMMENT '维修数量',
-  `weixiuriqi` date DEFAULT NULL COMMENT '维修日期',
-  `weixiujieguo` longtext COMMENT '维修结果',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212728954 DEFAULT CHARSET=utf8mb3 COMMENT='维修记录';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `xuesheng`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `xuesheng` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `xuehao` varchar(200) NOT NULL COMMENT '学号',
-  `mima` varchar(200) NOT NULL COMMENT '密码',
-  `xueshengxingming` varchar(200) NOT NULL COMMENT '学生姓名',
-  `xingbie` varchar(200) DEFAULT NULL COMMENT '性别',
-  `touxiang` varchar(200) DEFAULT NULL COMMENT '头像',
-  `banji` varchar(200) DEFAULT NULL COMMENT '班级',
-  `shouji` varchar(200) DEFAULT NULL COMMENT '手机',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `xuehao` (`xuehao`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212542868 DEFAULT CHARSET=utf8mb3 COMMENT='学生';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `zhishiku`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `zhishiku` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `mingcheng` varchar(200) NOT NULL COMMENT '名称',
-  `banji` varchar(200) NOT NULL COMMENT '班级',
-  `tupian` varchar(200) DEFAULT NULL COMMENT '图片',
-  `wenjian` varchar(200) NOT NULL COMMENT '文件',
-  `gonghao` varchar(200) DEFAULT NULL COMMENT '工号',
-  `jiaoshixingming` varchar(200) DEFAULT NULL COMMENT '教师姓名',
-  `faburiqi` date DEFAULT NULL COMMENT '发布日期',
-  `xiangqing` longtext COMMENT '详情',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1621212826429 DEFAULT CHARSET=utf8mb3 COMMENT='知识库';
-/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -582,4 +359,4 @@ CREATE TABLE `zhishiku` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-08 14:28:32
+-- Dump completed on 2026-09-10  8:38:24

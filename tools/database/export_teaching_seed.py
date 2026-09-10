@@ -32,9 +32,7 @@ FIELDS = {
     'schedule_detail': 'id,task_id,lab_id,teaching_week,weekday,period_start,period_end,hours,source_segment',
     'experiment_project': 'id,task_id,project_code,school_code,name,category_code,type_code,discipline_code,requirement_code,participant_type_code,group_size,hours,sort_order,copied_from_id,created_by_teacher_id,updated_by_teacher_id',
 }
-LEGACY = ['caigoujilu', 'config', 'discussgonggaoxinxi', 'discussshiyankecheng',
-          'gonggaoxinxi', 'shiyankecheng', 'shiyanshebei', 'shiyanshiyuyue',
-          'storeup', 'token', 'weixiujilu', 'xuesheng', 'zhishiku']
+LEGACY = []
 
 
 def literal(value):
