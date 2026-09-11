@@ -156,16 +156,6 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="实验室" prop="labId">
-            <el-select v-model="form.labId" filterable placeholder="选择实验室">
-              <el-option
-                v-for="lab in lookups.labs"
-                :key="lab.id"
-                :value="lab.id"
-                :label="lab.shiyanshibianhao + ' · ' + lab.shiyanshimingcheng"
-              />
-            </el-select>
-          </el-form-item>
           <el-form-item label="授课班级" prop="classComposition">
             <el-input v-model.trim="form.classComposition" placeholder="输入完整班级构成" />
           </el-form-item>
@@ -222,7 +212,6 @@ export default {
       termId: required('请选择学期'),
       courseId: required('请选择课程'),
       teacherIds: required('请选择任课教师'),
-      labId: required('请选择实验室'),
       classComposition: required('请输入授课班级'),
       enrollmentCount: required('请输入选课人数'),
       plannedLabHours: required('请输入计划学时')
@@ -282,7 +271,6 @@ export default {
         termId: this.currentTerms[0] ? this.currentTerms[0].id : '',
         courseId: '',
         teacherIds: [],
-        labId: '',
         classComposition: '',
         majorComposition: '',
         enrollmentCount: 0,

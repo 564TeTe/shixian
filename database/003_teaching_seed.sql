@@ -20,6 +20,8 @@ BEGIN
   IF ((SELECT COUNT(*) FROM `account`) + (SELECT COUNT(*) FROM `academic_term`) + (SELECT COUNT(*) FROM `course`) + (SELECT COUNT(*) FROM `laboratory`) + (SELECT COUNT(*) FROM `teaching_import_batch`) + (SELECT COUNT(*) FROM `teaching_import_row`) + (SELECT COUNT(*) FROM `teaching_task`) + (SELECT COUNT(*) FROM `teaching_task_teacher`) + (SELECT COUNT(*) FROM `schedule_detail`) + (SELECT COUNT(*) FROM `experiment_project`) + (SELECT COUNT(*) FROM `token`)) <> 0 THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Teaching seed requires empty tables; existing data was not changed';
   END IF;
+
+
   INSERT INTO `account` (`id`,`username`,`password_hash`,`display_name`,`role`,`college`) VALUES
     (1,'admin','$2b$10$KOVXAwAMCUaNywWXnIXZMuvvViCImdTY9KGeCvwzVYPJEy0uv85IO','管理员','ADMIN',NULL),
     (2,'TMP0001','$2b$10$H2GkqjaAxtmRE79ITGEKNO7yAj3H3/cKeJFcprxAsrX74JDZl/XrW','丁辉','TEACHER','人工智能与大数据学院'),
