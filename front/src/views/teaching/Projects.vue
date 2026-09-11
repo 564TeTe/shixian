@@ -120,7 +120,7 @@
             />
           </el-form-item>
           <el-form-item label="学校代码" prop="school_code">
-            <el-input v-model.trim="form.school_code" placeholder="输入实际学校代码" maxlength="32" />
+            <el-input v-model.trim="form.school_code" placeholder="输入实际学校代码" maxlength="5" />
           </el-form-item>
           <el-form-item v-for="field in optionFields" :key="field.key" :label="field.label" :prop="field.key">
             <el-select v-model="form[field.key]">
