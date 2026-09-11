@@ -1,0 +1,54 @@
+{
+  "tables": {"jiaoshi": "teacher", "shiyanshixinxi": "laboratory"},
+  "columns": {
+    "teacher": {
+      "gonghao": "teacher_no", "mima": "password", "jiaoshixingming": "teacher_name",
+      "xingbie": "gender", "touxiang": "avatar_url", "xueyuan": "college",
+      "zhicheng": "job_title", "dianhua": "phone"
+    },
+    "laboratory": {
+      "shiyanshibianhao": "lab_code", "shiyanshimingcheng": "lab_name",
+      "shiyanshiguimo": "lab_size", "shiyanshitupian": "image_url",
+      "shiyanshiweizhi": "location", "keyueshijian": "available_hours",
+      "shiyanshixiangqing": "description", "shiyanshizhuangtai": "status"
+    }
+  },
+  "comments": {
+    "id": "主键", "academic_year_id": "所属学年ID", "term_no": "学期序号：1第一学期，2第二学期",
+    "starts_on": "学期开始日期", "ends_on": "学期结束日期", "start_year": "学年起始年份",
+    "course_code": "课程编号", "course_name": "课程名称", "created_at": "创建时间", "updated_at": "最后更新时间",
+    "task_id": "所属教学任务ID", "project_code": "实验项目编号", "school_code": "学校代码",
+    "category_code": "实验类别代码：1基础，2专业基础，3专业，4其他",
+    "type_code": "实验类型代码：1演示，2验证，3综合，4设计研究，5其他",
+    "discipline_code": "所属学科代码", "requirement_code": "实验要求代码：1必修，2选修，3其他",
+    "participant_type_code": "实验者类别代码：1博士生，2硕士生，3本科生，4专科生，5其他",
+    "group_size": "每组实验人数", "hours": "实验学时", "sort_order": "显示顺序",
+    "copied_from_id": "复制来源实验项目ID", "created_by_teacher_id": "创建人教师ID，管理员创建时为空",
+    "updated_by_teacher_id": "最后修改人教师ID，管理员修改时为空", "lab_id": "实验室ID",
+    "teaching_week": "教学周次", "weekday": "星期：1周一至7周日", "period_start": "开始节次",
+    "period_end": "结束节次", "source_segment": "原始排课片段序号",
+    "file_sha256": "导入文件SHA256摘要，用于重复导入校验", "file_name": "导入文件名",
+    "parser_version": "课表解析器版本", "row_count": "导入数据行数", "batch_id": "所属导入批次ID",
+    "sheet_name": "来源工作表名称", "source_row": "来源Excel行号", "raw_data": "原始行数据JSON",
+    "parsed_schedule": "解析后的排课数据JSON", "issues": "解析问题与待核对事项JSON",
+    "task_code": "教学任务编号", "term_id": "所属学期ID", "course_id": "课程ID",
+    "source_import_row_id": "来源导入行ID，手工创建时为空", "course_name_snapshot": "开课时的课程名称快照",
+    "department_name": "开课学院名称", "credits": "课程学分", "class_composition": "授课班级组成",
+    "major_composition": "授课专业组成", "class_size": "班级人数", "enrollment_count": "选课人数",
+    "planned_lab_hours": "计划实验总学时", "weekly_hours": "每周实验学时",
+    "original_week_range": "原始课表周次范围", "scheduled_week_range": "实际排课周次范围",
+    "start_week": "开始教学周", "end_week": "结束教学周", "course_ends_at": "课程结束时间",
+    "course_weekly_hours_text": "原始课程周学时文本", "teacher_names_original": "原始授课教师姓名文本",
+    "locations_original": "原始上课地点文本", "schedule_original": "原始排课时间文本",
+    "default_lab_id": "默认实验室ID，用于尚未排课的任务", "teacher_id": "授课教师ID"
+  },
+  "table_column_comments": {
+    "academic_year.name": "学年名称，例如2026-2027",
+    "academic_term.status": "学期状态：DRAFT草稿，OPEN开放，ARCHIVED归档",
+    "experiment_project.name": "实验项目名称",
+    "teaching_import_row.status": "导入行状态：REVIEW待核对，ERROR错误，PROMOTED已转教学任务",
+    "token.token": "登录令牌",
+    "teacher.password": "登录密码摘要",
+    "users.password": "登录密码摘要"
+  }
+}

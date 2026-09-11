@@ -35,7 +35,7 @@ class TeachingCoreTest {
         when(jdbc.queryForObject(anyString(), eq(Long.class), any())).thenReturn(1L);
         when(jdbc.queryForList(anyString(), eq(999L), eq(11L))).thenReturn(Collections.emptyList());
         TeachingAccess access = new TeachingAccess(jdbc);
-        assertThrows(TeachingAccess.AccessException.class, () -> access.requireTask(request("jiaoshi", 11), 999, false));
+        assertThrows(TeachingAccess.AccessException.class, () -> access.requireTask(request("teacher", 11), 999, false));
         verify(jdbc).queryForList(contains("teacher_id=?"), eq(999L), eq(11L));
     }
 
@@ -84,7 +84,7 @@ class TeachingCoreTest {
         when(jdbc.queryForObject(anyString(), eq(Long.class), any())).thenReturn(1L);
         TeachingAccess access = new TeachingAccess(jdbc);
         TeachingService service = new TeachingService(jdbc, access, new TeachingTermService(jdbc));
-        assertThrows(TeachingAccess.AccessException.class, () -> service.saveTeacher(request("jiaoshi", 11), null, new HashMap<>()));
+        assertThrows(TeachingAccess.AccessException.class, () -> service.saveTeacher(request("teacher", 11), null, new HashMap<>()));
         verify(jdbc, never()).update(anyString(), any(Object[].class));
     }
 

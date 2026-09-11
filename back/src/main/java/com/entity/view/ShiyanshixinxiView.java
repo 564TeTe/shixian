@@ -17,7 +17,7 @@ import java.io.Serializable;
  * @email 
  * @date 2021-05-17 08:45:45
  */
-@TableName("shiyanshixinxi")
+@TableName("laboratory")
 public class ShiyanshixinxiView  extends ShiyanshixinxiEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 

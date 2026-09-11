@@ -163,10 +163,10 @@ def main():
                     cursor.execute('DELETE FROM schedule_detail WHERE task_id=%s',(task_id,))
                     cursor.execute('DELETE FROM teaching_task_teacher WHERE task_id=%s',(task_id,))
                     cursor.execute('DELETE FROM teaching_task WHERE id=%s',(task_id,))
-                for lab_id in lab_ids: cursor.execute('DELETE FROM shiyanshixinxi WHERE id=%s',(lab_id,))
+                for lab_id in lab_ids: cursor.execute('DELETE FROM laboratory WHERE id=%s',(lab_id,))
                 for teacher_id in teacher_ids:
-                    cursor.execute("DELETE FROM token WHERE tablename='jiaoshi' AND userid=%s",(teacher_id,))
-                    cursor.execute('DELETE FROM jiaoshi WHERE id=%s',(teacher_id,))
+                    cursor.execute("DELETE FROM token WHERE tablename='teacher' AND userid=%s",(teacher_id,))
+                    cursor.execute('DELETE FROM teacher WHERE id=%s',(teacher_id,))
                 for token in tokens: cursor.execute('DELETE FROM token WHERE token=%s',(token,))
             connection.commit()
         finally: connection.close()

@@ -47,7 +47,8 @@ class TeachingAiDatabaseTest {
         Map<String,Object> top=query("```sql\nSELECT id,course_name_snapshot FROM teaching_task ORDER BY id LIMIT 10\n```");
         assertEquals(10,((List<?>)top.get("rows")).size()); assertEquals(false,top.get("truncated"));
         String prompt=modelRequest.get().path("messages").path(0).path("content").asText();
-        assertTrue(prompt.contains("schedule_detail("));assertFalse(prompt.contains("mima"));assertFalse(prompt.contains("users("));
+        assertTrue(prompt.contains("schedule_detail("));assertTrue(prompt.contains("laboratory("));
+        assertFalse(prompt.contains("password"));assertFalse(prompt.contains("teacher("));assertFalse(prompt.contains("users("));
         Map<String,Object> all=query("SELECT id FROM teaching_task ORDER BY id");
         assertEquals(200,((List<?>)all.get("rows")).size());assertEquals(true,all.get("truncated"));
         Map<String,Object> aggregate=query("SELECT COUNT(*) AS tasks FROM teaching_task");
@@ -61,11 +62,11 @@ class TeachingAiDatabaseTest {
         assertEquals(3,((Number)row.get(columns.get(2))).intValue());
     }
     @Test void rejectsUnsafeModelOutputAndClientSqlAndUsesSelectOnlyReader() throws Exception {
-        for(String sql:new String[]{"SELECT * FROM users","SELECT mima FROM jiaoshi","SELECT GET_LOCK('teaching-ai-test',1) FROM course","UPDATE course SET course_name='x'","SELECT id FROM course; DELETE FROM course"}) assertThrows(IllegalArgumentException.class,()->query(sql),sql);
+        for(String sql:new String[]{"SELECT * FROM users","SELECT password FROM teacher","SELECT GET_LOCK('teaching-ai-test',1) FROM course","UPDATE course SET course_name='x'","SELECT id FROM course; DELETE FROM course"}) assertThrows(IllegalArgumentException.class,()->query(sql),sql);
         assertThrows(IllegalArgumentException.class,()->service.query(admin,map("question","测试","sql","SELECT * FROM course")));
         try(Connection connection=DriverManager.getConnection(System.getenv("TEACHING_TEST_DB_URL"),System.getenv("TEACHING_AI_DB_USER"),System.getenv("TEACHING_AI_DB_PASSWORD"));Statement statement=connection.createStatement()) {
             try(ResultSet identity=statement.executeQuery("SELECT CURRENT_USER()")) { assertTrue(identity.next()); assertTrue(identity.getString(1).startsWith(System.getenv("TEACHING_AI_DB_USER")+"@")); assertFalse(identity.getString(1).startsWith("root@")); }
-            for(String sql:new String[]{"SELECT * FROM users LIMIT 0","SELECT * FROM jiaoshi LIMIT 0","UPDATE course SET course_name=course_name WHERE 1=0"}) assertThrows(SQLException.class,()->statement.execute(sql),sql);
+            for(String sql:new String[]{"SELECT * FROM users LIMIT 0","SELECT * FROM teacher LIMIT 0","UPDATE course SET course_name=course_name WHERE 1=0"}) assertThrows(SQLException.class,()->statement.execute(sql),sql);
         }
     }
     @Test void expensiveReadonlyQueryIsCancelledWithinTheConfiguredDeadline() {

@@ -99,7 +99,7 @@ public class TeachingImportService {
         if(!courses.isEmpty() && !r.at("课程名称").equals(courses.get(0).get("course_name"))) { c.review=true; c.issues.add("COURSE_NAME_CONFLICT: 已有课程名称不同，未自动覆盖"); }
         List<String> previous=db.queryForList("SELECT t.teacher_names_original FROM teaching_task t JOIN course c ON c.id=t.course_id JOIN academic_term tm ON tm.id=t.term_id JOIN academic_year y ON y.id=tm.academic_year_id WHERE y.name=? AND tm.term_no=? AND c.course_code=? AND t.class_composition=?",String.class,r.at("学年"),r.at("学期"),r.at("课程号"),r.at("教学班组成"));
         for(String teachers:previous) if(teacherNames(teachers).equals(teacherNames(r.at("教师名称")))) { c.review=true; c.issues.add("EXISTING_TASK_REVIEW: 疑似已有教学任务，未新增或覆盖"); break; }
-        for(String name:teacherNames(r.at("教师名称"))) if(db.queryForObject("SELECT COUNT(*) FROM jiaoshi WHERE jiaoshixingming=?",Long.class,name)>1) { c.review=true; c.issues.add("TEACHER_NAME_AMBIGUOUS: “"+name+"”对应多个账户，须核对工号"); }
+        for(String name:teacherNames(r.at("教师名称"))) if(db.queryForObject("SELECT COUNT(*) FROM teacher WHERE teacher_name=?",Long.class,name)>1) { c.review=true; c.issues.add("TEACHER_NAME_AMBIGUOUS: “"+name+"”对应多个账户，须核对工号"); }
     }
     @Transactional
     public Map<String,Object> confirm(HttpServletRequest request,long batchId,int sourceRow,String sheet,boolean confirmDistinctTask) {
@@ -135,15 +135,15 @@ public class TeachingImportService {
         long taskId=insert("INSERT INTO teaching_task(task_code,term_id,course_id,source_import_row_id,course_name_snapshot,department_name,credits,class_composition,major_composition,class_size,enrollment_count,planned_lab_hours,weekly_hours,original_week_range,scheduled_week_range,start_week,end_week,course_ends_at,course_weekly_hours_text,teacher_names_original,locations_original,schedule_original) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             "IMP-"+batchId+"-"+rowId,termId,courseId,rowId,r.at("课程名称"),r.at("开课学院"),r.at("学分"),r.at("教学班组成"),r.at("专业组成"),r.at("教学班人数"),r.at("选课人数"),r.at("课程实验总学时"),r.at("周学时"),r.at("起始结束周"),r.at("排课起始结束周"),r.at("起始周"),r.at("结束周"),c.endsAt,r.at("课程周学时"),r.at("教师名称"),r.at("教学地点"),r.at("上课时间"));
         for(String name:teacherNames(r.at("教师名称"))) {
-            List<Long> ids=db.queryForList("SELECT id FROM jiaoshi WHERE jiaoshixingming=?",Long.class,name); long id;
-            if(ids.isEmpty()) { String code="TMP"+UUID.randomUUID().toString().replace("-","").substring(0,16); id=insert("INSERT INTO jiaoshi(gonghao,mima,jiaoshixingming,xueyuan) VALUES(?,?,?,?)",code,TeachingPasswords.hash(TeachingPasswords.newPassword()),name,r.at("开课学院")); c.issues.add("TEMPORARY_TEACHER: "+name+" 生成临时账户 "+code+"，待管理员核对真实工号并重置初始密码"); }
+            List<Long> ids=db.queryForList("SELECT id FROM teacher WHERE teacher_name=?",Long.class,name); long id;
+            if(ids.isEmpty()) { String code="TMP"+UUID.randomUUID().toString().replace("-","").substring(0,16); id=insert("INSERT INTO teacher(teacher_no,password,teacher_name,college) VALUES(?,?,?,?)",code,TeachingPasswords.hash(TeachingPasswords.newPassword()),name,r.at("开课学院")); c.issues.add("TEMPORARY_TEACHER: "+name+" 生成临时账户 "+code+"，待管理员核对真实工号并重置初始密码"); }
             else { id=ids.get(0); c.issues.add("TEACHER_NAME_MATCH: "+name+" 按唯一姓名关联，原课表未提供工号"); }
             db.update("INSERT INTO teaching_task_teacher(task_id,teacher_id) VALUES(?,?)",taskId,id);
         }
         for(Map<String,Object> s:c.schedule) {
             String code=s.get("lab_code").toString();
-            db.update("INSERT INTO shiyanshixinxi(shiyanshibianhao,shiyanshimingcheng,shiyanshiguimo,shiyanshizhuangtai,equipment_count) VALUES(?,?,'未知','使用中',NULL) ON DUPLICATE KEY UPDATE id=id",code,code);
-            long labId=db.queryForObject("SELECT id FROM shiyanshixinxi WHERE shiyanshibianhao=?",Long.class,code);
+            db.update("INSERT INTO laboratory(lab_code,lab_name,lab_size,status,equipment_count) VALUES(?,?,'未知','使用中',NULL) ON DUPLICATE KEY UPDATE id=id",code,code);
+            long labId=db.queryForObject("SELECT id FROM laboratory WHERE lab_code=?",Long.class,code);
             db.update("INSERT INTO schedule_detail(task_id,lab_id,teaching_week,weekday,period_start,period_end,hours,source_segment) VALUES(?,?,?,?,?,?,?,?)",taskId,labId,s.get("week"),s.get("weekday"),s.get("period_start"),s.get("period_end"),s.get("hours"),s.get("source_segment"));
         }
     }
@@ -151,7 +151,7 @@ public class TeachingImportService {
     public Map<String,Object> projects(HttpServletRequest request,long taskId,byte[] content) {
         access.requireTask(request,taskId,true); Long teacherId=access.teacherId(request);
         Map<String,Object> task=db.queryForMap("SELECT t.*,c.course_code FROM teaching_task t JOIN course c ON c.id=t.course_id WHERE t.id=?",taskId);
-        Set<String> names=new TreeSet<>(db.queryForList("SELECT j.jiaoshixingming FROM jiaoshi j JOIN teaching_task_teacher tt ON tt.teacher_id=j.id WHERE tt.task_id=?",String.class,taskId));
+        Set<String> names=new TreeSet<>(db.queryForList("SELECT j.teacher_name FROM teacher j JOIN teaching_task_teacher tt ON tt.teacher_id=j.id WHERE tt.task_id=?",String.class,taskId));
         List<ExcelRow> rows=tableRows(content,PROJECT_HEADERS,true); List<String> warnings=new ArrayList<>(); int imported=0;
         for(ExcelRow r:rows) {
             try {
@@ -186,15 +186,15 @@ public class TeachingImportService {
         for(ExcelRow r:tableRows(content,TEACHER_HEADERS,false)) {
             String name=required(r.at("教师姓名"),"教师姓名",200),account=required(r.at("工号"),"工号",200);
             if(account.toUpperCase(Locale.ROOT).startsWith("TMP")) throw new IllegalArgumentException(r.position()+"：TMP前缀保留给临时账户，请填写核实后的真实工号");
-            List<Map<String,Object>> existing=db.queryForList("SELECT id,jiaoshixingming FROM jiaoshi WHERE gonghao=?",account);
+            List<Map<String,Object>> existing=db.queryForList("SELECT id,teacher_name FROM teacher WHERE teacher_no=?",account);
             if(!existing.isEmpty()) {
-                if(!name.equals(existing.get(0).get("jiaoshixingming"))) throw new IllegalArgumentException(r.position()+"：该工号已属于另一姓名，请人工核对");
-                db.update("UPDATE jiaoshi SET xueyuan=? WHERE id=?",r.at("学院"),existing.get(0).get("id"));
+                if(!name.equals(existing.get(0).get("teacher_name"))) throw new IllegalArgumentException(r.position()+"：该工号已属于另一姓名，请人工核对");
+                db.update("UPDATE teacher SET college=? WHERE id=?",r.at("学院"),existing.get(0).get("id"));
             } else {
-                List<Map<String,Object>> same=db.queryForList("SELECT id,gonghao FROM jiaoshi WHERE jiaoshixingming=?",name);
-                if(same.size()==1 && same.get(0).get("gonghao").toString().startsWith("TMP")) { db.update("UPDATE jiaoshi SET gonghao=?,xueyuan=? WHERE id=?",account,r.at("学院"),same.get(0).get("id")); warnings.add(name+"：已将唯一同名临时账户更新为真实工号，教学关联保留"); }
+                List<Map<String,Object>> same=db.queryForList("SELECT id,teacher_no FROM teacher WHERE teacher_name=?",name);
+                if(same.size()==1 && same.get(0).get("teacher_no").toString().startsWith("TMP")) { db.update("UPDATE teacher SET teacher_no=?,college=? WHERE id=?",account,r.at("学院"),same.get(0).get("id")); warnings.add(name+"：已将唯一同名临时账户更新为真实工号，教学关联保留"); }
                 else if(!same.isEmpty()) throw new IllegalArgumentException(r.position()+"：存在同名账户，请在教师账号页面核实身份后修改");
-                else { insert("INSERT INTO jiaoshi(gonghao,mima,jiaoshixingming,xueyuan) VALUES(?,?,?,?)",account,TeachingPasswords.hash(TeachingPasswords.newPassword()),name,r.at("学院")); warnings.add(name+"：账户已创建，请在教师账号页面重置并分发初始密码"); }
+                else { insert("INSERT INTO teacher(teacher_no,password,teacher_name,college) VALUES(?,?,?,?)",account,TeachingPasswords.hash(TeachingPasswords.newPassword()),name,r.at("学院")); warnings.add(name+"：账户已创建，请在教师账号页面重置并分发初始密码"); }
             }
             imported++;
         }
@@ -207,9 +207,9 @@ public class TeachingImportService {
             String labCode=required(r.at("实验室编号"),"实验室编号",200),name=required(r.at("实验室名称"),"实验室名称",200);
             if(r.at("实验室位置").length()>200) throw new IllegalArgumentException("实验室位置长度不能超过200");
             Long manager=null; Integer equipment=null;
-            if(!r.at("负责人教师工号").isEmpty()) { List<Long> ids=db.queryForList("SELECT id FROM jiaoshi WHERE gonghao=?",Long.class,r.at("负责人教师工号")); if(ids.isEmpty()) throw new IllegalArgumentException(r.position()+"：负责人教师工号不存在"); manager=ids.get(0); }
+            if(!r.at("负责人教师工号").isEmpty()) { List<Long> ids=db.queryForList("SELECT id FROM teacher WHERE teacher_no=?",Long.class,r.at("负责人教师工号")); if(ids.isEmpty()) throw new IllegalArgumentException(r.position()+"：负责人教师工号不存在"); manager=ids.get(0); }
             if(!r.at("设备数").isEmpty()) equipment=number(r.at("设备数"),"设备数",true).intValue();
-            db.update("INSERT INTO shiyanshixinxi(shiyanshibianhao,shiyanshimingcheng,shiyanshiguimo,shiyanshizhuangtai,shiyanshiweizhi,manager_teacher_id,equipment_count) VALUES(?,?,'未知','使用中',?,?,?) ON DUPLICATE KEY UPDATE shiyanshimingcheng=VALUES(shiyanshimingcheng),shiyanshiweizhi=VALUES(shiyanshiweizhi),manager_teacher_id=VALUES(manager_teacher_id),equipment_count=VALUES(equipment_count)",labCode,name,r.at("实验室位置"),manager,equipment);
+            db.update("INSERT INTO laboratory(lab_code,lab_name,lab_size,status,location,manager_teacher_id,equipment_count) VALUES(?,?,'未知','使用中',?,?,?) ON DUPLICATE KEY UPDATE lab_name=VALUES(lab_name),location=VALUES(location),manager_teacher_id=VALUES(manager_teacher_id),equipment_count=VALUES(equipment_count)",labCode,name,r.at("实验室位置"),manager,equipment);
             imported++;
         }
         return map("imported",imported,"warnings",warnings);

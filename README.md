@@ -47,14 +47,23 @@ SOURCE database/003_teaching_seed.sql;
 
 使用 Workbench 时，先创建并选中 `t132`，再分别打开 `T132.sql`、`database/003_teaching_seed.sql`，按顺序执行整个文件。`SOURCE` 是命令行客户端的命令。
 
-- `T132.sql`：25 张表的结构；`003_teaching_seed.sql`：93 门课程、255 个任务、2,208 条排课、79 个教师、14 间课表实验室、原始导入记录。项目模板示例未导入，正式项目为 0。
+- `T132.sql`：13 张表的结构，表名与字段名均为英文，全部带中文注释；`003_teaching_seed.sql`：93 门课程、255 个任务、2,208 条排课、79 个教师、14 间课表实验室、原始导入记录。项目模板示例未导入，正式项目为 0。
 - **新环境网页管理员：`admin` / `Teaching2026!`**。这是公开的开发初始化密码，登录后在“账号与安全”修改。教师使用新的随机密码摘要，由管理员在“教师账号”重置后分发。
 - SQL 不包含本机管理员／教师密码、登录令牌、数据库账号权限或 AI 密钥。本机原有登录凭据不变。
 - 数据脚本只用于空表初始化，重复导入会报错，不会覆盖已有内容。不要在已使用的数据库上重跑，也不要为重跑而删除自己的数据库。
 
 接着把后端数据库连接改为自己的 MySQL 配置，在 `front` 执行 `npm ci`，回到根目录执行 `.\start-teaching.ps1 -Build`，访问 http://localhost:8081 。首次无需设置 AI 即可使用普通教学功能。
 
-已有旧库升级使用 001、002 增量脚本。需要从其他 Excel 重新清理初始化时才使用 `bootstrap_teaching.py --reset-legacy-data`。详见 [建库与导入说明](docs/database/02-建库与导入操作说明.md)。
+已经执行过旧版 `T132.sql` 和 `003_teaching_seed.sql` 的数据库，先停后端并备份，再在 MySQL 中执行以下增量迁移，保留现有账号、密码与教学数据：
+
+```sql
+USE t132;
+SOURCE database/004_english_schema.sql;
+```
+
+迁移后执行 `.\start-teaching.ps1 -Build -Restart`。不要在已有数据的库上重新执行 `T132.sql`，它含有删表语句。新环境只执行新版 `T132.sql` 和 `003_teaching_seed.sql` 即可。
+
+更早期尚未建立教学表的旧库按 001、002、004 顺序升级。001、002 为历史迁移，不应在英文结构上重跑。若 AI 只读账号原先仅获授 `shiyanshixinxi` 的表级权限，需改授 `laboratory` 的 SELECT 权限。字段对照及注释查看方式见 [英文命名迁移说明](docs/database/03-英文命名与注释.md)。需要从其他 Excel 重新清理初始化时才使用 `bootstrap_teaching.py --reset-legacy-data`。详见 [建库与导入说明](docs/database/02-建库与导入操作说明.md)。
 
 ## AI 配置
 

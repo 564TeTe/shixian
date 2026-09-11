@@ -11,7 +11,7 @@ class TeachingAiSqlGuardTest {
         assertTrue(TeachingAiSqlGuard.validate("SELECT course_id, COUNT(*) AS total FROM teaching_task GROUP BY course_id").startsWith("SELECT"));
     }
     @Test void rejectsWritesSecretsSystemObjectsAndExpensiveFunctions() {
-        String[] bad={"DELETE FROM teaching_task", "SELECT * FROM course; DELETE FROM course", "SELECT * FROM jiaoshi", "SELECT mima FROM jiaoshi", "SELECT * FROM mysql.user", "SELECT SLEEP(5) FROM course", "SELECT LOAD_FILE('/etc/passwd') FROM course", "SELECT * INTO OUTFILE '/tmp/a' FROM course", "SELECT * FROM course FOR UPDATE", "SELECT @@version FROM course", "SELECT evil_function(id) FROM course", "WITH x AS (SELECT * FROM users) SELECT * FROM x"};
+        String[] bad={"DELETE FROM teaching_task", "SELECT * FROM course; DELETE FROM course", "SELECT * FROM teacher", "SELECT password FROM teacher", "SELECT * FROM mysql.user", "SELECT SLEEP(5) FROM course", "SELECT LOAD_FILE('/etc/passwd') FROM course", "SELECT * INTO OUTFILE '/tmp/a' FROM course", "SELECT * FROM course FOR UPDATE", "SELECT @@version FROM course", "SELECT evil_function(id) FROM course", "WITH x AS (SELECT * FROM users) SELECT * FROM x"};
         for(String sql:bad) assertThrows(IllegalArgumentException.class, () -> TeachingAiSqlGuard.validate(sql),sql);
     }
     @Test void doesNotAllowHiddenTablesInSubqueries() {

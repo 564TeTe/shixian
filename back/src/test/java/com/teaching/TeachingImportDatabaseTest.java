@@ -39,9 +39,9 @@ class TeachingImportDatabaseTest {
         long taskId=db.queryForObject("SELECT t.id FROM teaching_task t JOIN teaching_import_row r ON r.id=t.source_import_row_id WHERE r.batch_id=?",Long.class,batch);
         assertEquals(2,db.queryForObject("SELECT COUNT(*) FROM teaching_task_teacher WHERE task_id=?",Integer.class,taskId));
         assertEquals(2,db.queryForObject("SELECT COUNT(*) FROM schedule_detail WHERE task_id=?",Integer.class,taskId));
-        Map<String,Object> teacher=db.queryForMap("SELECT gonghao,mima FROM jiaoshi WHERE jiaoshixingming=?",name);
-        assertTrue(teacher.get("gonghao").toString().startsWith("TMP")); assertTrue(teacher.get("mima").toString().startsWith("$2"));
-        assertNull(db.queryForObject("SELECT equipment_count FROM shiyanshixinxi WHERE shiyanshibianhao=?",Integer.class,"TEST-LAB-"+unique));
+        Map<String,Object> teacher=db.queryForMap("SELECT teacher_no,password FROM teacher WHERE teacher_name=?",name);
+        assertTrue(teacher.get("teacher_no").toString().startsWith("TMP")); assertTrue(teacher.get("password").toString().startsWith("$2"));
+        assertNull(db.queryForObject("SELECT equipment_count FROM laboratory WHERE lab_code=?",Integer.class,"TEST-LAB-"+unique));
         assertEquals(batch,imports.timetable(admin,first,"renamed.xlsx").get("batchId"));
         row.set(13,"改动专业"); byte[] secondFile=workbook("课表",TIMETABLE_HEADERS,Collections.singletonList(row),null);
         Map<String,Object> review=imports.timetable(admin,secondFile,"second.xlsx");
@@ -57,12 +57,12 @@ class TeachingImportDatabaseTest {
     }
     @Test void teacherReportTotalsMatchOnlyTheirOwnScheduleRows() {
         long teacher=db.queryForObject("SELECT MIN(teacher_id) FROM teaching_task_teacher",Long.class);
-        Map<String,Object> report=reports.report(request("jiaoshi",teacher),null,null);
+        Map<String,Object> report=reports.report(request("teacher",teacher),null,null);
         BigDecimal expected=db.queryForObject("SELECT COALESCE(SUM(s.hours*t.enrollment_count),0) FROM schedule_detail s JOIN teaching_task t ON t.id=s.task_id WHERE EXISTS(SELECT 1 FROM teaching_task_teacher x WHERE x.task_id=t.id AND x.teacher_id=?)",BigDecimal.class,teacher);
         BigDecimal actual=BigDecimal.ZERO;
         for(Object row:(List<?>)report.get("labs")) actual=actual.add((BigDecimal)((Map<?,?>)row).get("person_hours"));
         assertEquals(0,expected.compareTo(actual)); assertTrue(report.get("basis").toString().contains("课程关联地点"));
-        assertTrue(reports.export(request("jiaoshi",teacher),null,null,"labs").length>100);
+        assertTrue(reports.export(request("teacher",teacher),null,null,"labs").length>100);
     }
     @Test void projectTemplateContainsNoRealDataAndOriginalTimetableParses() throws Exception {
         String template=System.getenv("TEACHING_PROJECT_FIXTURE"),timetable=System.getenv("TEACHING_TIMETABLE_FIXTURE");

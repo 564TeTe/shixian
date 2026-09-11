@@ -52,7 +52,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         TokenEntity identity = token == null || token.trim().isEmpty() ? null : tokenService.getTokenEntity(token);
         if (identity == null) return reject(response, 401, "请先登录");
         String table = identity.getTablename();
-        if (!"users".equals(table) && !"jiaoshi".equals(table)) return reject(response, 403, "该角色无权访问教学系统");
+        if (!"users".equals(table) && !"teacher".equals(table)) return reject(response, 403, "该角色无权访问教学系统");
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE id=?", Integer.class, identity.getUserid());
         if (count == null || count != 1) return reject(response, 401, "账号已失效，请重新登录");
         request.getSession().setAttribute("userId", identity.getUserid());

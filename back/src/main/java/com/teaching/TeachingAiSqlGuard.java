@@ -10,7 +10,7 @@ import java.util.*;
 
 /** Fails closed: only a small, auditable SELECT AST is executable. */
 public final class TeachingAiSqlGuard {
-    static final Set<String> TABLES=new HashSet<>(Arrays.asList("academic_year","academic_term","course","teaching_task","schedule_detail","experiment_project","teaching_task_teacher","shiyanshixinxi"));
+    static final Set<String> TABLES=new HashSet<>(Arrays.asList("academic_year","academic_term","course","teaching_task","schedule_detail","experiment_project","teaching_task_teacher","laboratory"));
     private static final Set<String> FUNCTIONS=new HashSet<>(Arrays.asList("COUNT","SUM","AVG","MIN","MAX","ROUND","ABS","COALESCE","IFNULL","NULLIF","CONCAT","CONCAT_WS","LOWER","UPPER","LENGTH","CHAR_LENGTH","YEAR","MONTH","DAY","DATE","DATE_FORMAT"));
     private static final Set<String> BINARY=new HashSet<>(Arrays.asList("Addition","Subtraction","Multiplication","Division","Modulo","EqualsTo","NotEqualsTo","GreaterThan","GreaterThanEquals","MinorThan","MinorThanEquals","AndExpression","OrExpression","LikeExpression"));
     private TeachingAiSqlGuard() {}

@@ -30,10 +30,10 @@ class TeachingCoreDatabaseTest {
         TeachingAccess access=new TeachingAccess(jdbc);terms=new TeachingTermService(jdbc);
         service=new TeachingService(jdbc,access,terms);
         admin=request("users",jdbc.queryForObject("SELECT MIN(id) FROM users",Long.class));
-        List<Long> teachers=jdbc.queryForList("SELECT id FROM jiaoshi ORDER BY id LIMIT 2",Long.class);
+        List<Long> teachers=jdbc.queryForList("SELECT id FROM teacher ORDER BY id LIMIT 2",Long.class);
         teacherId=teachers.get(0);otherTeacherId=teachers.get(1);
         courseId=jdbc.queryForObject("SELECT MIN(id) FROM course",Long.class);
-        labId=jdbc.queryForObject("SELECT MIN(id) FROM shiyanshixinxi",Long.class);
+        labId=jdbc.queryForObject("SELECT MIN(id) FROM laboratory",Long.class);
         currentId=((Number)terms.ensureCurrentTerm().get("id")).longValue();
     }
     @AfterEach void rollback(){if(transaction!=null)manager.rollback(transaction);}
@@ -56,15 +56,15 @@ class TeachingCoreDatabaseTest {
         assertEquals(0,((List<?>)task.get("schedule")).size());
         assertEquals(labId,((Number)task.get("default_lab_id")).longValue());
         assertFalse(String.valueOf(task.get("lab_names")).isEmpty());
-        assertEquals(id,((Number)service.task(request("jiaoshi",teacherId),id).get("id")).longValue());
-        assertThrows(TeachingAccess.AccessException.class,()->service.task(request("jiaoshi",otherTeacherId),id));
-        Map<String,Object> hidden=service.tasks(request("jiaoshi",otherTeacherId),currentId,(String)task.get("task_code"),1,20);
+        assertEquals(id,((Number)service.task(request("teacher",teacherId),id).get("id")).longValue());
+        assertThrows(TeachingAccess.AccessException.class,()->service.task(request("teacher",otherTeacherId),id));
+        Map<String,Object> hidden=service.tasks(request("teacher",otherTeacherId),currentId,(String)task.get("task_code"),1,20);
         assertEquals(0L,hidden.get("total"));
     }
     @Test void projectCrudCopyAndHistoricalReadOnlyWorkAgainstActualSchema(){
         long first=((Number)service.createTask(admin,taskInput()).get("id")).longValue();
         long second=((Number)service.createTask(admin,taskInput()).get("id")).longValue();
-        MockHttpServletRequest owner=request("jiaoshi",teacherId),stranger=request("jiaoshi",otherTeacherId);
+        MockHttpServletRequest owner=request("teacher",teacherId),stranger=request("teacher",otherTeacherId);
         Map<String,Object> project=service.createProject(owner,projectInput(first));long projectId=((Number)project.get("id")).longValue();
         assertEquals(teacherId,((Number)project.get("created_by_teacher_id")).longValue());
         assertThrows(TeachingAccess.AccessException.class,()->service.updateProject(stranger,projectId,Collections.singletonMap("name","越权")));
@@ -95,27 +95,27 @@ class TeachingCoreDatabaseTest {
         long project=((Number)service.createProject(admin,projectInput(source)).get("id")).longValue();
         long archive=jdbc.queryForObject("SELECT MIN(id) FROM academic_term WHERE status='ARCHIVED'",Long.class);
         jdbc.update("UPDATE teaching_task SET term_id=? WHERE id=?",archive,source);
-        MockHttpServletRequest owner=request("jiaoshi",teacherId);
+        MockHttpServletRequest owner=request("teacher",teacherId);
         assertFalse((Boolean)service.projects(owner,source).get("editable"));
         assertEquals(1,service.copyProjects(owner,source,target).get("copied"));
         assertThrows(TeachingAccess.AccessException.class,()->service.updateProject(admin,project,Collections.singletonMap("name","禁止历史修改")));
-        assertThrows(TeachingAccess.AccessException.class,()->service.copyProjects(request("jiaoshi",otherTeacherId),source,target));
+        assertThrows(TeachingAccess.AccessException.class,()->service.copyProjects(request("teacher",otherTeacherId),source,target));
         assertThrows(TeachingAccess.AccessException.class,()->service.copyProjects(admin,target,source));
     }
     @Test void teacherAndLabCrudPreserveUnknownMetadataAndPasswordsAreHashed(){
         Map<String,Object> teacher=new HashMap<>();String code="TEST"+UUID.randomUUID().toString().substring(0,8);
         teacher.put("gonghao",code);teacher.put("jiaoshixingming","事务测试教师");teacher.put("xueyuan","测试学院");
         Map<String,Object> created=service.saveTeacher(admin,null,teacher);long id=((Number)created.get("id")).longValue();
-        String original=(String)created.get("password"),stored=jdbc.queryForObject("SELECT mima FROM jiaoshi WHERE id=?",String.class,id);
+        String original=(String)created.get("password"),stored=jdbc.queryForObject("SELECT password FROM teacher WHERE id=?",String.class,id);
         assertTrue(TeachingPasswords.matches(original,stored));
         String reset=(String)service.resetTeacherPassword(admin,id).get("password");assertNotEquals(original,reset);
-        assertTrue(TeachingPasswords.matches(reset,jdbc.queryForObject("SELECT mima FROM jiaoshi WHERE id=?",String.class,id)));
+        assertTrue(TeachingPasswords.matches(reset,jdbc.queryForObject("SELECT password FROM teacher WHERE id=?",String.class,id)));
         Map<String,Object> password=new HashMap<>();password.put("oldPassword",reset);password.put("newPassword","ChangedPass928!");
-        service.changePassword(request("jiaoshi",id),password);
-        assertTrue(TeachingPasswords.matches("ChangedPass928!",jdbc.queryForObject("SELECT mima FROM jiaoshi WHERE id=?",String.class,id)));
+        service.changePassword(request("teacher",id),password);
+        assertTrue(TeachingPasswords.matches("ChangedPass928!",jdbc.queryForObject("SELECT password FROM teacher WHERE id=?",String.class,id)));
         Map<String,Object> lab=new HashMap<>();lab.put("shiyanshibianhao",code);lab.put("shiyanshimingcheng","事务测试实验室");
         long newLab=((Number)service.saveLab(admin,null,lab).get("id")).longValue();
-        assertNull(jdbc.queryForMap("SELECT equipment_count,manager_teacher_id FROM shiyanshixinxi WHERE id=?",newLab).get("equipment_count"));
+        assertNull(jdbc.queryForMap("SELECT equipment_count,manager_teacher_id FROM laboratory WHERE id=?",newLab).get("equipment_count"));
         lab.put("manager_teacher_id",id);lab.put("equipment_count",0);service.saveLab(admin,newLab,lab);
         assertThrows(IllegalArgumentException.class,()->service.deleteTeacher(admin,id));
         service.deleteLab(admin,newLab);service.deleteTeacher(admin,id);
