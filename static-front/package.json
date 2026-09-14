@@ -1,0 +1,9 @@
+{
+  "name": "teaching-workspace",
+  "private": true,
+  "scripts": {
+    "start": "node server.cjs",
+    "serve": "node server.cjs",
+    "check": "node --check app.js && node --check api.js && node --check data.js && node --check server.cjs"
+  }
+}
