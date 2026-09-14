@@ -1,0 +1,24 @@
+/* Layout for native Vue form components; page styling comes from the reference. */
+.native-fieldset { border: 0; padding: 0; min-width: 0; }
+.native-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.native-field input, .native-field select, .native-field textarea { width: 100%; }
+.native-field select[multiple] { min-height: 110px; }
+.native-field[aria-invalid=true] input, .native-field[aria-invalid=true] select { border-color: #d95858; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 9px; padding: 18px 26px; border-top: 1px solid var(--line); }
+.modal-actions > span { display: flex; gap: 9px; }
+.native-fieldset:disabled { opacity: .75; }
+.page-error { margin-bottom: 20px; }
+.workspace .table-wrap { width: 100%; }
+.workspace .form-grid .span-two { grid-column: 1 / -1; }
+.workspace .detail-grid dd { overflow-wrap: anywhere; }
+.workspace .filter-bar { flex-wrap: wrap; }
+.workspace .filter-bar > select { max-width: 360px; }
+.workspace .file-pick { padding: 24px; border: 1px dashed var(--line); margin: 20px 0; }
+.workspace .file-pick input { margin-top: 15px; max-width: 100%; }
+.warning-list .notice { margin-bottom: 8px; }
+.credential { padding: 20px; font: 23px Consolas, monospace; overflow-wrap: anywhere; user-select: all; }
+.workspace .action-row { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; margin: 18px 0; }
+.workspace .query-sql { white-space: pre-wrap; overflow-wrap: anywhere; }
+dialog::backdrop { background: #172c4966; }
+dialog .table-wrap { max-height: 55vh; }
+@media(max-width:760px) { .workspace .filter-bar > select { max-width: 100%; } .workspace .form-grid .span-two { grid-column: auto; } }
