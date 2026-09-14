@@ -60,7 +60,7 @@ var indexNav = [
 
 ]
 
-var adminurl =  "http://localhost:8080/springboote51e2/admin/dist/index.html";
+var adminurl =  "http://localhost:9090/springboote51e2/admin/dist/index.html";
 
 var cartFlag = false
 

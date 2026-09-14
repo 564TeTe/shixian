@@ -1,6 +1,6 @@
 <template>
   <div v-if="items.length" class="warning-list">
-    <el-alert
+    <sf-alert
       v-for="(item, index) in items"
       :key="index"
       :title="label(item)"

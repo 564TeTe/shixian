@@ -280,6 +280,29 @@
   padding-top: 4px;
   padding-bottom: 4px;
 }
+
+/* Match the static-front visual language while retaining Element UI behavior. */
+.teaching-page .el-table { border-radius: 8px; overflow: hidden; color: #536079; }
+.teaching-page .el-table th { background: #f8faff; border-bottom: 1px solid #e9edf4; color: #7b8da7; }
+.teaching-page .el-table tr:hover > td { background: #f7faff; }
+.teaching-page .el-table td, .teaching-page .el-table th { border-bottom-color: #edf1f6; }
+.teaching-page .el-input__inner, .teaching-page .el-textarea__inner {
+  border-color: #e2e7f0; border-radius: 7px; color: #536079; background: #fff;
+}
+.teaching-page .el-input__inner:focus, .teaching-page .el-textarea__inner:focus { border-color: #8aaaf3; }
+.teaching-page .el-button { border-radius: 7px; font-weight: 500; }
+.teaching-page .el-button--primary { background: #245ce8; border-color: #245ce8; }
+.teaching-page .el-button--primary:hover { background: #1746bc; border-color: #1746bc; }
+.teaching-page .el-select .el-input.is-focus .el-input__inner { border-color: #8aaaf3; }
+.teaching-page .el-tag { border-radius: 5px; }
+.teaching-page .el-alert { border-radius: 8px; border: 1px solid #e5edf8; }
+.teaching-page .el-pagination .el-pager li { border-radius: 5px; margin: 0 2px; }
+.teaching-page .el-pagination .el-pager li.active { background: #245ce8; }
+.teaching-page .el-dialog { box-shadow: 0 24px 90px rgba(22,41,72,.16); }
+.teaching-page .el-dialog__header { border-bottom: 1px solid #edf1f6; }
+.teaching-page .el-form-item__label { color: #687790; font-weight: 500; }
+.teaching-page .el-radio-button__inner { border-color: #e2e7f0; color: #687790; }
+.teaching-page .el-radio-button__orig-radio:checked + .el-radio-button__inner { background: #245ce8; border-color: #245ce8; box-shadow: -1px 0 0 0 #245ce8; }
 .credential {
   font-family: Consolas, monospace;
   font-size: 23px;

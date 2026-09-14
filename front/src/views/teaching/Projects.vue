@@ -1,157 +1,63 @@
-<template>
-  <div class="teaching-page">
-    <page-heading
-      title="实验项目"
-      description="以教学任务为单位维护项目版本，当前学期支持编辑，历史学期可查阅和复用。"
-      eyebrow="EXPERIMENT PROJECTS"
-    >
-      <el-button
-        icon="el-icon-download"
-        :loading="downloading"
-        @click="downloadFile('/templates/projects', '实验项目导入模板.xlsx')"
-      >
-        下载项目模板
-      </el-button>
-    </page-heading>
-    <section class="panel">
-      <div class="filter-bar">
-        <el-select v-model="termId" clearable placeholder="全部学期" @change="changeTerm">
-          <el-option v-for="term in lookups.terms" :key="term.id" :value="term.id" :label="term.name" />
-        </el-select>
-        <el-select
-          class="wide"
-          v-model="taskId"
-          filterable
-          placeholder="选择课程教学任务"
-          @change="loadProjects"
-        >
-          <el-option
-            v-for="task in filteredTasks"
-            :key="task.id"
-            :value="task.id"
-            :label="task.course_name + ' · ' + task.task_code + ' · ' + task.teacher_names"
-          />
-        </el-select>
-        <el-button icon="el-icon-refresh" :loading="loading" @click="loadProjects">刷新</el-button>
-      </div>
-      <template v-if="task">
-        <dl class="detail-grid">
-          <div>
-            <dt>课程 / 学期</dt>
-            <dd>{{ task.course_name }} · {{ task.term_name }}</dd>
-          </div>
-          <div>
-            <dt>任课教师 / 班级</dt>
-            <dd>{{ task.teacher_names }} · {{ task.class_composition }}</dd>
-          </div>
-          <div>
-            <dt>计划学时 / 已设置项目学时</dt>
-            <dd>{{ task.planned_lab_hours }} / {{ projectHours }} 学时</dd>
-          </div>
-        </dl>
-        <el-alert
-          v-if="!editable"
-          :title="
-            task.status === 'ARCHIVED'
-              ? '历史学期已归档，仅可查看。请选择当前教学任务，再从历史任务复制项目。'
-              : '此任务当前不可编辑。仅当前学期且有权限的任务允许维护实验项目。'
-          "
-          type="info"
-          show-icon
-          :closable="false"
-        />
-        <div class="action-row">
-          <el-button type="primary" icon="el-icon-plus" :disabled="!editable" @click="edit()">
-            新增项目
-          </el-button>
-          <el-button icon="el-icon-upload2" :disabled="!editable" @click="openUpload">Excel 导入</el-button>
-          <el-button icon="el-icon-copy-document" :disabled="!editable" @click="openCopy">
-            从历史任务复制
-          </el-button>
-          <span class="muted">选做项目实际参与人数不作推断</span>
-        </div>
-      </template>
-    </section>
-    <section class="panel" v-loading="loading">
-      <div class="panel-title">
-        <h2>项目清单</h2>
-        <span class="muted">共 {{ rows.length }} 个项目</span>
-      </div>
-      <el-table :data="rows" :empty-text="taskId ? '此教学任务暂无实验项目' : '请先选择教学任务'">
-        <el-table-column prop="sort_order" label="排序" width="65" />
-        <el-table-column prop="project_code" label="实验编号" min-width="175" />
-        <el-table-column prop="name" label="实验名称" min-width="210" />
-        <el-table-column label="实验类型" width="105">
-          <template slot-scope="scope">{{ optionLabel('type_code', scope.row.type_code) }}</template>
-        </el-table-column>
-        <el-table-column label="实验要求" width="95">
-          <template slot-scope="scope">
-            {{ optionLabel('requirement_code', scope.row.requirement_code) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="group_size" label="每组人数" width="100" />
-        <el-table-column prop="hours" label="实验学时" width="100" />
-        <el-table-column label="操作" width="155" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="text" @click="view(scope.row)">详情</el-button>
-            <el-button type="text" :disabled="!editable" @click="edit(scope.row)">编辑</el-button>
-            <el-button type="text" :disabled="!editable || saving" @click="remove(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
-    <el-dialog
+<template><div class="teaching-page">
+<page-heading title="实验项目" eyebrow="EXPERIMENT PROJECTS" description="围绕课程构建实验内容，记录每一学期的教学探索。"><button class="btn" :disabled="downloading" @click="downloadFile('/templates/projects','实验项目导入模板.xlsx')"><sf-icon name="download"/>项目模板</button><button class="btn primary" :disabled="!editable" @click="edit()"><sf-icon name="plus"/>新增实验项目</button></page-heading>
+<div v-if="task && !editable" class="notice"><sf-icon name="info"/><span>当前任务为只读。历史项目可查阅，选择有权限的当前学期任务后可维护项目。</span></div>
+<section class="panel" v-loading="loading"><form class="filter-bar" @submit.prevent="loadProjects"><label class="search-field"><sf-icon name="search"/><input v-model.trim="projectQuery" aria-label="搜索实验名称或编号" placeholder="搜索实验名称或编号"/></label><sf-select v-model="termId" placeholder="全部学期" @change="changeTerm"><sf-option v-for="t in lookups.terms" :key="t.id" :value="t.id" :label="t.name"/></sf-select><sf-select v-model="taskId" placeholder="选择课程任务" @change="loadProjects"><sf-option v-for="t in filteredTasks" :key="t.id" :value="t.id" :label="t.course_name+' · '+t.teacher_names+' · '+t.task_code"/></sf-select><sf-select v-model="projectType" placeholder="全部实验类型"><sf-option v-for="o in optionFields.find(f=>f.key==='type_code').options" :key="o.value" :value="o.value" :label="o.label"/></sf-select><button class="btn primary" :disabled="loading">查询</button></form>
+<div v-if="task" class="task-summary"><div><span>当前课程</span><strong>{{ task.course_name }}</strong></div><div><span>授课班级 / 教师</span><strong>{{ task.class_composition }} · {{ task.teacher_names }}</strong></div><div><span>已设置项目 / 计划学时</span><strong>{{ projectHours }} / {{ task.planned_lab_hours }} 学时</strong></div></div>
+<div class="section-toolbar"><h2>项目清单 <span class="count">{{ displayRows.length }}</span></h2><div class="actions"><button class="btn" :disabled="!editable" @click="openUpload"><sf-icon name="upload"/>Excel 导入</button><button class="btn" :disabled="!editable" @click="openCopy"><sf-icon name="copy"/>从历史任务复制</button></div></div>
+<div class="table-wrap" v-if="displayRows.length"><table><thead><tr><th>实验项目</th><th>所属课程</th><th>实验类型</th><th>实验要求</th><th>每组人数</th><th>学时</th><th>操作</th></tr></thead><tbody><tr v-for="p in displayRows" :key="p.id"><td><strong>{{ p.name }}</strong><small>{{ p.project_code }}</small></td><td>{{ task ? task.course_name : '—' }}</td><td><span class="badge" :class="String(p.type_code)==='4'?'purple':'blue'">{{ optionLabel('type_code',p.type_code) }}</span></td><td>{{ optionLabel('requirement_code',p.requirement_code) }}</td><td>{{ p.group_size }} 人</td><td><strong>{{ p.hours }}</strong></td><td><div class="row-actions"><button class="btn text" @click="view(p)">详情</button><button class="btn text" :disabled="!editable" @click="edit(p)">编辑</button><button class="btn text danger" :disabled="!editable||saving" @click="remove(p)">删除</button></div></td></tr></tbody></table></div><div v-else class="empty"><sf-icon name="search"/><strong>{{ taskId?'没有找到符合条件的实验项目':'请先选择课程教学任务' }}</strong></div>
+<div class="table-footer"><span>选课人数不等同于选做项目实际参与人数</span><span>共 {{ displayRows.length }} 项 · {{ projectHours }} 学时</span></div></section>
+    <sf-dialog
       :title="readOnly ? '实验项目详情' : form.id ? '编辑实验项目' : '新增实验项目'"
       :visible.sync="editVisible"
       width="760px"
       :close-on-click-modal="false"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-position="top" :disabled="readOnly">
+      <sf-form ref="form" :model="form" :rules="rules" label-position="top" :disabled="readOnly">
         <div class="form-grid">
-          <el-form-item label="实验名称" prop="name" class="span-two">
-            <el-input v-model.trim="form.name" maxlength="50" show-word-limit />
-          </el-form-item>
-          <el-form-item label="实验编号">
-            <el-input
+          <sf-form-item label="实验名称" prop="name" class="span-two">
+            <sf-input v-model.trim="form.name" maxlength="50" show-word-limit />
+          </sf-form-item>
+          <sf-form-item label="实验编号">
+            <sf-input
               v-model.trim="form.project_code"
               :disabled="!!form.id"
               placeholder="留空由系统自动生成"
               maxlength="64"
             />
-          </el-form-item>
-          <el-form-item label="学校代码" prop="school_code">
-            <el-input v-model.trim="form.school_code" placeholder="输入实际学校代码" maxlength="5" />
-          </el-form-item>
-          <el-form-item v-for="field in optionFields" :key="field.key" :label="field.label" :prop="field.key">
-            <el-select v-model="form[field.key]">
-              <el-option
+          </sf-form-item>
+          <sf-form-item label="学校代码" prop="school_code">
+            <sf-input v-model.trim="form.school_code" placeholder="输入实际学校代码" maxlength="5" />
+          </sf-form-item>
+          <sf-form-item v-for="field in optionFields" :key="field.key" :label="field.label" :prop="field.key">
+            <sf-select v-model="form[field.key]">
+              <sf-option
                 v-for="option in field.options"
                 :key="option.value"
                 :label="option.label"
                 :value="option.value"
               />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="实验所属学科代码" prop="discipline_code">
-            <el-input v-model.trim="form.discipline_code" placeholder="保留前导零，如 0809" maxlength="16" />
-          </el-form-item>
-          <el-form-item label="每组人数" prop="group_size">
-            <el-input-number v-model="form.group_size" :min="1" :max="99" :precision="0" />
-          </el-form-item>
-          <el-form-item label="实验学时" prop="hours">
-            <el-input-number v-model="form.hours" :min="0.01" :max="9999" :precision="2" />
-          </el-form-item>
-          <el-form-item label="显示顺序">
-            <el-input-number v-model="form.sort_order" :min="0" :max="9999" :precision="0" />
-          </el-form-item>
+            </sf-select>
+          </sf-form-item>
+          <sf-form-item label="实验所属学科代码" prop="discipline_code">
+            <sf-input v-model.trim="form.discipline_code" placeholder="保留前导零，如 0809" maxlength="16" />
+          </sf-form-item>
+          <sf-form-item label="每组人数" prop="group_size">
+            <sf-input-number v-model="form.group_size" :min="1" :max="99" :precision="0" />
+          </sf-form-item>
+          <sf-form-item label="实验学时" prop="hours">
+            <sf-input-number v-model="form.hours" :min="0.01" :max="9999" :precision="2" />
+          </sf-form-item>
+          <sf-form-item label="显示顺序">
+            <sf-input-number v-model="form.sort_order" :min="0" :max="9999" :precision="0" />
+          </sf-form-item>
         </div>
-      </el-form>
+      </sf-form>
       <span slot="footer">
-        <el-button @click="editVisible = false">{{ readOnly ? '关闭' : '取消' }}</el-button>
-        <el-button v-if="!readOnly" type="primary" :loading="saving" @click="save">保存项目</el-button>
+        <sf-button @click="editVisible = false">{{ readOnly ? '关闭' : '取消' }}</sf-button>
+        <sf-button v-if="!readOnly" type="primary" :loading="saving" @click="save">保存项目</sf-button>
       </span>
-    </el-dialog>
-    <el-dialog title="导入实验项目" :visible.sync="uploadVisible" width="560px" :close-on-click-modal="false">
+    </sf-dialog>
+    <sf-dialog title="导入实验项目" :visible.sync="uploadVisible" width="560px" :close-on-click-modal="false">
       <p class="muted">
         项目将导入当前选定的教学任务。请先下载模板，填写真实实验项目；课程号、课程名称和教师必须与任务对应。
       </p>
@@ -167,31 +73,31 @@
       </div>
       <warnings :items="uploadWarnings" />
       <span slot="footer">
-        <el-button @click="uploadVisible = false">关闭</el-button>
-        <el-button type="primary" :disabled="!file || !editable" :loading="saving" @click="importProjects">
+        <sf-button @click="uploadVisible = false">关闭</sf-button>
+        <sf-button type="primary" :disabled="!file || !editable" :loading="saving" @click="importProjects">
           上传并导入
-        </el-button>
+        </sf-button>
       </span>
-    </el-dialog>
-    <el-dialog
+    </sf-dialog>
+    <sf-dialog
       title="从历史任务复制实验项目"
       :visible.sync="copyVisible"
       width="640px"
       :close-on-click-modal="false"
     >
-      <el-alert
+      <sf-alert
         title="复制会保留历史原项目，在当前任务中创建独立版本；请核对课程与学时后操作。"
         type="info"
         :closable="false"
         show-icon
       />
-      <el-form label-position="top">
-        <el-form-item label="目标任务">
-          <el-input :value="task ? task.course_name + ' · ' + task.task_code : ''" disabled />
-        </el-form-item>
-        <el-form-item label="历史来源任务">
-          <el-select v-model="sourceTaskId" filterable placeholder="选择历史学期中已有项目的任务">
-            <el-option
+      <sf-form label-position="top">
+        <sf-form-item label="目标任务">
+          <sf-input :value="task ? task.course_name + ' · ' + task.task_code : ''" disabled />
+        </sf-form-item>
+        <sf-form-item label="历史来源任务">
+          <sf-select v-model="sourceTaskId" filterable placeholder="选择历史学期中已有项目的任务">
+            <sf-option
               v-for="item in sourceTasks"
               :key="item.id"
               :value="item.id"
@@ -206,17 +112,17 @@
                   ' 项）'
               "
             />
-          </el-select>
-        </el-form-item>
-      </el-form>
+          </sf-select>
+        </sf-form-item>
+      </sf-form>
       <p v-if="!sourceTasks.length" class="muted">暂无同一课程中有权限访问且包含项目的历史任务。</p>
       <span slot="footer">
-        <el-button @click="copyVisible = false">取消</el-button>
-        <el-button type="primary" :disabled="!sourceTaskId || !editable" :loading="saving" @click="copy">
+        <sf-button @click="copyVisible = false">取消</sf-button>
+        <sf-button type="primary" :disabled="!sourceTaskId || !editable" :loading="saving" @click="copy">
           复制到当前任务
-        </el-button>
+        </sf-button>
       </span>
-    </el-dialog>
+    </sf-dialog>
   </div>
 </template>
 <script>
@@ -235,6 +141,7 @@ export default {
   components: { PageHeading, Warnings },
   mixins: [shared],
   data: () => ({
+    projectQuery: '', projectType: '',
     tasks: [],
     termId: '',
     taskId: '',
@@ -263,6 +170,7 @@ export default {
     }, {})
   }),
   computed: {
+    displayRows(){return this.rows.filter(p=>(!this.projectType||String(p.type_code)===String(this.projectType))&&[p.name,p.project_code].join(' ').toLowerCase().includes(this.projectQuery.toLowerCase()))},
     task() {
       return this.tasks.find(item => String(item.id) === String(this.taskId))
     },
@@ -294,16 +202,18 @@ export default {
       return this.rows.reduce((sum, row) => sum + Number(row.hours || 0), 0).toFixed(2)
     }
   },
+  watch:{'$route.query.termId'(v){this.termId=v||'';this.changeTerm()}},
   async mounted() {
     this.loading = true
     try {
       await this.loadLookups()
       await this.loadTasks()
+      this.termId=this.$route.query.termId||''
       const requested = this.$route.query.taskId
       const selected =
         this.tasks.find(item => String(item.id) === String(requested)) ||
-        this.tasks.find(item => ['CURRENT', 'OPEN'].includes(item.status)) ||
-        this.tasks[0]
+        this.filteredTasks.find(item => ['CURRENT', 'OPEN'].includes(item.status)) ||
+        this.filteredTasks[0]
       if (selected) this.taskId = selected.id
       await this.loadProjects()
     } catch (e) {

@@ -1,152 +1,102 @@
 <template>
-  <div class="teaching-page">
-    <page-heading
-      :title="isLabs ? '实验室' : '教师账号'"
-      :description="
-        isLabs
-          ? '维护实验室基础资料与负责人；未知设备数量保留待确认。'
-          : '维护教师身份与所属学院，为教学任务提供准确的任课教师关联。'
-      "
-      :eyebrow="isLabs ? 'LABORATORY RESOURCES' : 'TEACHER ACCOUNTS'"
-    >
-      <el-button v-if="isAdmin" type="primary" icon="el-icon-plus" @click="edit()">
-        {{ isLabs ? '新增实验室' : '新增教师' }}
-      </el-button>
-    </page-heading>
-    <section class="panel">
-      <el-alert
-        v-if="!isLabs"
-        title="系统分配临时账号以 TMP / TEMP 开头，需由管理员核实正式工号。新增和重置的初始密码只显示一次，请及时交给账号本人。"
-        type="info"
-        show-icon
-        :closable="false"
-      />
-      <div class="filter-bar">
-        <el-input
-          v-model.trim="q"
-          :placeholder="isLabs ? '搜索实验室编号或名称' : '搜索教师姓名或工号'"
-          clearable
-          @keyup.enter.native="load"
-          @clear="load"
-        />
-        <el-button type="primary" icon="el-icon-search" :loading="loading" @click="load">查询</el-button>
-        <span class="muted">共 {{ total }} {{ isLabs ? '间实验室' : '位教师' }}</span>
-      </div>
-      <el-table v-if="isLabs" v-loading="loading" :data="rows" empty-text="暂无符合条件的实验室">
-        <el-table-column prop="shiyanshibianhao" label="实验室编号" min-width="155" />
-        <el-table-column prop="shiyanshimingcheng" label="实验室名称" min-width="220" />
-        <el-table-column label="位置" min-width="155">
-          <template slot-scope="scope">{{ text(scope.row.shiyanshiweizhi) }}</template>
-        </el-table-column>
-        <el-table-column label="负责人" width="130">
-          <template slot-scope="scope">{{ manager(scope.row) }}</template>
-        </el-table-column>
-        <el-table-column label="设备数量" width="130">
-          <template slot-scope="scope">{{ text(scope.row.equipment_count) }}</template>
-        </el-table-column>
-        <el-table-column v-if="isAdmin" label="操作" width="145">
-          <template slot-scope="scope">
-            <el-button type="text" @click="edit(scope.row)">编辑</el-button>
-            <el-button type="text" :disabled="saving" @click="remove(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-table v-else v-loading="loading" :data="rows" empty-text="暂无符合条件的教师">
-        <el-table-column prop="gonghao" label="登录工号" min-width="150" />
-        <el-table-column prop="jiaoshixingming" label="教师姓名" min-width="140" />
-        <el-table-column label="所属学院" min-width="200">
-          <template slot-scope="scope">{{ text(scope.row.xueyuan) }}</template>
-        </el-table-column>
-        <el-table-column label="账号状态" min-width="190">
-          <template slot-scope="scope">
-            <el-tag v-if="temporary(scope.row)" size="small" type="warning">系统分配临时账号</el-tag>
-            <el-tag v-else size="small" type="info">正式工号账号</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200">
-          <template slot-scope="scope">
-            <el-button type="text" @click="edit(scope.row)">编辑</el-button>
-            <el-button type="text" :disabled="saving" @click="resetPassword(scope.row)">重置密码</el-button>
-            <el-button type="text" :disabled="saving" @click="remove(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
-    <el-dialog
+<div class="teaching-page">
+<page-heading :title="isLabs ? '实验室' : '教师账号'" :eyebrow="isLabs ? 'LABORATORY RESOURCES' : 'FACULTY MANAGEMENT'" :description="isLabs ? '查看实验空间与基础信息，为教学安排提供参考。' : '查看教师信息与教学任务，管理教师登录密码。'">
+<span class="badge" :class="isLabs ? 'gray' : 'blue'">{{ isLabs ? '实验室资料' : '管理员端' }}</span>
+<button v-if="isAdmin" class="btn primary" @click="edit()"><sf-icon name="plus"/>新增{{ isLabs ? '实验室' : '教师' }}</button>
+</page-heading>
+<section class="panel" v-loading="loading">
+<form class="filter-bar" @submit.prevent="load"><label class="search-field"><sf-icon name="search"/><input v-model.trim="q" :aria-label="isLabs ? '搜索实验室' : '搜索教师'" :placeholder="isLabs ? '搜索实验室、编号或位置' : '搜索教师姓名、工号或学院'"/></label><button class="btn primary" :disabled="loading">查询</button><button v-if="q" type="button" class="btn" @click="q='';load()">重置</button><span class="filter-hint muted">共 {{ total }} {{ isLabs ? '间实验室' : '位教师' }}</span></form>
+<div v-if="isLabs" class="lab-grid">
+<article v-for="(row,i) in rows" :key="row.id" class="lab-card">
+<div class="lab-visual" :class="'lab-visual-'+i%3"><span class="room-label">{{ text(row.shiyanshiweizhi) }}</span><div class="room-art" aria-hidden="true"><sf-icon name="building"/><span></span><i></i><i></i><i></i></div><span class="badge" :class="row.equipment_count == null || !row.manager_teacher_id ? 'amber' : 'green'">{{ row.equipment_count == null || !row.manager_teacher_id ? '资料待补充' : '资料完整' }}</span></div>
+<div class="lab-body"><small>{{ labCode(row) }}</small><h2>{{ labName(row) }}</h2><div class="lab-meta"><span><sf-icon name="users"/>负责人 <b>{{ manager(row) }}</b></span><span><sf-icon name="grid"/>设备数 <b>{{ row.equipment_count == null ? '待补充' : row.equipment_count+' 台' }}</b></span></div>
+<div class="lab-card-footer"><span>{{ labTasks(row.id) }} 个所选学期教学任务</span><button class="btn text" @click="selectedLab=row">查看详情 →</button></div></div></article>
+</div>
+<div v-else>
+<div class="notice"><sf-icon name="info"/><span>系统分配的临时账号需核实正式工号。新增和重置的密码只显示一次，请及时保存。</span></div>
+<div class="table-wrap" v-if="rows.length"><table><thead><tr><th>教师</th><th>工号 / 登录账号</th><th>所属学院</th><th>账号类型</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.id"><td><span class="person-cell"><span class="avatar">{{ (row.jiaoshixingming||'')[0] }}</span><strong>{{ row.jiaoshixingming }}</strong></span></td><td>{{ row.gonghao }}</td><td>{{ text(row.xueyuan) }}</td><td><span class="badge" :class="temporary(row)?'amber':'green'">{{ temporary(row)?'临时账号':'正式账号' }}</span></td><td><div class="row-actions"><button class="btn text" @click="edit(row)">编辑</button><button class="btn text" :disabled="saving" @click="resetPassword(row)">重置密码</button><button class="btn text danger" :disabled="saving" @click="remove(row)">删除</button></div></td></tr></tbody></table></div>
+</div>
+<div class="empty" v-if="!loading && !rows.length"><sf-icon name="search"/><strong>没有找到符合条件的记录</strong><span>请调整筛选条件或导入真实资料。</span></div>
+</section>
+<sf-dialog title="实验室详情" :visible="!!selectedLab" @update:visible="selectedLab=null">
+<template v-if="selectedLab"><dl class="detail-grid"><div><dt>编号</dt><dd>{{ labCode(selectedLab) }}</dd></div><div><dt>名称</dt><dd>{{ labName(selectedLab) }}</dd></div><div><dt>位置</dt><dd>{{ text(selectedLab.shiyanshiweizhi) }}</dd></div><div><dt>负责人</dt><dd>{{ manager(selectedLab) }}</dd></div><div><dt>设备数</dt><dd>{{ text(selectedLab.equipment_count) }}</dd></div></dl></template>
+<span slot="footer"><button v-if="isAdmin" class="btn" @click="edit(selectedLab);selectedLab=null">编辑资料</button><button v-if="isAdmin" class="btn text danger" @click="remove(selectedLab);selectedLab=null">删除</button><button class="btn primary" @click="selectedLab=null">关闭</button></span>
+</sf-dialog>
+    <sf-dialog
       :title="(form.id ? '编辑' : '新增') + (isLabs ? '实验室' : '教师账号')"
       :visible.sync="visible"
       width="600px"
       :close-on-click-modal="false"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-position="top">
+      <sf-form ref="form" :model="form" :rules="rules" label-position="top">
         <template v-if="isLabs">
-          <el-form-item label="实验室编号" prop="shiyanshibianhao">
-            <el-input v-model.trim="form.shiyanshibianhao" maxlength="64" />
-          </el-form-item>
-          <el-form-item label="实验室名称" prop="shiyanshimingcheng">
-            <el-input v-model.trim="form.shiyanshimingcheng" maxlength="200" />
-          </el-form-item>
-          <el-form-item label="实验室位置">
-            <el-input v-model.trim="form.shiyanshiweizhi" placeholder="未知可留空" />
-          </el-form-item>
+          <sf-form-item label="实验室编号" prop="shiyanshibianhao">
+            <sf-input v-model.trim="form.shiyanshibianhao" maxlength="64" />
+          </sf-form-item>
+          <sf-form-item label="实验室名称" prop="shiyanshimingcheng">
+            <sf-input v-model.trim="form.shiyanshimingcheng" maxlength="200" />
+          </sf-form-item>
+          <sf-form-item label="实验室位置">
+            <sf-input v-model.trim="form.shiyanshiweizhi" placeholder="未知可留空" />
+          </sf-form-item>
           <div class="form-grid">
-            <el-form-item label="负责人教师">
-              <el-select v-model="form.manager_teacher_id" clearable filterable placeholder="尚未确认">
-                <el-option
+            <sf-form-item label="负责人教师">
+              <sf-select v-model="form.manager_teacher_id" clearable filterable placeholder="尚未确认">
+                <sf-option
                   v-for="teacher in lookups.teachers"
                   :key="teacher.id"
                   :value="teacher.id"
                   :label="teacher.jiaoshixingming + ' · ' + teacher.gonghao"
                 />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="设备数量">
-              <el-input-number
+              </sf-select>
+            </sf-form-item>
+            <sf-form-item label="设备数量">
+              <sf-input-number
                 v-model="form.equipment_count"
                 :min="0"
                 :max="1000000"
                 :precision="0"
                 placeholder="未知请清空"
               />
-            </el-form-item>
+            </sf-form-item>
           </div>
           <p class="muted">设备数量留空表示未知；0 表示已确认无设备。</p>
         </template>
         <template v-else>
-          <el-form-item label="登录工号" prop="gonghao">
-            <el-input
+          <sf-form-item label="登录工号" prop="gonghao">
+            <sf-input
               v-model.trim="form.gonghao"
               maxlength="64"
               placeholder="正式工号，未知时使用唯一 TMP 前缀临时账号"
             />
-          </el-form-item>
-          <el-form-item label="教师姓名" prop="jiaoshixingming">
-            <el-input v-model.trim="form.jiaoshixingming" maxlength="100" />
-          </el-form-item>
-          <el-form-item label="所属学院">
-            <el-input v-model.trim="form.xueyuan" maxlength="200" placeholder="未知可留空" />
-          </el-form-item>
-          <el-alert
+          </sf-form-item>
+          <sf-form-item label="教师姓名" prop="jiaoshixingming">
+            <sf-input v-model.trim="form.jiaoshixingming" maxlength="100" />
+          </sf-form-item>
+          <sf-form-item label="所属学院">
+            <sf-input v-model.trim="form.xueyuan" maxlength="200" placeholder="未知可留空" />
+          </sf-form-item>
+          <sf-alert
             v-if="!form.id"
             title="创建后由系统生成初始密码，只在本次操作后显示一次。"
             type="info"
             :closable="false"
           />
         </template>
-      </el-form>
+      </sf-form>
       <span slot="footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button type="primary" :loading="saving" @click="save">保存</el-button>
+        <sf-button @click="visible = false">取消</sf-button>
+        <sf-button type="primary" :loading="saving" @click="save">保存</sf-button>
       </span>
-    </el-dialog>
-    <el-dialog
+    </sf-dialog>
+    <sf-dialog
       title="请保存本次生成的密码"
       :visible.sync="passwordVisible"
       width="490px"
       :close-on-click-modal="false"
       @closed="password = ''"
     >
-      <el-alert
+      <sf-alert
         title="密码只显示一次，关闭后无法再次查看。请交给教师本人，并提醒首次登录后修改。"
         type="warning"
         :closable="false"
@@ -155,9 +105,9 @@
       <p class="muted">账号：{{ passwordAccount }}</p>
       <div class="credential">{{ password }}</div>
       <span slot="footer">
-        <el-button type="primary" @click="passwordVisible = false">已保存，关闭</el-button>
+        <sf-button type="primary" @click="passwordVisible = false">已保存，关闭</sf-button>
       </span>
-    </el-dialog>
+    </sf-dialog>
   </div>
 </template>
 <script>
@@ -168,6 +118,8 @@ export default {
   components: { PageHeading },
   mixins: [shared],
   data: () => ({
+    selectedLab: null,
+    reportLabs: [],
     q: '',
     rows: [],
     total: 0,
@@ -191,6 +143,7 @@ export default {
       }, {})
     }
   },
+  watch: { '$route.query.termId': 'loadLabCounts' },
   async mounted() {
     try {
       await this.loadLookups()
@@ -198,8 +151,11 @@ export default {
       this.fail(e)
     }
     this.load()
+    this.loadLabCounts()
   },
   methods: {
+    async loadLabCounts() { if(!this.isLabs)return; try { const r=await request('/reports',{params:{termId:this.$route.query.termId}}); this.reportLabs=r.labs||[] } catch(e){this.fail(e)} },
+    labTasks(id) { const lab=this.rows.find(l=>l.id===id); const r=this.reportLabs.find(l=>lab && String(l.lab_code)===String(lab.shiyanshibianhao)); return r ? r.task_count : 0 },
     async load() {
       this.loading = true
       try {
@@ -219,6 +175,12 @@ export default {
       if (row.manager_name || row.manager_teacher_name) return row.manager_name || row.manager_teacher_name
       const teacher = this.lookups.teachers.find(t => String(t.id) === String(row.manager_teacher_id))
       return teacher ? teacher.jiaoshixingming : '待确认'
+    },
+    labCode(row) {
+      return this.text(row.shiyanshibianhao || row.lab_code || row.code)
+    },
+    labName(row) {
+      return this.text(row.shiyanshimingcheng || row.lab_name || row.name)
     },
     edit(row) {
       this.form = row

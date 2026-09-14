@@ -1,104 +1,12 @@
-<template>
-  <div class="teaching-page">
-    <page-heading
-      title="导入中心"
-      description="上传真实 Excel 数据，保留原始行与核对记录。疑似重复的教学任务不会覆盖已有数据。"
-      eyebrow="DATA IMPORT CENTER"
-    >
-      <el-button icon="el-icon-refresh" :loading="loading" @click="load">刷新批次</el-button>
-    </page-heading>
-    <section class="panel">
-      <div class="panel-title">
-        <h2>导入教学资料</h2>
-        <span class="muted">支持 .xlsx · 文件小于 10 MB</span>
-      </div>
-      <el-radio-group v-model="kind" :disabled="saving" @change="resetUpload">
-        <el-radio-button label="timetable">课程课表</el-radio-button>
-        <el-radio-button label="teachers">教师账号</el-radio-button>
-        <el-radio-button label="labs">实验室资料</el-radio-button>
-      </el-radio-group>
-      <div class="file-pick">
-        <strong>{{ kinds[kind] }} Excel</strong>
-        <p class="muted">{{ descriptions[kind] }}</p>
-        <input
-          :key="fileKey"
-          type="file"
-          accept=".xlsx"
-          :disabled="saving"
-          aria-label="选择导入 Excel 文件"
-          @change="file = $event.target.files[0]"
-        />
-      </div>
-      <div class="action-row">
-        <el-button
-          type="primary"
-          icon="el-icon-upload2"
-          :disabled="!file"
-          :loading="saving"
-          @click="importFile"
-        >
-          上传并导入
-        </el-button>
-        <el-button
-          icon="el-icon-download"
-          :loading="downloading"
-          @click="downloadFile('/templates/' + kind, kinds[kind] + '导入模板.xlsx')"
-        >
-          下载模板
-        </el-button>
-        <span v-if="file" class="muted">已选择：{{ file.name }}</span>
-      </div>
-      <div v-if="result" class="import-result">
-        <el-alert
-          :title="resultTitle"
-          :type="Number(result.errors) > 0 || result.review_count > 0 ? 'warning' : 'success'"
-          :closable="false"
-          show-icon
-        />
-        <warnings :items="resultIssues" />
-        <el-button v-if="result.batchId" type="text" @click="detail(result.batchId)">
-          查看本次导入的逐行记录
-          <i class="el-icon-right" />
-        </el-button>
-      </div>
-    </section>
-    <section class="panel">
-      <div class="panel-title">
-        <h2>课表导入批次记录</h2>
-        <span class="muted">共 {{ total }} 批</span>
-      </div>
-      <el-table v-loading="loading" :data="rows" empty-text="暂无导入记录，请上传实际课表开始">
-        <el-table-column prop="id" label="批次" width="80" />
-        <el-table-column label="文件名称" min-width="260">
-          <template slot-scope="scope">{{ scope.row.file_name || scope.row.filename || '—' }}</template>
-        </el-table-column>
-        <el-table-column prop="row_count" label="来源行数" width="100" />
-        <el-table-column prop="promoted" label="已入库" width="90" />
-        <el-table-column prop="created_at" label="导入时间" min-width="175" />
-        <el-table-column label="状态" min-width="130">
-          <template slot-scope="scope">
-            <el-tag
-              size="small"
-              :type="Number(scope.row.errors) ? 'danger' : Number(scope.row.warnings) ? 'warning' : 'success'"
-            >
-              {{
-                Number(scope.row.errors)
-                  ? scope.row.errors + ' 行错误'
-                  : Number(scope.row.warnings)
-                  ? scope.row.warnings + ' 行待核对'
-                  : '处理完成'
-              }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="110">
-          <template slot-scope="scope">
-            <el-button type="text" @click="detail(scope.row.id)">查看批次</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
-    <el-dialog title="导入批次与逐行核对" :visible.sync="detailVisible" width="1100px">
+<template><div class="teaching-page">
+<page-heading title="导入中心" eyebrow="DATA IMPORT CENTER" description="导入学期课表并核对原始记录，保留真实的教学资料。"><button class="btn" @click="load" :disabled="loading">刷新批次</button></page-heading>
+<section class="panel"><div class="panel-title"><h2>导入教学资料</h2><span class="badge blue">Excel 导入</span></div><div class="tabs import-tabs"><button v-for="(label,key) in kinds" :key="key" class="btn" :class="{active:kind===key}" :disabled="saving" @click="kind=key;resetUpload()">{{ label }}</button></div>
+<div class="import-steps"><span :class="{active:!file&&!saving&&!result}"><b>1</b>选择资料</span><i></i><span :class="{active:!!file||saving}"><b>2</b>上传与校验</span><i></i><span :class="{active:!!result}"><b>3</b>核对导入结果</span></div>
+<div class="upload-zone"><sf-icon name="upload"/><h3>选择{{ kinds[kind] }} Excel 文件</h3><p>支持 .xlsx，最大 10 MB</p><label class="btn primary file-label">选择文件<input :key="fileKey" type="file" accept=".xlsx" :disabled="saving" aria-label="选择 Excel 文件" @change="file=$event.target.files[0]"/></label><span class="muted">{{ file?file.name:'请选择待导入的真实教学资料' }}</span></div>
+<div class="between wrap"><span class="muted">{{ descriptions[kind] }}</span><div class="actions"><button class="btn" :disabled="downloading" @click="downloadFile('/templates/'+kind,kinds[kind]+'导入模板.xlsx')"><sf-icon name="download"/>下载模板</button><button class="btn primary" :disabled="!file||saving" @click="importFile">{{ saving?'导入中…':'上传并导入' }}<sf-icon name="arrow"/></button></div></div>
+<div v-if="result"><div class="notice"><sf-icon name="info"/><span>{{ resultTitle }}</span></div><warnings :items="resultIssues"/><button v-if="result.batchId" class="btn text" @click="detail(result.batchId)">查看本次逐行记录 →</button></div></section>
+<section class="panel" v-loading="loading"><div class="panel-title"><h2>导入批次记录</h2><span class="muted">共 {{ total }} 批</span></div><div v-if="rows.length" class="table-wrap"><table><thead><tr><th>文件名称</th><th>资料类型</th><th>来源 / 已处理</th><th>导入时间</th><th>状态</th><th>操作</th></tr></thead><tbody><tr v-for="b in rows" :key="b.id"><td><span class="file-name"><sf-icon name="layers"/>{{ b.file_name||b.filename }}</span></td><td>课程课表</td><td>{{ b.row_count }} / {{ b.promoted }}</td><td>{{ b.created_at }}</td><td><span class="badge" :class="Number(b.errors)||Number(b.warnings)?'amber':'green'">{{ Number(b.errors)?b.errors+' 行错误':Number(b.warnings)?b.warnings+' 行待核对':'处理完成' }}</span></td><td><button class="btn text" @click="detail(b.id)">查看批次</button></td></tr></tbody></table></div><div v-else class="empty"><sf-icon name="upload"/><strong>暂无导入记录</strong></div></section>
+    <sf-dialog title="导入批次与逐行核对" :visible.sync="detailVisible" width="1100px">
       <div v-loading="detailLoading">
         <template v-if="batch">
           <dl class="detail-grid">
@@ -115,19 +23,19 @@
               <dd>{{ text(batch.created_at) }}</dd>
             </div>
           </dl>
-          <el-alert
+          <sf-alert
             title="待核对行保留原始内容。确认是另一独立开课后可入库；操作会新增任务，不会覆盖已有课程任务。错误行需要修正 Excel 后重新导入。"
             type="info"
             show-icon
             :closable="false"
           />
           <div v-if="summaryText" class="muted summary-line">{{ summaryText }}</div>
-          <el-table :data="detailRows" max-height="470" empty-text="本批次没有逐行记录">
-            <el-table-column prop="sheet_name" label="工作表" width="100" />
-            <el-table-column prop="source_row" label="原始行号" width="95" />
-            <el-table-column label="状态" width="115">
+          <sf-table :data="detailRows" max-height="470" empty-text="本批次没有逐行记录">
+            <sf-column prop="sheet_name" label="工作表" width="100" />
+            <sf-column prop="source_row" label="原始行号" width="95" />
+            <sf-column label="状态" width="115">
               <template slot-scope="scope">
-                <el-tag
+                <sf-tag
                   size="mini"
                   :type="
                     scope.row.status === 'ERROR'
@@ -138,40 +46,40 @@
                   "
                 >
                   {{ status(scope.row.status) }}
-                </el-tag>
+                </sf-tag>
               </template>
-            </el-table-column>
-            <el-table-column label="数据疑点" min-width="330">
+            </sf-column>
+            <sf-column label="数据疑点" min-width="330">
               <template slot-scope="scope">
                 <div v-for="(issue, i) in issues(scope.row.issues)" :key="i">{{ issueText(issue) }}</div>
                 <span v-if="!issues(scope.row.issues).length" class="muted">无数据疑点</span>
               </template>
-            </el-table-column>
-            <el-table-column label="操作" width="140">
+            </sf-column>
+            <sf-column label="操作" width="140">
               <template slot-scope="scope">
-                <el-button
+                <sf-button
                   v-if="scope.row.status === 'REVIEW'"
                   type="text"
                   :disabled="saving"
                   @click="confirmRow(scope.row)"
                 >
                   确认独立开课
-                </el-button>
+                </sf-button>
                 <span v-else class="muted">
                   {{ scope.row.status === 'PROMOTED' ? '已生成任务' : '需修正来源数据' }}
                 </span>
               </template>
-            </el-table-column>
-            <el-table-column type="expand">
+            </sf-column>
+            <sf-column type="expand">
               <template slot-scope="scope">
                 <pre class="query-sql">{{ pretty(scope.row.raw_data || scope.row) }}</pre>
               </template>
-            </el-table-column>
-          </el-table>
+            </sf-column>
+          </sf-table>
         </template>
       </div>
-      <span slot="footer"><el-button @click="detailVisible = false">关闭</el-button></span>
-    </el-dialog>
+      <span slot="footer"><sf-button @click="detailVisible = false">关闭</sf-button></span>
+    </sf-dialog>
   </div>
 </template>
 <script>
@@ -355,13 +263,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.import-result {
-  margin-top: 24px;
-  padding-top: 18px;
-  border-top: 1px solid #e4ebf3;
-}
-.summary-line {
-  margin: 15px 0;
-}
-</style>

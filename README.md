@@ -16,6 +16,17 @@
 
 ## 本机启动
 
+后端统一使用 `9090`，接口前缀为 `http://localhost:9090/springboote51e2`；Vue 前端使用 `8081`，开发代理转发到后端 `9090`。
+
+在 IDEA 中运行 `back/src/main/java/com/SpringbootSchemaApplication.java` 的 `main` 方法启动后端。若运行配置中设置了 `server.port`、`--server.port` 或 `-Dserver.port`，请删除该覆盖项或设为 `9090`。随后在 IDEA 终端执行：
+
+```powershell
+cd D:\shixian\front
+npm run serve
+```
+
+浏览器打开 `http://localhost:8081`。修改 `vue.config.js` 后需停止并重新运行 `npm run serve`；修改后端端口后需重启后端。也可使用下方脚本启动。
+
 访问 http://localhost:8081 ，选择管理员，用户名 `admin`。随机初始密码及教师临时账号在本机 `database/generated/teaching-accounts.local.json`，不提交 Git。修改密码后该初始清单不会更新。
 
 ```powershell
