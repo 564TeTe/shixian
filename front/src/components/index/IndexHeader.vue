@@ -1,12 +1,10 @@
 <template>
-  <header class="teaching-header">
-    <router-link to="/index" class="brand">
-      <span class="brand-mark"><i class="el-icon-s-grid" /></span>
-      <span>
-        实验教学项目管理系统
-        <small>LAB TEACHING · ACADEMIC WORKSPACE</small>
-      </span>
-    </router-link>
+  <header class="topbar">
+    <div class="breadcrumb">
+      <span>{{ role || '教学端' }}</span>
+      <b>/</b>
+      <strong>{{ $route.meta.title || '教学概览' }}</strong>
+    </div>
     <div class="header-user">
       <span class="role-tag">{{ role }}</span>
       <span>{{ name }}</span>
@@ -42,81 +40,24 @@ export default {
   }
 }
 </script>
-<style scoped>
-.teaching-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 76px;
-  background: #1e3a5f;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 29px;
-  box-shadow: 0 2px 8px rgba(16, 42, 79, 0.12);
-  font-family: 'Microsoft YaHei', sans-serif;
-}
-.brand {
-  display: flex;
-  gap: 13px;
-  align-items: center;
-  text-decoration: none;
-  color: #fff;
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-.brand small {
-  display: block;
-  color: #a5bedb;
-  font-size: 8px;
-  letter-spacing: 2px;
-  margin-top: 5px;
-}
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  background: #36577e;
-  border: 1px solid #6382a3;
-  border-radius: 9px;
-  font-size: 24px;
-}
+<style>
 .header-user {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
-  color: #dfebf8;
+  color: #68758b;
   font-size: 12px;
 }
 .header-user .el-button {
-  color: #d9e9fc;
+  color: #6e7f98;
   font-size: 12px;
   margin: 0;
 }
 .role-tag {
   padding: 4px 9px;
-  border: 1px solid #657e9e;
+  border: 1px solid #dce4ef;
   border-radius: 5px;
-  color: #c3d7ee;
+  color: #8090a6;
   font-size: 10px;
-}
-@media (max-width: 900px) {
-  .brand {
-    font-size: 15px;
-  }
-  .brand small,
-  .header-user > span {
-    display: none;
-  }
-  .teaching-header {
-    padding: 0 15px;
-  }
-  .header-user {
-    gap: 10px;
-  }
 }
 </style>

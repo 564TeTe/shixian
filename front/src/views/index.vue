@@ -1,11 +1,15 @@
 <template>
-	<el-container>
-		<index-header></index-header>
-		<el-container>
-			<index-aside></index-aside>
-			<index-main></index-main>
-		</el-container>
-	</el-container>
+  <div class="app-shell">
+    <index-aside />
+    <div class="workspace">
+      <index-header />
+      <index-main />
+      <footer class="page-footer">
+        <span>实验教学项目管理系统</span>
+        <span>后端数据 <i>·</i> {{ isAdmin ? '管理员视角' : '教师视角' }}</span>
+      </footer>
+    </div>
+  </div>
 </template>
 <script>
 	import IndexHeader from '@/components/index/IndexHeader'
@@ -16,17 +20,11 @@
 			IndexHeader,
 			IndexAside,
 			IndexMain
-		}
+		},
+    computed: {
+      isAdmin() {
+        return this.$storage.get('sessionTable') === 'users'
+      }
+    }
 	}
 </script>
-
-<style lang="scss" scoped>
-	// 铺满全屏
-	.el-container {
-		position: absolute;
-		width: 100%;
-		top: 0;
-		left: 0;
-		bottom: 0;
-	}
-</style>

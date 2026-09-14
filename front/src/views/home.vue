@@ -11,9 +11,9 @@
     >
       <el-button icon="el-icon-refresh" :loading="loading" @click="load">刷新数据</el-button>
     </page-heading>
-    <div class="overview-banner">
+    <div class="semester-banner">
       <div>
-        <span class="eyebrow">CURRENT SEMESTER</span>
+        <span class="banner-label"><span class="status-dot" />CURRENT SEMESTER</span>
         <h2>{{ data.currentTerm ? data.currentTerm.name : '当前学期待生成' }}</h2>
         <p>
           {{
@@ -23,16 +23,16 @@
           }}
         </p>
       </div>
-      <i class="el-icon-date" />
+      <div class="banner-art"><i class="el-icon-date icon" /></div>
     </div>
     <div class="stat-grid">
       <div v-for="card in cards" :key="card.key" class="stat-card">
         <i :class="card.icon" />
-        <div class="label">{{ card.label }}</div>
-        <div class="value">
+        <div class="stat-top"><span>{{ card.label }}</span><i :class="card.icon" /></div>
+        <div class="stat-value">
           {{ data.counts && data.counts[card.key] != null ? data.counts[card.key] : '—' }}
         </div>
-        <div class="foot">{{ isAdmin ? '全部学期 · 实际业务数据' : '本人参与的教学范围' }}</div>
+        <div class="stat-foot">{{ isAdmin ? '全部学期 · 实际业务数据' : '本人参与的教学范围' }}</div>
       </div>
     </div>
     <div class="dashboard-grid">

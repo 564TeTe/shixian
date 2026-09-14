@@ -4,6 +4,8 @@ import App from '@/App.vue'
 import ElementUI from 'element-ui'
 import '@/assets/css/element-variables.scss'
 import '@/assets/css/style.scss'
+// 与 static-front 保持一致的工作台视觉主题
+import '@/assets/css/static-theme.scss'
 // 加载路由
 // import router from '@/router/router-static.js';
 import router from '@/router/router-static.js';
