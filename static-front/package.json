@@ -1,0 +1,11 @@
+{
+  "name": "teaching-static-front",
+  "private": true,
+  "version": "1.0.0",
+  "description": "实验教学项目管理系统独立静态前端",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check api-client.js && node --check app.js && node --check data.js && node --check smoke-test.cjs",
+    "test": "node smoke-test.cjs"
+  }
+}

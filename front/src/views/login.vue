@@ -1,35 +1,27 @@
 <template>
-  <main class="teaching-login">
-    <section class="login-intro">
-      <div class="login-wordmark">
-        <i class="el-icon-s-grid" />
-        LAB TEACHING
+  <main class="login-screen">
+    <section class="login-story">
+      <div class="brand">
+        <span class="brand-mark"><i class="el-icon-s-grid icon" /></span>
+        <span>实验教学<span class="brand-sub">LAB TEACHING WORKSPACE</span></span>
       </div>
-      <div class="intro-copy">
-        <span class="intro-label">实验教学 · 有序协同</span>
+      <div>
+        <div class="eyebrow">A BETTER SPACE FOR TEACHING</div>
         <h1>
-          让每一次实验，
+          连接实验与教学，
           <br />
-          都有清晰的安排。
+          让探索更有方向。
         </h1>
-        <p>
-          连接课程、教学任务与实验项目，
-          <br />
-          让教学数据回到真实、可追溯的工作流程。
-        </p>
-        <div class="intro-lines">
-          <span>01 / 课程与课表</span>
-          <span>02 / 实验项目</span>
-          <span>03 / 教学统计</span>
-        </div>
+        <p>课程管理 · 实验项目 · 资源统计 · 智能查询</p>
+        <div class="login-art" aria-hidden="true"><i class="el-icon-s-grid icon" /></div>
       </div>
-      <span class="intro-footer">实验教学项目管理系统</span>
+      <span class="muted">实验教学项目管理系统</span>
     </section>
-    <section class="login-form-area">
-      <div class="signin-card">
-        <div class="signin-eyebrow">WELCOME TO YOUR WORKSPACE</div>
+    <section class="login-form-wrap">
+      <div class="login-form">
+        <div class="eyebrow">WELCOME BACK</div>
         <h2>登录教学工作台</h2>
-        <p class="signin-help">使用管理员分配的账号登录</p>
+        <p>使用后端数据库中的账号登录。</p>
         <el-form ref="form" :model="form" :rules="rules" label-position="top" @submit.native.prevent="login">
           <el-form-item label="登录身份">
             <el-radio-group v-model="form.role">
@@ -63,7 +55,7 @@
             show-icon
             class="login-error"
           />
-          <el-button type="primary" native-type="submit" :loading="loading" class="signin-button">
+          <el-button type="primary" native-type="submit" :loading="loading" class="btn primary signin-button">
             进入工作台
             <i class="el-icon-right" />
           </el-button>

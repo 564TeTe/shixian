@@ -164,12 +164,6 @@ tbody tr:hover { background: #fbfcff; }
 .course-icon .icon { width: 17px; height: 17px; }
 .person-cell { display: inline-flex; align-items: center; gap: 8px; }
 .badge { display: inline-flex; align-items: center; padding: 3px 8px; font-size: 10px; border-radius: 4px; line-height: 1.6; white-space: nowrap; font-weight: 400; }
-.badge.red { color: #c84c4c; background: #fdecec; }
-.badge.amber { color: #ae7c2f; background: #fff4df; }
-.badge.green { color: #338c72; background: #e9f7f1; }
-.badge.gray { color: #718096; background: #eef2f7; }
-.badge.blue { color: #4e75b5; background: #edf3ff; }
-.badge.purple { color: #7456a8; background: #f1ebfb; }
 .row-actions { display: flex; gap: 11px; align-items: center; }
 .row-actions .btn { font-size: 10px; }
 .table-footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding-top: 18px; border-top: 1px solid var(--line); margin-top: 8px; font-size: 10px; color: #a0aabd; }
@@ -324,12 +318,9 @@ dialog::backdrop { background: #17274455; backdrop-filter: blur(3px); }
 .modal-body > p { font-size: 12px; color: #7d8ba1; line-height: 1.9; margin-bottom: 18px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--line); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.form-grid .span-two { grid-column: 1 / -1; }
 #project-code-help { grid-column: 1 / -1; margin-top: -8px; }
 input[readonly] { background: #f6f8fc; color: #8291a8; cursor: default; }
 .form-grid > label, .modal-body form > label { display: flex; flex-direction: column; gap: 7px; color: #7789a5; font-size: 11px; }
-.form-grid select[multiple] { min-height: 132px; padding: 8px; }
-.btn:disabled { opacity: .48; cursor: not-allowed; }
 .detail-hero { display: flex; gap: 16px; align-items: center; margin: 0 0 25px; }
 .detail-hero .feature-icon { margin: 0; flex-shrink: 0; }
 .detail-hero p { color: #9baac0; font-size: 11px; margin-top: 7px; }
@@ -489,4 +480,80 @@ input[readonly] { background: #f6f8fc; color: #8291a8; cursor: default; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+/* Element UI controls use the same compact proportions as static-front. */
+.app-shell .el-button {
+  min-height: 36px;
+  padding: 8px 13px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.app-shell .el-button--primary {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.app-shell .el-button--primary:hover,
+.app-shell .el-button--primary:focus {
+  background: var(--blue-dark);
+  border-color: var(--blue-dark);
+}
+.app-shell .el-button--text {
+  min-height: 28px;
+  padding: 3px 0;
+  color: var(--blue);
+  background: transparent;
+  border: 0;
+}
+.app-shell .el-input__inner,
+.app-shell .el-textarea__inner {
+  border-color: #e2e7f0;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 12px;
+}
+.app-shell .el-input__inner {
+  height: 36px;
+  line-height: 36px;
+}
+.app-shell .el-form-item__label {
+  padding-bottom: 7px;
+  color: #7789a5;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.app-shell .el-form-item {
+  margin-bottom: 18px;
+}
+.app-shell .el-table {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+  color: #627695;
+  font-size: 12px;
+}
+.app-shell .el-table th {
+  background: #f7f9fc;
+  color: #8191aa;
+  font-size: 11px;
+  font-weight: 500;
+}
+.app-shell .el-table td,
+.app-shell .el-table th {
+  padding: 11px 10px;
+}
+.app-shell .el-table::before {
+  height: 0;
+}
+.app-shell .el-tag {
+  border-radius: 5px;
+  font-size: 10px;
+}
+.app-shell .el-dialog {
+  border-radius: 14px;
+}
+.app-shell .el-pagination {
+  color: #8291a8;
+  font-size: 11px;
 }
