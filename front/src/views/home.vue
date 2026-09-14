@@ -1,148 +1,17 @@
-<template>
-  <div class="teaching-page" v-loading="loading">
-    <page-heading
-      title="教学概览"
-      :description="
-        isAdmin
-          ? '掌握教学任务与实验资源的整体情况，让安排有据可依。'
-          : '查看本人参与的教学任务，维护当前学期的实验项目。'
-      "
-      eyebrow="OVERVIEW / 教学工作台"
-    >
-      <el-button icon="el-icon-refresh" :loading="loading" @click="load">刷新数据</el-button>
-    </page-heading>
-    <div class="overview-banner">
-      <div>
-        <span class="eyebrow">CURRENT SEMESTER</span>
-        <h2>{{ data.currentTerm ? data.currentTerm.name : '当前学期待生成' }}</h2>
-        <p>
-          {{
-            data.currentTerm
-              ? '当前任务可维护，历史学期项目保留归档。'
-              : '请联系管理员在学年学期页面生成当前学期。'
-          }}
-        </p>
-      </div>
-      <i class="el-icon-date" />
-    </div>
-    <div class="stat-grid">
-      <div v-for="card in cards" :key="card.key" class="stat-card">
-        <i :class="card.icon" />
-        <div class="label">{{ card.label }}</div>
-        <div class="value">
-          {{ data.counts && data.counts[card.key] != null ? data.counts[card.key] : '—' }}
-        </div>
-        <div class="foot">{{ isAdmin ? '全部学期 · 实际业务数据' : '本人参与的教学范围' }}</div>
-      </div>
-    </div>
-    <div class="dashboard-grid">
-      <section class="panel">
-        <div class="panel-title">
-          <h2>教学工作入口</h2>
-          <span class="muted">从任务开始，完成项目维护</span>
-        </div>
-        <button class="quick-link" @click="$router.push('/teaching/tasks')">
-          <i class="el-icon-date" />
-          <span>
-            <strong>课程与课表</strong>
-            <span class="muted">按学期查看课程、任课教师与实际排课</span>
-          </span>
-        </button>
-        <button class="quick-link" @click="$router.push('/teaching/projects')">
-          <i class="el-icon-notebook-2" />
-          <span>
-            <strong>实验项目管理</strong>
-            <span class="muted">维护项目，导入 Excel，复用历史教学内容</span>
-          </span>
-        </button>
-        <button class="quick-link" @click="$router.push('/teaching/reports')">
-          <i class="el-icon-pie-chart" />
-          <span>
-            <strong>实验教学统计</strong>
-            <span class="muted">按学年学期统计实验室学时与教学项目</span>
-          </span>
-        </button>
-      </section>
-      <section class="panel">
-        <div class="panel-title">
-          <h2>数据提醒</h2>
-          <el-tag size="mini" type="info">真实数据口径</el-tag>
-        </div>
-        <warnings :items="data.warnings || []" />
-        <div v-if="!(data.warnings || []).length" class="empty-state">
-          <i class="el-icon-circle-check" />
-          暂无需要处理的数据提醒
-        </div>
-        <p class="muted">报表中的排课学时以课表实际安排计算；选做实验项目的实际参与人数需另行确认。</p>
-        <el-button v-if="isAdmin" type="text" @click="$router.push('/teaching/imports')">
-          查看导入批次
-          <i class="el-icon-right" />
-        </el-button>
-      </section>
-    </div>
-  </div>
-</template>
+<template><div class="teaching-page" v-loading="loading">
+<page-heading eyebrow="TEACHING WORKSPACE" :title="(isAdmin?'管理员':$storage.get('adminName'))+'，欢迎回来'" description="把教学安排得井井有条，让每一次实验都有所收获。"><router-link class="btn" :to="{path:'/teaching/tasks',query:{termId:$route.query.termId,view:'week'}}"><sf-icon name="calendar"/>查看本周课表</router-link><button class="btn" @click="load">刷新数据</button></page-heading>
+<section class="semester-banner"><div><span class="banner-label"><span class="status-dot"></span>{{ selectedTerm ? status(selectedTerm.status) : '全部学期' }}</span><h2>{{ selectedTerm ? selectedTerm.name : '全部学期教学概览' }}</h2><p>从课程计划到实验项目，在这里连接教学的每一步。</p><router-link :to="{path:'/teaching/projects',query:{termId:$route.query.termId}}">进入实验项目 <sf-icon name="arrow"/></router-link></div><div class="banner-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-card art-back"><sf-icon name="book"/><i></i><i></i></div><div class="art-card art-front"><sf-icon name="flask"/><span>LAB</span><div class="art-lines"><i></i><i></i></div></div><span class="art-spark">✦</span><span class="art-dot"></span></div><div class="banner-week"><strong>{{ week || '—' }}</strong><span>{{ week ? '自学期开始的周次' : '请选择学期' }}</span><div class="mini-progress"><i :style="{width:progress+'%'}"></i></div></div></section>
+<div class="stat-grid"><div v-for="(card,i) in cards" :key="card[0]" class="stat-card"><div class="stat-top"><span>{{ card[0] }}</span><span class="stat-icon" :class="'tone-'+i"><sf-icon :name="card[3]"/></span></div><div class="stat-value">{{ Number(card[1]).toLocaleString('zh-CN') }}<small>{{ card[2] }}</small></div><div class="stat-foot">{{ card[4] }}</div></div></div>
+<div class="dashboard-grid"><section class="panel"><div class="panel-title"><div><h2>{{ isAdmin?'实验室教学分布':'我的教学安排' }}</h2><p>所选学期的实际教学数据</p></div><router-link class="text-link" to="/teaching/reports">查看报表 →</router-link></div><workspace-chart v-if="isAdmin" :rows="reports.labs||[]"/><template v-else><router-link v-for="task in tasks.slice(0,5)" :key="task.id" class="todo" :to="{path:'/teaching/tasks',query:{taskId:task.id}}"><span class="todo-icon blue"><sf-icon name="book"/></span><div><strong>{{ task.course_name }}</strong><p>{{ task.class_composition }} · {{ task.lab_names }}</p></div><sf-icon name="arrow"/></router-link><div v-if="!tasks.length" class="empty">暂无教学安排</div></template></section>
+<section class="panel"><div class="panel-title"><h2>待办与提醒</h2><span class="small-dot"></span></div><router-link class="todo" to="/teaching/projects"><span class="todo-icon amber"><sf-icon name="flask"/></span><div><strong>{{ tasks.filter(t=>!Number(t.project_count)).length }} 个教学任务待完善实验项目</strong><p>让教学计划与实验内容保持同步</p></div><sf-icon name="arrow"/></router-link><router-link class="todo" to="/teaching/labs"><span class="todo-icon purple"><sf-icon name="building"/></span><div><strong>{{ lookups.labs.filter(l=>l.equipment_count==null || !l.manager_teacher_id).length }} 间实验室资料待补充</strong><p>完善负责人及设备数量</p></div><sf-icon name="arrow"/></router-link><div class="note-box"><sf-icon name="shield"/>历史项目保留独立版本，可复用至当前学期。</div></section></div>
+<section class="panel"><div class="panel-title"><div><h2>所选学期教学任务</h2><p>课程、教师与实验安排，一目了然</p></div><router-link class="text-link" to="/teaching/tasks">全部任务 →</router-link></div><task-table :rows="tasks.slice(0,4)" @detail="openTask"/></section>
+</div></template>
 <script>
 import PageHeading from './teaching/PageHeading'
-import Warnings from './teaching/Warnings'
-import { shared, request } from './teaching/api'
-export default {
-  components: { PageHeading, Warnings },
-  mixins: [shared],
-  data: () => ({
-    data: {},
-    cards: [
-      { key: 'tasks', label: '教学任务', icon: 'el-icon-collection' },
-      { key: 'courses', label: '课程数量', icon: 'el-icon-reading' },
-      { key: 'projects', label: '实验项目', icon: 'el-icon-notebook-2' },
-      { key: 'labs', label: '实验室', icon: 'el-icon-office-building' }
-    ]
-  }),
-  mounted() {
-    this.load()
-  },
-  methods: {
-    async load() {
-      this.loading = true
-      try {
-        this.data = await request('/dashboard')
-      } catch (e) {
-        this.fail(e)
-      } finally {
-        this.loading = false
-      }
-    }
-  }
-}
+import WorkspaceChart from '@/components/workspace/Chart'
+import TaskTable from '@/components/workspace/TaskTable'
+import {shared,request} from './teaching/api'
+export default {components:{PageHeading,WorkspaceChart,TaskTable},mixins:[shared],data:()=>({tasks:[],reports:{}}),
+computed:{selectedTerm(){return this.lookups.terms.find(t=>String(t.id)===String(this.$route.query.termId))},week(){if(!this.selectedTerm)return 0;const now=Date.now(),start=new Date(this.selectedTerm.starts_on).getTime(),end=new Date(this.selectedTerm.ends_on).getTime();return now<start?0:Math.ceil((Math.min(now,end)-start+1)/604800000)},progress(){if(!this.selectedTerm)return 0;return Math.min(100,Math.max(0,(Date.now()-new Date(this.selectedTerm.starts_on))/(new Date(this.selectedTerm.ends_on)-new Date(this.selectedTerm.starts_on))*100))},cards(){return [['教学任务',this.tasks.length,'个','book',new Set(this.tasks.map(t=>t.course_id)).size+' 门课程 · 所选学期'],['实验项目',this.tasks.reduce((n,t)=>n+Number(t.project_count||0),0),'项','flask','持续完善教学内容'],['使用实验室',(this.reports.labs||[]).length,'间','building','覆盖所选范围的实验场地'],['教学人时',(this.reports.labs||[]).reduce((n,l)=>n+Number(l.person_hours||0),0),'人时','chart','实际排课学时 × 课程选课人数']]}},
+watch:{'$route.query.termId':'load'},mounted(){this.load()},methods:{openTask(row){this.$router.push({path:'/teaching/tasks',query:{taskId:row.id}})},async load(){this.loading=true;try{await this.loadLookups();let all=[],page=1,data;do{data=await request('/tasks',{params:{termId:this.$route.query.termId,page,limit:100}});all.push(...data.list);page++}while(data.list.length && all.length<data.total);this.tasks=all;this.reports=await request('/reports',{params:{termId:this.$route.query.termId}})}catch(e){this.fail(e)}finally{this.loading=false}}}}
 </script>
-<style scoped>
-.overview-banner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 30px;
-  background: #e9f2fc;
-  border: 1px solid #d6e5f5;
-  border-left: 4px solid #649fdd;
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
-.overview-banner .eyebrow {
-  color: #7195bc;
-}
-.overview-banner h2 {
-  color: #244a73;
-  font-size: 22px;
-  font-weight: 500;
-  margin: 8px 0;
-}
-.overview-banner p {
-  color: #7590ad;
-  font-size: 12px;
-}
-.overview-banner > i {
-  color: #95b9de;
-  font-size: 58px;
-  margin-right: 15px;
-}
-</style>

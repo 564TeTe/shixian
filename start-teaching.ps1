@@ -24,15 +24,15 @@ if ($Build) {
     finally { Pop-Location }
 }
 if (-not (Test-Path -LiteralPath $jarPath)) { throw 'Run .\start-teaching.ps1 -Build first.' }
-$backend = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue
+$backend = Get-NetTCPConnection -LocalPort 9090 -State Listen -ErrorAction SilentlyContinue
 if (-not $backend) {
     $java = (Get-Command java.exe).Source
-    $process = Start-Process -FilePath $java -ArgumentList @('-Dfile.encoding=UTF-8','-jar','target/springboote51e2-0.0.1-SNAPSHOT.jar') `
+    $process = Start-Process -FilePath $java -ArgumentList @('-Dfile.encoding=UTF-8','-Dserver.port=9090','-jar','target/springboote51e2-0.0.1-SNAPSHOT.jar') `
         -WorkingDirectory (Join-Path $projectRoot 'back') -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $runtimeFolder 'backend.log') `
         -RedirectStandardError (Join-Path $runtimeFolder 'backend-error.log') -PassThru
     $process.Id | Set-Content -LiteralPath $pidPath
-} else { Write-Output 'Port 8080 already has a service. Existing process was not replaced.' }
+} else { Write-Output 'Port 9090 already has a service. Existing process was not replaced.' }
 $frontend = Get-NetTCPConnection -LocalPort 8081 -State Listen -ErrorAction SilentlyContinue
 if (-not $frontend) {
     $env:NODE_OPTIONS = '--openssl-legacy-provider'

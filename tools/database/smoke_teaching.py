@@ -15,7 +15,7 @@ import uuid
 import pymysql
 from openpyxl import Workbook, load_workbook
 
-BASE = os.environ.get('TEACHING_TEST_URL', 'http://127.0.0.1:8080/springboote51e2')
+BASE = os.environ.get('TEACHING_TEST_URL', 'http://127.0.0.1:9090/springboote51e2')
 ROOT = Path(__file__).resolve().parents[2]
 
 

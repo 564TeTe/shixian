@@ -5,7 +5,7 @@
       <h1>{{ title }}</h1>
       <p v-if="description">{{ description }}</p>
     </div>
-    <div class="heading-actions"><slot /></div>
+    <div class="actions"><slot /></div>
   </div>
 </template>
 <script>
