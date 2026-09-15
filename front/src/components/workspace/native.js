@@ -22,7 +22,31 @@ export default function register(Vue) {
   })
   Vue.component('sf-form', {
     props: { model: Object, rules: Object, disabled: Boolean }, data: () => ({ errors: {} }), provide() { return { workspaceForm: this } },
-    methods: { clearValidate() { this.errors = {} }, async validate() { this.errors = {}; if (!this.rules) return true; try { await new Schema(this.rules).validate(this.model || {}); return true } catch (e) { this.errors = (e.errors || []).reduce((m, x) => { m[x.field] = x.message; return m }, {}); this.$nextTick(() => { const field = this.$el.querySelector('[aria-invalid="true"] input, [aria-invalid="true"] select'); if (field) field.focus() }); throw e } } },
+    methods: {
+      clearValidate() { this.errors = {} },
+      async validate() {
+        this.errors = {}
+        if (!this.rules) return true
+        try {
+          // async-validator 1.x completes through a callback, not a Promise.
+          await new Promise((resolve, reject) => {
+            new Schema(this.rules).validate(this.model || {}, (errors, fields) => {
+              if (errors) reject({ errors, fields })
+              else resolve()
+            })
+          })
+          return true
+        } catch (e) {
+          this.errors = (e.errors || []).reduce((m, x) => { m[x.field] = x.message; return m }, {})
+          if (!e.errors) this.errors._form = '表单校验失败，请刷新页面后重试。'
+          this.$nextTick(() => {
+            const field = this.$el.querySelector('[aria-invalid="true"] input, [aria-invalid="true"] select')
+            if (field) field.focus()
+          })
+          throw e
+        }
+      }
+    },
     render(h) { return h('form', { on: { submit: e => e.preventDefault() } }, [h('fieldset', { attrs: { disabled: this.disabled }, class: 'native-fieldset' }, [this.$slots.default, Object.keys(this.errors).length ? h('p', { class: 'form-error', attrs: { role: 'alert' } }, '请检查必填项及输入格式。') : null])]) }
   })
   Vue.component('sf-form-item', {
