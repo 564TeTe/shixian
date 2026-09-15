@@ -1,6 +1,6 @@
 <template><div class="teaching-page" v-loading="loading">
 <page-heading title="统计报表" eyebrow="TEACHING ANALYTICS" description="从教学数据中看见全貌，清晰呈现实验资源与教学投入。"><button class="btn primary" :disabled="downloading" @click="exportReport"><sf-icon name="download"/>导出当前报表</button></page-heading>
-<form class="filter-bar" @submit.prevent="load"><sf-select v-model="filters.yearId" placeholder="全部学年" @change="changeYear"><sf-option v-for="y in years" :key="y.id" :value="y.id" :label="y.name"/></sf-select><sf-select v-model="filters.termId" placeholder="全部学期" @change="load"><sf-option v-for="t in terms" :key="t.id" :value="t.id" :label="t.name"/></sf-select><button class="btn primary">查询</button></form>
+<form class="filter-bar" @submit.prevent="load"><sf-select v-model="filters.yearId" placeholder="全部学年" @change="changeYear"><sf-option v-for="y in years" :key="y.id" :value="y.id" :label="y.name"/></sf-select><sf-select v-model="filters.termId" placeholder="全部学期" @change="selectTerm(filters.termId)"><sf-option v-for="t in terms" :key="t.id" :value="t.id" :label="t.name"/></sf-select><button class="btn primary">查询</button></form>
 <div class="stat-grid"><div v-for="(c,i) in reportCards" :key="c[0]" class="stat-card"><div class="stat-top"><span>{{ c[0] }}</span><span class="stat-icon" :class="'tone-'+i"><sf-icon :name="c[3]"/></span></div><div class="stat-value">{{ Number(c[1]).toLocaleString('zh-CN') }}<small>{{ c[2] }}</small></div><div class="stat-foot">{{ c[4] }}</div></div></div>
 <section class="panel"><div class="panel-title"><h2>实验室使用分析</h2><span class="badge gray">{{ (terms.find(t=>String(t.id)===String(filters.termId))||{}).name||'所选统计范围' }}</span></div><workspace-chart :rows="data.labs||[]"/></section>
 <section class="panel"><div class="section-toolbar"><div class="tabs"><button class="btn" :class="{active:tab==='labs'}" @click="tab='labs'">实验室使用统计</button><button class="btn" :class="{active:tab==='projects'}" @click="tab='projects'">实验项目清单</button></div></div><div class="notice"><sf-icon name="info"/><span>{{ basis }}</span></div><warnings :items="data.warnings||[]"/>
@@ -46,7 +46,7 @@ export default {
         : '教学人时 = 实际排课学时 × 对应教学任务的选课人数。计划学时与排课学时分开统计。'
     }
   },
-  watch:{'$route.query.termId'(v){this.filters.termId=v||'';this.load()}},
+  watch:{'$route.query.termId'(v){this.filters.termId=v||'';this.alignYear();this.load()}},
   async mounted() {
     try {
       await this.loadLookups()
@@ -54,12 +54,19 @@ export default {
       this.fail(e)
     }
     this.filters.termId=this.$route.query.termId||''
+    this.alignYear()
     this.load()
   },
   methods: {
+    alignYear() {
+      if (this.filters.termId && !this.terms.some(term => String(term.id) === String(this.filters.termId)))
+        this.filters.yearId = ''
+    },
     changeYear() {
-      if (!this.terms.some(term => term.id === this.filters.termId)) this.filters.termId = ''
-      this.load()
+      if (this.filters.termId && !this.terms.some(term => String(term.id) === String(this.filters.termId))) {
+        this.filters.termId = ''
+        this.selectTerm('')
+      } else this.load()
     },
     async load() {
       this.loading = true

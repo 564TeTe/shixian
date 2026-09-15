@@ -21,4 +21,18 @@
 .workspace .query-sql { white-space: pre-wrap; overflow-wrap: anywhere; }
 dialog::backdrop { background: #172c4966; }
 dialog .table-wrap { max-height: 55vh; }
+/* App.vue resets all margins; explicitly position every workspace dialog. */
+dialog {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  overflow: hidden;
+}
+dialog[open] { display: flex; flex-direction: column; }
+dialog .modal-heading, dialog .modal-actions { flex-shrink: 0; }
+dialog .modal-body { min-height: 0; overflow: auto; }
+.el-message-box__wrapper { display: flex; align-items: center; justify-content: center; padding: 16px; }
+.el-message-box__wrapper::after { display: none; }
+.el-message-box { max-width: 100%; max-height: calc(100vh - 32px); overflow: auto; }
 @media(max-width:760px) { .workspace .filter-bar > select { max-width: 100%; } .workspace .form-grid .span-two { grid-column: auto; } }
