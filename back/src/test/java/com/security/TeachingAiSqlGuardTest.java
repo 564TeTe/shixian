@@ -24,6 +24,11 @@ class TeachingAiSqlGuardTest {
                                 "SELECT course_id, COUNT(*) AS total FROM teaching_task GROUP BY"
                                     + " course_id")
                         .startsWith("SELECT"));
+        assertTrue(
+                TeachingAiSqlGuard.validate(
+                                "SELECT c.course_code FROM course c WHERE c.course_name LIKE ?"
+                                    + " LIMIT 20")
+                        .endsWith("LIMIT 20"));
     }
 
     @Test
