@@ -102,4 +102,39 @@ class TeachingAiQueryCompilerTest {
         assertEquals("LIST_TASKS", tasks.getPlan().get("intent"));
         assertEquals("%软件工程%", tasks.getParameters().get(0));
     }
+
+    @Test
+    void countsClassesForTeacherWithoutExposingAccountTable() {
+        TeachingAiQueryCompiler.CompiledQuery query =
+                compiler.fallback("陈冲教几个班");
+
+        assertNotNull(query);
+        assertEquals("COUNT_CLASSES_BY_TEACHER", query.getPlan().get("intent"));
+        assertTrue(query.getSql().contains("COUNT(DISTINCT task_id) AS class_count"));
+        assertTrue(query.getSql().contains("FROM ai_teacher_workload"));
+        assertEquals("陈冲", query.getParameters().get(0));
+        assertEquals("陈冲", query.getParameters().get(1));
+        assertFalse(query.getSql().contains("account"));
+    }
+
+    @Test
+    void acceptsModelGeneratedSelectForAnyAllowedTable() {
+        String output =
+                "{\"sql\":\"SELECT l.lab_code AS lab_code,"
+                        + "COUNT(DISTINCT s.task_id) AS task_count FROM laboratory l"
+                        + " LEFT JOIN schedule_detail s ON s.lab_id=l.id"
+                        + " GROUP BY l.id,l.lab_code LIMIT 20\"}";
+
+        assertTrue(compiler.hasModelSql(json, output));
+        TeachingAiQueryCompiler.CompiledQuery query = compiler.modelSql(json, output);
+        assertEquals("MODEL_SQL", query.getPlan().get("intent"));
+        assertTrue(query.getSql().contains("FROM laboratory l"));
+        assertTrue(query.getSql().endsWith("LIMIT 20"));
+    }
+
+    @Test
+    void leavesComplexTeacherQuestionsToTheModel() {
+        assertNull(compiler.fallback("列出教学任务最多的前5位教师"));
+        assertNull(compiler.fallback("统计每位教师的排课学时"));
+    }
 }

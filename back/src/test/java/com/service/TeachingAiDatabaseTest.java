@@ -101,7 +101,9 @@ class TeachingAiDatabaseTest {
                             + "\"courseName\":null,\"limit\":10,\"reason\":\"\"}\n"
                             + "```");
         assertEquals(10, ((List<?>) top.get("rows")).size());
-        assertEquals(false, top.get("truncated"));
+        assertEquals(
+                db.queryForObject("SELECT COUNT(*) FROM teaching_task", Long.class) > 10,
+                top.get("truncated"));
         String prompt = modelRequest.get().path("messages").path(0).path("content").asText();
         assertTrue(prompt.contains("course("));
         assertTrue(prompt.contains("teaching_task("));
@@ -110,9 +112,8 @@ class TeachingAiDatabaseTest {
         assertEquals(
                 "json_object",
                 modelRequest.get().path("response_format").path("type").asText());
-        assertFalse(prompt.contains("password"));
-        assertFalse(prompt.contains("teacher("));
-        assertFalse(prompt.contains("users("));
+        assertFalse(prompt.contains("password_hash"));
+        assertFalse(prompt.contains("token varchar"));
         Map<String, Object> all =
                 query(
                         "{\"intent\":\"LIST_TASKS\",\"courseCode\":null,"

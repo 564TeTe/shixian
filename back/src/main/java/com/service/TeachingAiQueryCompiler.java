@@ -2,6 +2,7 @@ package com.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.TeachingAiSqlGuard;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +27,10 @@ import java.util.regex.Pattern;
 final class TeachingAiQueryCompiler {
 
     static final int MAX_LIMIT = 200;
+
+    private static final Pattern TEACHER_CLASS_QUESTION =
+            Pattern.compile(
+                    "^\\s*([\\p{IsHan}·]{2,10})\\s*(?:老师)?(?:教|带)(?:几个|多少个|多少|几)(?:个)?班\\s*[？?]?$");
 
     private static final Set<String> PLAN_FIELDS =
             Collections.unmodifiableSet(
@@ -146,6 +151,13 @@ final class TeachingAiQueryCompiler {
 
     CompiledQuery fallback(String question) {
         String text = question == null ? "" : question.trim();
+        Matcher teacherClassQuestion = TEACHER_CLASS_QUESTION.matcher(text);
+        if (teacherClassQuestion.matches()) {
+            return teacherClassCount(teacherClassQuestion.group(1).trim());
+        }
+        if (text.matches(".*(教师|老师).*")) {
+            return null;
+        }
         if (text.matches(".*(一共有多少门课程|共有多少门课程|课程总数|课程数量|多少门课).*")) {
             return fixedPlan("COUNT_COURSES", null, null, 20);
         }
@@ -169,6 +181,47 @@ final class TeachingAiQueryCompiler {
             return fixedPlan("COUNT_TASKS", null, null, 20);
         }
         return null;
+    }
+
+    boolean hasModelSql(ObjectMapper json, String modelOutput) {
+        try {
+            JsonNode result = readPlan(json, modelOutput);
+            return result.has("sql") && result.get("sql").isTextual();
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    CompiledQuery modelSql(ObjectMapper json, String modelOutput) {
+        JsonNode result = readPlan(json, modelOutput);
+        JsonNode sqlNode = result.get("sql");
+        if (sqlNode == null || !sqlNode.isTextual()) {
+            throw new IllegalArgumentException("AI返回内容缺少SQL字段");
+        }
+        String safeSql = TeachingAiSqlGuard.validate(sqlNode.asText().trim());
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("intent", "MODEL_SQL");
+        summary.put("limit", MAX_LIMIT);
+        return new CompiledQuery(
+                safeSql, safeSql, Collections.emptyList(), summary, MAX_LIMIT, false);
+    }
+
+    private CompiledQuery teacherClassCount(String teacherName) {
+        Map<String, Object> plan = new LinkedHashMap<>();
+        plan.put("intent", "COUNT_CLASSES_BY_TEACHER");
+        plan.put("courseCode", null);
+        plan.put("courseName", null);
+        plan.put("limit", 1);
+        String sql =
+                "SELECT ? AS teacher_name,COUNT(DISTINCT task_id) AS class_count"
+                        + " FROM ai_teacher_workload WHERE teacher_name=? LIMIT 1";
+        return new CompiledQuery(
+                sql,
+                sql,
+                Arrays.asList(teacherName, teacherName),
+                plan,
+                1,
+                false);
     }
 
     private CompiledQuery fixedPlan(String intent, String courseCode, String courseName, int limit) {
@@ -248,6 +301,18 @@ final class TeachingAiQueryCompiler {
                 + "\n输出：{\"intent\":\"UNSUPPORTED\",\"courseCode\":null,"
                 + "\"courseName\":null,\"limit\":20,\"reason\":\"当前演示版尚未开放实验室和排课表\"}"
                 + "\n数据库元数据：\n"
+                + metadata;
+    }
+
+    String sqlInstructions(String metadata) {
+        return "你是实验教学数据库查询助手。请根据用户问题生成一条可执行的MySQL SELECT查询，"
+                + "只返回JSON对象，不要使用Markdown，不要解释。JSON格式必须是"
+                + "{\"sql\":\"SELECT ...\"}。只能生成一条SELECT，禁止INSERT、UPDATE、DELETE、DDL、"
+                + "存储过程、变量、注释、UNION、子查询、CTE和多语句。请使用表中真实存在的字段，"
+                + "只查询回答问题所需的最少列和行，结果最多200行。列别名使用英文蛇形命名，"
+                + "不要使用中文标识符或反引号。不要查询任何密码、令牌或密钥字段。"
+                + "如果问题涉及名称，优先使用LIKE进行模糊匹配。"
+                + "\n数据库结构：\n"
                 + metadata;
     }
 

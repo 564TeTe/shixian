@@ -48,13 +48,28 @@ public final class TeachingAiSqlGuard {
     private static final Set<String> TABLES =
             new HashSet<>(
                     Arrays.asList(
+                            "account",
                             "academic_term",
+                            "ai_teacher_workload",
                             "course",
-                            "teaching_task",
-                            "schedule_detail",
                             "experiment_project",
+                            "laboratory",
+                            "schedule_detail",
+                            "teaching_import_batch",
+                            "teaching_import_row",
+                            "teaching_task",
                             "teaching_task_teacher",
-                            "laboratory"));
+                            "token"));
+
+    private static final Set<String> BLOCKED_COLUMNS =
+            new HashSet<>(
+                    Arrays.asList(
+                            "password",
+                            "password_hash",
+                            "token",
+                            "api_key",
+                            "secret",
+                            "access_key"));
 
     private static final Set<String> FUNCTIONS =
             new HashSet<>(
@@ -181,9 +196,12 @@ public final class TeachingAiSqlGuard {
                 throw bad("一次最多查询30列");
             }
             for (SelectItem item : body.getSelectItems()) {
+                if (item instanceof AllColumns || item instanceof AllTableColumns) {
+                    throw bad("请明确指定需要查询的字段，不允许使用SELECT *");
+                }
                 if (item instanceof SelectExpressionItem) {
                     expression(((SelectExpressionItem) item).getExpression(), 0);
-                } else if (!(item instanceof AllColumns) && !(item instanceof AllTableColumns)) {
+                } else {
                     throw bad("不支持的查询列");
                 }
             }
@@ -245,6 +263,10 @@ public final class TeachingAiSqlGuard {
             throw bad("不允许特殊表变换或索引提示");
         }
         String name = table.getFullyQualifiedName().replace("`", "").toLowerCase(Locale.ROOT);
+        int schemaSeparator = name.lastIndexOf('.');
+        if (schemaSeparator >= 0) {
+            name = name.substring(schemaSeparator + 1);
+        }
         if (!TABLES.contains(name)) {
             throw bad("不允许访问表：" + name);
         }
@@ -257,16 +279,24 @@ public final class TeachingAiSqlGuard {
         if (depth > 30) {
             throw bad("表达式嵌套过深");
         }
-        if (e instanceof Column
-                || e instanceof LongValue
+        if (e instanceof Column) {
+            String name = ((Column) e).getColumnName().replace("`", "").toLowerCase(Locale.ROOT);
+            if (BLOCKED_COLUMNS.contains(name)) {
+                throw bad("不允许查询敏感字段：" + name);
+            }
+            return;
+        }
+        if (e instanceof AllColumns || e instanceof AllTableColumns) {
+            throw bad("请明确指定需要查询的字段，不允许使用SELECT *");
+        }
+        if (e instanceof LongValue
                 || e instanceof DoubleValue
                 || e instanceof StringValue
                 || e instanceof NullValue
                 || e instanceof JdbcParameter
                 || e instanceof DateValue
                 || e instanceof TimeValue
-                || e instanceof TimestampValue
-                || e instanceof AllColumns) {
+                || e instanceof TimestampValue) {
             return;
         }
         if (e instanceof BinaryExpression && BINARY.contains(e.getClass().getSimpleName())) {
@@ -300,6 +330,9 @@ public final class TeachingAiSqlGuard {
             }
             if (f.getParameters() != null) {
                 for (Expression arg : f.getParameters().getExpressions()) {
+                    if ("COUNT".equalsIgnoreCase(f.getName()) && arg instanceof AllColumns) {
+                        continue;
+                    }
                     expression(arg, depth + 1);
                 }
             }
