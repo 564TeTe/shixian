@@ -26,8 +26,9 @@ public class TeachingReportController {
     public ApiResponse report(
             HttpServletRequest r,
             @RequestParam(required = false) Long yearId,
-            @RequestParam(required = false) Long termId) {
-        return ApiResponse.ok().put("data", service.report(r, yearId, termId));
+            @RequestParam(required = false) Long termId,
+            @RequestParam(required = false) Long labId) {
+        return ApiResponse.ok().put("data", service.report(r, yearId, termId, labId));
     }
 
     @GetMapping("/export")
@@ -35,8 +36,9 @@ public class TeachingReportController {
             HttpServletRequest r,
             @RequestParam(required = false) Long yearId,
             @RequestParam(required = false) Long termId,
-            @RequestParam(defaultValue = "labs") String type) {
+            @RequestParam(required = false) Long labId,
+            @RequestParam(defaultValue = "projects") String type) {
         return ExcelDownloadUtils.download(
-                service.export(r, yearId, termId, type), "teaching-report-" + type + ".xlsx");
+                service.export(r, yearId, termId, labId, type), "teaching-report-" + type + ".xlsx");
     }
 }

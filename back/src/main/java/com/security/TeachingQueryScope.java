@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** Replace every model-selected table with a server-scoped derived table after AST validation. */
-public final class TeachingQueryScope {
+public final class  TeachingQueryScope {
     private TeachingQueryScope() {}
 
     public static String apply(String validatedSql, Long teacherId, Long termId) {

@@ -82,7 +82,7 @@ SOURCE database/004_english_schema.sql;
 
 ## AI 配置
 
-在启动后端的进程环境中设置以下变量，再重启：
+可在本机 `database/generated/ai-database.local.json` 配置以下字段（该目录已忽略 Git 提交），或在启动后端的进程环境中设置同名变量；环境变量优先。修改后重启后端：
 
 - `TEACHING_AI_BASE_URL`：兼容 Chat Completions 的服务地址，例如供应商的 `/v1` 地址。
 - `TEACHING_AI_API_KEY`、`TEACHING_AI_MODEL`：供应商密钥和模型名。
@@ -93,7 +93,17 @@ SOURCE database/004_english_schema.sql;
 教师授课统计通过 `ai_teacher_workload` 只读视图完成，只暴露教师姓名、教学任务、课程和班级组成。
 `007_ai_read_all_business_tables.sql` 允许只读账号读取 `t132` 的全部表和视图；后端会拒绝密码、令牌和密钥字段，并只执行经过 AST 安全校验的单条 SELECT。
 
-真实远程模型尚未配置。本地模拟模型验证只覆盖调用、SQL 校验及只读执行链路，不能代替供应商接入验证。
+DeepSeek 使用 `TEACHING_AI_BASE_URL=https://api.deepseek.com`、`TEACHING_AI_MODEL=deepseek-chat`，将自己的密钥填入本地配置的 `TEACHING_AI_API_KEY`，并补齐上述只读数据库账号。不要把真实密钥写进源码或本文档。
+
+在项目根目录执行 `.\start-teaching.ps1 -Restart`（源码改动后加 `-Build`）。如果后端由 IDEA 启动，请在 IDEA 中停止并重新运行，工作目录设为项目根目录或 `back`。管理员登录 http://localhost:8081 后，打开左侧“智能查询”，点击“检查配置”并提问；教师账号不开放此入口。仅显示“模型已配置”并不代表供应商连接已验证，需成功执行一次查询。
+
+## 统计报表与模板导出
+
+“统计报表”支持按学年、学期和实验室筛选；实验室留空表示全部。管理员的使用统计包含未排课实验室（学时、人时为 0），教师只统计本人教学范围。
+
+“导出项目采集表”使用 `docs/demand/2. 教学实验项目采集表-2025-2026学年.xlsx` 的 15 列模板，运行时模板位于 `back/src/main/resources/templates/teaching-project-collection.xlsx`，会随 JAR 打包。保留表头、列宽和填写说明，按记录数扩展数据行，不导出示例工作表或预填占位数据。“实验室使用统计”标签内仍可单独导出人时统计。
+
+项目通过教学任务的排课地点归属实验室，全部实验室汇总时同一项目只列一次；尚未排课的任务不进入实验室采集表。实验者人数来自已确认的项目参与人数，未知时留空，不用选课人数代替；实验总学时取教学任务的计划实验学时。导出范围与页面最近一次成功查询一致。
 
 ## 验证与来源
 

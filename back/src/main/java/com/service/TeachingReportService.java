@@ -4,6 +4,7 @@ import static com.utils.TeachingExcel.map;
 
 import com.security.TeachingAccess;
 import com.utils.TeachingExcel;
+import com.utils.TeachingProjectReport;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class TeachingReportService {
     private final TeachingAccess access;
 
     public static final String BASIS =
-            "实验室排课学时先按教学任务和实验室汇总，再乘该任务选课人数得到排课人时；合授教师和实验项目数量不重复放大。项目地点是课程关联地点，不代表项目实际执行地点；选课人数不等同于项目实际参与人数。未排课任务不计入实验室排课人时。";
+            "教学人时＝实验室实际排课学时×任务选课人数。项目按教学任务关联的排课实验室筛选，同一项目在全部实验室汇总中只列一次；关联地点不代表项目实际执行地点。实验者人数只使用已确认的项目参与人数，未采集时留空；实验总学时取课程任务的计划实验学时。未排课任务不计入实验室统计和采集表。";
 
     public TeachingReportService(JdbcTemplate db, TeachingAccess access) {
         this.db = db;
@@ -35,7 +36,15 @@ public class TeachingReportService {
     }
 
     public Map<String, Object> report(HttpServletRequest request, Long yearId, Long termId) {
+        return report(request, yearId, termId, null);
+    }
+
+    public Map<String, Object> report(
+            HttpServletRequest request, Long yearId, Long termId, Long labId) {
         Long teacherId = access.teacherId(request);
+        if (labId != null && labId <= 0) {
+            throw new IllegalArgumentException("实验室编号无效");
+        }
         List<Object> args = new ArrayList<>();
         StringBuilder filter = new StringBuilder(" WHERE 1=1");
         if (yearId != null) {
@@ -53,16 +62,30 @@ public class TeachingReportService {
             args.add(teacherId);
         }
         String joins = " FROM teaching_task t JOIN academic_term tm ON tm.id=t.term_id";
+        List<Object> labArgs = new ArrayList<>(args);
+        if (labId != null) labArgs.add(labId);
         List<Map<String, Object>> perTaskLab =
                 db.queryForList(
-                        "SELECT l.lab_code lab_code,l.lab_name lab_name,t.id"
-                            + " task_id,t.course_id,t.enrollment_count,SUM(s.hours) scheduled_hours"
+                        "SELECT l.id lab_id,l.lab_code,l.lab_name,stats.task_id,stats.course_id,"
+                            + "stats.enrollment_count,stats.scheduled_hours FROM laboratory l"
+                            + " LEFT JOIN (SELECT s.lab_id,t.id task_id,t.course_id,"
+                            + "t.enrollment_count,SUM(s.hours) scheduled_hours"
                                 + joins
-                                + " JOIN schedule_detail s ON s.task_id=t.id JOIN laboratory l ON"
-                                + " l.id=s.lab_id"
+                                + " JOIN schedule_detail s ON s.task_id=t.id"
                                 + filter
-                                + " GROUP BY l.id,t.id ORDER BY l.lab_code,t.id",
-                        args.toArray());
+                                + " GROUP BY s.lab_id,t.id) stats ON stats.lab_id=l.id WHERE 1=1"
+                                + (labId == null ? "" : " AND l.id=?")
+                                + (teacherId == null ? "" : " AND stats.task_id IS NOT NULL")
+                                + " ORDER BY l.lab_code,stats.task_id",
+                        labArgs.toArray());
+        // EXISTS avoids duplicating a project for every schedule or associated laboratory.
+        filter.append(" AND EXISTS (SELECT 1 FROM schedule_detail selected_lab"
+                + " WHERE selected_lab.task_id=t.id");
+        if (labId != null) {
+            filter.append(" AND selected_lab.lab_id=?");
+            args.add(labId);
+        }
+        filter.append(")");
         List<Map<String, Object>> projects =
                 db.queryForList(
                         "SELECT CONCAT(tm.start_year,'-',tm.start_year+1,' 第',tm.term_no,'学期')"
@@ -70,8 +93,12 @@ public class TeachingReportService {
                             + " course_name,COALESCE((SELECT GROUP_CONCAT(DISTINCT l.lab_name ORDER"
                             + " BY l.lab_name SEPARATOR '、') FROM schedule_detail sd JOIN"
                             + " laboratory l ON l.id=sd.lab_id WHERE sd.task_id=t.id),'未登记')"
-                            + " lab_names,p.project_code,p.name"
-                            + " project_name,p.hours,t.enrollment_count,p.school_code,p.category_code,p.type_code,p.discipline_code,p.requirement_code,p.participant_type_code,p.group_size,t.task_code"
+                            + " lab_names,p.id project_id,p.project_code,p.name"
+                            + " project_name,p.hours,t.enrollment_count,p.participant_count,"
+                            + "t.planned_lab_hours,COALESCE((SELECT GROUP_CONCAT(a.display_name"
+                            + " ORDER BY a.id SEPARATOR '、') FROM teaching_task_teacher tt"
+                            + " JOIN account a ON a.id=tt.teacher_account_id WHERE tt.task_id=t.id),'')"
+                            + " teacher_names,p.school_code,p.category_code,p.type_code,p.discipline_code,p.requirement_code,p.participant_type_code,p.group_size,t.task_code"
                                 + joins
                                 + " JOIN course c ON c.id=t.course_id JOIN experiment_project p ON"
                                 + " p.task_id=t.id"
@@ -121,6 +148,8 @@ public class TeachingReportService {
                                     map(
                                             "lab_code",
                                             code,
+                                            "lab_id",
+                                            row.get("lab_id"),
                                             "lab_name",
                                             row.get("lab_name"),
                                             "course_count",
@@ -131,6 +160,7 @@ public class TeachingReportService {
                                             BigDecimal.ZERO,
                                             "person_hours",
                                             BigDecimal.ZERO));
+            if (row.get("task_id") == null) continue;
             BigDecimal hours = new BigDecimal(row.get("scheduled_hours").toString()),
                     people = new BigDecimal(row.get("enrollment_count").toString());
             total.put("scheduled_hours", ((BigDecimal) total.get("scheduled_hours")).add(hours));
@@ -146,47 +176,23 @@ public class TeachingReportService {
         return new ArrayList<>(result.values());
     }
 
-    @SuppressWarnings("unchecked")
     public byte[] export(HttpServletRequest request, Long yearId, Long termId, String type) {
+        return export(request, yearId, termId, null, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    public byte[] export(
+            HttpServletRequest request, Long yearId, Long termId, Long labId, String type) {
         if (!"labs".equals(type) && !"projects".equals(type)) {
             throw new IllegalArgumentException("导出类型只能为labs或projects");
         }
-        Map<String, Object> report = report(request, yearId, termId);
-        String[] columns =
-                "labs".equals(type)
-                        ? new String[] {
-                            "lab_code",
-                            "lab_name",
-                            "course_count",
-                            "task_count",
-                            "scheduled_hours",
-                            "person_hours"
-                        }
-                        : new String[] {
-                            "term_name",
-                            "course_code",
-                            "course_name",
-                            "lab_names",
-                            "project_code",
-                            "project_name",
-                            "hours",
-                            "enrollment_count",
-                            "school_code",
-                            "category_code",
-                            "type_code",
-                            "discipline_code",
-                            "requirement_code",
-                            "participant_type_code",
-                            "group_size",
-                            "task_code"
-                        };
-        String[] headers =
-                "labs".equals(type)
-                        ? new String[] {"实验室编号", "实验室名称", "课程数", "教学任务数", "排课学时", "排课人时"}
-                        : new String[] {
-                            "学期", "课程号", "课程名称", "课程关联地点", "实验编号", "实验名称", "项目学时", "任务选课人数", "学校代码",
-                            "实验类别", "实验类型", "实验所属学科", "实验要求", "实验者类别", "每组人数", "任务编号"
-                        };
+        Map<String, Object> report = report(request, yearId, termId, labId);
+        if ("projects".equals(type)) {
+            return TeachingProjectReport.workbook(
+                    (List<Map<String, Object>>) report.get("projects"));
+        }
+        String[] columns = {"lab_code", "lab_name", "course_count", "task_count", "scheduled_hours", "person_hours"};
+        String[] headers = {"实验室编号", "实验室名称", "课程数", "教学任务数", "排课学时", "排课人时"};
         List<List<?>> rows = new ArrayList<>();
         for (Map<String, Object> row : (List<Map<String, Object>>) report.get(type)) {
             List<Object> cells = new ArrayList<>();
@@ -195,7 +201,6 @@ public class TeachingReportService {
             }
             rows.add(cells);
         }
-        return TeachingExcel.workbook(
-                "labs".equals(type) ? "实验室统计" : "实验项目明细", headers, rows, BASIS);
+        return TeachingExcel.workbook("实验室统计", headers, rows, BASIS);
     }
 }
