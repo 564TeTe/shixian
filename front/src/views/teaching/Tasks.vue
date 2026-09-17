@@ -1,10 +1,10 @@
 <template><div class="teaching-page">
 <page-heading title="课程与课表" eyebrow="COURSES & TIMETABLE" description="以学期为单位组织课程，清晰掌握每一周的实验教学安排。"><router-link v-if="isAdmin" class="btn" to="/teaching/imports"><sf-icon name="upload"/>导入课表</router-link><button v-if="isAdmin" class="btn primary" @click="openCreate"><sf-icon name="plus"/>创建当前教学任务</button></page-heading>
 <section class="panel" v-loading="loading">
-<form class="filter-bar" @submit.prevent="search"><label class="search-field"><sf-icon name="search"/><input v-model.trim="filters.q" placeholder="搜索课程、教师或班级" aria-label="搜索课程、教师或班级"/></label><sf-select v-model="filters.termId" placeholder="全部学期" @change="search"><sf-option v-for="term in lookups.terms" :key="term.id" :value="term.id" :label="term.name"/></sf-select><button class="btn primary">查询</button><button v-if="filters.q" class="btn" type="button" @click="filters.q='';search()">重置</button></form>
-<div class="section-toolbar"><div class="tabs"><button class="btn" :class="{active:tab==='list'}" @click="tab='list'"><sf-icon name="book"/>教学任务</button><button class="btn" :class="{active:tab==='week'}" @click="openWeek"><sf-icon name="calendar"/>周课表</button></div><span class="muted">共 {{ total }} 个教学任务</span></div>
+<form class="filter-bar" @submit.prevent="search"><label class="search-field"><sf-icon name="search"/><input v-model.trim="filters.q" placeholder="搜索课程、教师或班级" aria-label="搜索课程、教师或班级"/></label><sf-select v-model="filters.termId" placeholder="全部学期" @change="selectTerm(filters.termId)"><sf-option v-for="term in lookups.terms" :key="term.id" :value="term.id" :label="term.name"/></sf-select><button class="btn primary">查询</button><button v-if="filters.q" class="btn" type="button" @click="filters.q='';search()">重置</button></form>
+<div class="section-toolbar"><div class="tabs"><button class="btn" :class="{active:tab==='list'}" @click="tab='list'"><sf-icon name="book"/>教学任务</button><button v-if="!isAdmin" class="btn" :class="{active:tab==='week'}" @click="openWeek"><sf-icon name="calendar"/>周课表</button></div><span class="muted">共 {{ total }} 个教学任务</span></div>
 <task-table v-if="tab==='list'" :rows="rows" @detail="showDetail"/>
-<div v-else v-loading="weekLoading"><div class="week-toolbar"><button class="btn" :disabled="week<=1" @click="week--">上一周</button><strong>第 {{ week }} 周</strong><button class="btn" :disabled="week>=maxWeek" @click="week++">下一周</button></div><div class="table-wrap"><div class="week-grid" style="grid-template-columns:70px repeat(7,minmax(130px,1fr))"><div class="week-head">节次</div><div v-for="day in 7" :key="'day'+day" class="week-head">{{ weekdays[day] }}</div><template v-for="period in periodRows"><div class="period" :key="'p'+period"><strong>{{ period }} 节</strong></div><div v-for="day in 7" :key="period+'-'+day" class="week-cell"><button v-for="lesson in lessons(day,period)" :key="lesson.id" class="lesson" :class="'lesson-'+lesson.lab_id%3" @click="showDetail({id:lesson.task_id})"><strong>{{ lesson.course_name }}</strong><span>{{ lesson.teacher_names }} · {{ lesson.lab_name }}</span><small>{{ lesson.class_composition }} · {{ lesson.period_start }}–{{ lesson.period_end }} 节</small></button></div></template></div></div><div v-if="!weekRows.length && !weekLoading" class="empty">所选范围暂无排课</div></div>
+<div v-else-if="!isAdmin" v-loading="weekLoading"><div class="week-toolbar"><button class="btn" :disabled="week<=1" @click="week--">上一周</button><strong>第 {{ week }} 周</strong><button class="btn" :disabled="week>=maxWeek" @click="week++">下一周</button></div><div class="table-wrap"><div class="week-grid" style="grid-template-columns:70px repeat(7,minmax(130px,1fr))"><div class="week-head">节次</div><div v-for="day in 7" :key="'day'+day" class="week-head">{{ weekdays[day] }}</div><template v-for="period in periodRows"><div class="period" :key="'p'+period"><strong>{{ period }} 节</strong></div><div v-for="day in 7" :key="period+'-'+day" class="week-cell"><button v-for="lesson in lessons(day,period)" :key="lesson.id" class="lesson" :class="'lesson-'+lesson.lab_id%3" @click="showDetail({id:lesson.task_id})"><strong>{{ lesson.course_name }}</strong><span>{{ lesson.teacher_names }} · {{ lesson.lab_name }}</span><small>{{ lesson.class_composition }} · {{ lesson.period_start }}–{{ lesson.period_end }} 节</small></button></div></template></div></div><div v-if="!weekRows.length && !weekLoading" class="empty">所选范围暂无排课</div></div>
 <sf-pagination v-if="tab==='list'" :current-page.sync="filters.page" :page-size="filters.limit" :total="total" @current-change="load"/>
 </section>
     <sf-dialog title="教学任务与排课详情" :visible.sync="detailVisible" width="1000px">
@@ -170,11 +170,11 @@ export default {
     this.filters.termId=this.$route.query.termId||''
     await this.load()
     if(this.$route.query.taskId)this.showDetail({id:this.$route.query.taskId})
-    if(this.$route.query.view==='week')this.openWeek()
+    if(!this.isAdmin && this.$route.query.view==='week')this.openWeek()
   },
   methods: {
     lessons(day,period){return this.weekRows.filter(r=>Number(r.teaching_week)===this.week&&Number(r.weekday)===day&&Number(r.period_start)===period)},
-    async openWeek(){this.tab='week';this.weekLoading=true;try{let all=[],data,page=1;do{data=await request('/tasks',{params:{...this.filters,page,limit:100}});all.push(...data.list);page++}while(data.list.length&&all.length<data.total);let details=[];for(let i=0;i<all.length;i+=8){const group=await Promise.all(all.slice(i,i+8).map(t=>request('/tasks/'+t.id)));details.push(...group)}this.weekRows=details.flatMap(t=>(t.schedule||[]).map(r=>({...r,task_id:t.id,course_name:t.course_name,teacher_names:t.teacher_names,class_composition:t.class_composition})));this.week=Math.min(this.week,this.maxWeek)}catch(e){this.fail(e)}finally{this.weekLoading=false}},
+    async openWeek(){if(this.isAdmin)return;this.tab='week';this.weekLoading=true;try{let all=[],data,page=1;do{data=await request('/tasks',{params:{...this.filters,page,limit:100}});all.push(...data.list);page++}while(data.list.length&&all.length<data.total);let details=[];for(let i=0;i<all.length;i+=8){const group=await Promise.all(all.slice(i,i+8).map(t=>request('/tasks/'+t.id)));details.push(...group)}this.weekRows=details.flatMap(t=>(t.schedule||[]).map(r=>({...r,task_id:t.id,course_name:t.course_name,teacher_names:t.teacher_names,class_composition:t.class_composition})));this.week=Math.min(this.week,this.maxWeek)}catch(e){this.fail(e)}finally{this.weekLoading=false}},
     search() {
       this.filters.page = 1
       this.load()
@@ -209,7 +209,7 @@ export default {
       return lab ? lab.shiyanshimingcheng : '待确认'
     },
     projects(row) {
-      this.$router.push({ path: '/teaching/projects', query: { taskId: row.id } })
+      this.$router.push({ path: '/teaching/projects', query: { taskId: row.id, termId: row.term_id || this.filters.termId } })
     },
     openCreate() {
       this.form = {

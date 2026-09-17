@@ -28,6 +28,7 @@
       width="600px"
       :close-on-click-modal="false"
     >
+      <sf-alert v-if="saveError" :title="saveError" type="error" />
       <sf-form ref="form" :model="form" :rules="rules" label-position="top">
         <template v-if="isLabs">
           <sf-form-item label="实验室编号" prop="shiyanshibianhao">
@@ -74,7 +75,7 @@
             <sf-input v-model.trim="form.jiaoshixingming" maxlength="100" />
           </sf-form-item>
           <sf-form-item label="所属学院">
-            <sf-input v-model.trim="form.xueyuan" maxlength="200" placeholder="未知可留空" />
+            <sf-input v-model.trim="form.xueyuan" maxlength="100" placeholder="未知可留空" />
           </sf-form-item>
           <sf-alert
             v-if="!form.id"
@@ -124,6 +125,7 @@ export default {
     rows: [],
     total: 0,
     visible: false,
+    saveError: '',
     form: {},
     passwordVisible: false,
     password: '',
@@ -183,6 +185,7 @@ export default {
       return this.text(row.shiyanshimingcheng || row.lab_name || row.name)
     },
     edit(row) {
+      this.saveError = ''
       this.form = row
         ? Object.assign({}, row, {
             equipment_count: row.equipment_count == null ? undefined : row.equipment_count
@@ -200,6 +203,7 @@ export default {
       this.$nextTick(() => this.$refs.form.clearValidate())
     },
     async save() {
+      this.saveError = ''
       if (!(await this.$refs.form.validate().catch(() => false))) return
       this.saving = true
       try {
@@ -229,7 +233,9 @@ export default {
         await this.load()
         await this.loadLookups()
       } catch (e) {
-        this.fail(e)
+        // Native modal dialogs sit above global toast messages.
+        this.saveError = (e.response && e.response.data && e.response.data.msg) ||
+          (e.message === 'Network Error' ? '无法连接后端，请确认服务已启动。' : e.message) || '保存失败，请稍后重试。'
       } finally {
         this.saving = false
       }

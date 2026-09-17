@@ -74,6 +74,20 @@ router.beforeEach((to, from, next) => {
   if (to.path !== '/login' && (!storage.get('Token') || !['users', 'jiaoshi'].includes(table)))
     return next('/login')
   if (to.matched.some(route => route.meta.admin) && table !== 'users') return next('/index')
+  if (to.path !== '/login') {
+    // An explicit empty value means "all terms"; missing means keep the selection.
+    if (Object.prototype.hasOwnProperty.call(to.query, 'termId')) {
+      storage.set('teachingTermId', to.query.termId || '')
+    } else {
+      const termId = storage.get('teachingTermId')
+      if (termId) return next({ path: to.path, query: { ...to.query, termId }, hash: to.hash, replace: true })
+    }
+    if (table === 'users' && to.path === '/teaching/tasks' && to.query.view === 'week') {
+      const query = { ...to.query }
+      delete query.view
+      return next({ path: to.path, query, replace: true })
+    }
+  }
   document.title = (to.meta.title ? to.meta.title + ' · ' : '') + '实验教学项目管理系统'
   next()
 })

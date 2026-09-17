@@ -87,6 +87,14 @@ export const shared = {
   },
   methods: {
     fail: errorMessage,
+    selectTerm(termId) {
+      const query = { ...this.$route.query, termId: termId == null ? '' : String(termId) }
+      // A task from the previous term must not override the new selection.
+      delete query.taskId
+      return this.$router.replace({ path: this.$route.path, query }).catch(error => {
+        if (error.name !== 'NavigationDuplicated') this.fail(error)
+      })
+    },
     async loadLookups() {
       this.lookups = Object.assign(
         { terms: [], teachers: [], labs: [], courses: [] },

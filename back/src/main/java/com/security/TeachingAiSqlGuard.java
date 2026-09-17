@@ -15,6 +15,7 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimeValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
@@ -261,6 +262,7 @@ public final class TeachingAiSqlGuard {
                 || e instanceof DoubleValue
                 || e instanceof StringValue
                 || e instanceof NullValue
+                || e instanceof JdbcParameter
                 || e instanceof DateValue
                 || e instanceof TimeValue
                 || e instanceof TimestampValue
