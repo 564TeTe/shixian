@@ -56,9 +56,11 @@ CREATE DATABASE t132 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE t132;
 SOURCE T132.sql;
 SOURCE database/003_teaching_seed.sql;
+SOURCE database/006_ai_teacher_workload.sql;
+SOURCE database/007_ai_read_all_business_tables.sql;
 ```
 
-使用 Workbench 时，先创建并选中 `t132`，再分别打开 `T132.sql`、`database/003_teaching_seed.sql`，按顺序执行整个文件。`SOURCE` 是命令行客户端的命令。
+使用 Workbench 时，先创建并选中 `t132`，再分别打开 `T132.sql`、`database/003_teaching_seed.sql`、`database/006_ai_teacher_workload.sql`、`database/007_ai_read_all_business_tables.sql`，按顺序执行整个文件。`SOURCE` 是命令行客户端的命令。
 
 - `T132.sql`：13 张表的结构，表名与字段名均为英文，全部带中文注释；`003_teaching_seed.sql`：93 门课程、255 个任务、2,208 条排课、79 个教师、14 间课表实验室、原始导入记录。项目模板示例未导入，正式项目为 0。
 - **新环境网页管理员：`admin` / `Teaching2026!`**。这是公开的开发初始化密码，登录后在“账号与安全”修改。教师使用新的随机密码摘要，由管理员在“教师账号”重置后分发。
@@ -87,7 +89,9 @@ SOURCE database/004_english_schema.sql;
 - `TEACHING_AI_DB_USER`、`TEACHING_AI_DB_PASSWORD`：独立只读账号；禁止 root。
 - 可选 `TEACHING_AI_DB_URL`：只读连接 JDBC URL。
 
-本机只读凭据已保存在忽略提交的 `database/generated/ai-database.local.json`，启动脚本会读取。新环境应仅授予业务表 SELECT 权限。模型收到用户问题与业务字段结构，不发送账号表和密码。
+本机只读凭据已保存在忽略提交的 `database/generated/ai-database.local.json`，启动脚本会读取。新环境应仅授予业务表 SELECT 权限。模型收到用户问题与业务字段结构，不发送密码、令牌或密钥。
+教师授课统计通过 `ai_teacher_workload` 只读视图完成，只暴露教师姓名、教学任务、课程和班级组成。
+`007_ai_read_all_business_tables.sql` 允许只读账号读取 `t132` 的全部表和视图；后端会拒绝密码、令牌和密钥字段，并只执行经过 AST 安全校验的单条 SELECT。
 
 真实远程模型尚未配置。本地模拟模型验证只覆盖调用、SQL 校验及只读执行链路，不能代替供应商接入验证。
 

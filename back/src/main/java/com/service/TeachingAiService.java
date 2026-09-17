@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +22,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,8 +35,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -59,16 +67,54 @@ public class TeachingAiService {
         this.db = db;
         this.json = json;
         this.compiler = new TeachingAiQueryCompiler();
-        this.baseUrl = env("TEACHING_AI_BASE_URL");
-        this.key = env("TEACHING_AI_API_KEY");
-        this.model = env("TEACHING_AI_MODEL");
-        this.readerUser = env("TEACHING_AI_DB_USER");
-        this.readerPassword = env("TEACHING_AI_DB_PASSWORD");
+        Map<String, Object> local = localAiConfig(json);
+        this.baseUrl = setting("TEACHING_AI_BASE_URL", local);
+        this.key = setting("TEACHING_AI_API_KEY", local);
+        this.model = setting("TEACHING_AI_MODEL", local);
+        this.readerUser = setting("TEACHING_AI_DB_USER", local);
+        this.readerPassword = setting("TEACHING_AI_DB_PASSWORD", local);
     }
 
     private static String env(String name) {
         String value = System.getenv(name);
         return value == null ? "" : value.trim();
+    }
+
+    private static String setting(String name, Map<String, Object> local) {
+        String value = env(name);
+        if (!value.isEmpty()) {
+            return value;
+        }
+        Object localValue = local.get(name);
+        return localValue == null ? "" : localValue.toString().trim();
+    }
+
+    private static Map<String, Object> localAiConfig(ObjectMapper json) {
+        List<Path> candidates = new ArrayList<>();
+        String configuredPath = env("TEACHING_AI_CONFIG_FILE");
+        if (!configuredPath.isEmpty()) {
+            candidates.add(Paths.get(configuredPath));
+        }
+        candidates.add(Paths.get("database", "generated", "ai-database.local.json"));
+        candidates.add(Paths.get("..", "database", "generated", "ai-database.local.json"));
+        for (Path path : candidates) {
+            if (!Files.isRegularFile(path)) {
+                continue;
+            }
+            try {
+                Map<?, ?> raw = json.readValue(path.toFile(), Map.class);
+                Map<String, Object> values = new LinkedHashMap<>();
+                for (Map.Entry<?, ?> entry : raw.entrySet()) {
+                    if (entry.getKey() != null && entry.getValue() != null) {
+                        values.put(entry.getKey().toString(), entry.getValue());
+                    }
+                }
+                return values;
+            } catch (IOException e) {
+                LOG.warn("无法读取本地AI配置文件：{}", path.toAbsolutePath());
+            }
+        }
+        return Collections.emptyMap();
     }
 
     private boolean configured() {
@@ -117,28 +163,38 @@ public class TeachingAiService {
             throw new IllegalArgumentException("仅接受question自然语言问题，不接受客户端SQL");
         }
         String question = TeachingExcel.required(input.get("question").toString(), "问题", 1000);
-        if (hasUnsupportedTimeScope(question)) {
-            return unsupported(
-                    compiler.unsupported("当前两表演示版尚未关联学期表，请先去掉“本学期、学年、学期”等时间范围"));
-        }
         TeachingAiQueryCompiler.CompiledQuery direct = compiler.fallback(question);
         if (direct != null) {
             return executeCompiled(direct);
         }
         String metadata = metadata();
-        String prompt = compiler.instructions(metadata);
+        String prompt = compiler.sqlInstructions(metadata);
         String modelOutput = model(prompt, question, null, null);
         TeachingAiQueryCompiler.CompiledQuery compiled;
-        try {
-            compiled = compiler.compile(json, modelOutput);
-        } catch (IllegalArgumentException first) {
-            String repaired =
-                    model(
-                            prompt,
-                            question,
-                            modelOutput,
-                            "上一个查询计划不合格，请只返回修正后的JSON。错误：" + first.getMessage());
-            compiled = compiler.compile(json, repaired);
+        if (compiler.hasModelSql(json, modelOutput)) {
+            try {
+                compiled = compiler.modelSql(json, modelOutput);
+            } catch (IllegalArgumentException first) {
+                String repaired =
+                        model(
+                                prompt,
+                                question,
+                                modelOutput,
+                                "上一个SQL不合格，请只返回修正后的JSON。错误：" + first.getMessage());
+                compiled = compiler.modelSql(json, repaired);
+            }
+        } else {
+            try {
+                compiled = compiler.compile(json, modelOutput);
+            } catch (IllegalArgumentException first) {
+                String repaired =
+                        model(
+                                prompt,
+                                question,
+                                modelOutput,
+                                "上一个查询计划不合格，请只返回修正后的JSON。错误：" + first.getMessage());
+                compiled = compiler.compile(json, repaired);
+            }
         }
         if (compiled.isUnsupported()) {
             TeachingAiQueryCompiler.CompiledQuery fallback = compiler.fallback(question);
@@ -183,8 +239,11 @@ public class TeachingAiService {
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(25000);
         RestTemplate client = new RestTemplate(factory);
+        client.getMessageConverters()
+                .removeIf(converter -> converter instanceof StringHttpMessageConverter);
+        client.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
         headers.setBearerAuth(key);
         String url = baseUrl.replaceAll("/+$", "");
         if (!url.endsWith("/chat/completions")) {
@@ -236,10 +295,8 @@ public class TeachingAiService {
             }
             return output;
         } catch (HttpStatusCodeException e) {
-            String providerMessage = e.getResponseBodyAsString();
-            if (providerMessage == null) {
-                providerMessage = "";
-            }
+            String providerMessage =
+                    new String(e.getResponseBodyAsByteArray(), StandardCharsets.UTF_8);
             providerMessage =
                     providerMessage.substring(0, Math.min(providerMessage.length(), 1000));
             LOG.warn(
@@ -251,6 +308,10 @@ public class TeachingAiService {
                             + e.getStatusCode().value()
                             + "，请查看后端控制台日志确认接口地址、Key和模型配置");
         } catch (java.io.IOException | org.springframework.web.client.RestClientException e) {
+            LOG.warn(
+                    "AI model request failed: {}: {}",
+                    e.getClass().getSimpleName(),
+                    e.getMessage());
             throw new IllegalArgumentException("AI服务请求失败，请检查模型配置与网络后重试", e);
         }
     }
@@ -333,29 +394,65 @@ public class TeachingAiService {
 
     private String metadata() {
         StringBuilder result = new StringBuilder();
-        for (String table : Arrays.asList("course", "teaching_task")) {
-            List<Map<String, Object>> columns =
-                    db.queryForList(
-                            "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_COMMENT FROM"
-                                + " information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND"
-                                + " TABLE_NAME=? ORDER BY ORDINAL_POSITION",
-                            table);
-            result.append(table).append("(");
-            for (Map<String, Object> column : columns) {
-                result.append(column.get("COLUMN_NAME"))
-                        .append(" ")
-                        .append(column.get("DATA_TYPE"))
-                        .append("：")
-                        .append(column.get("COLUMN_COMMENT"))
-                        .append(",");
+        List<Map<String, Object>> columns =
+                db.queryForList(
+                        "SELECT TABLE_NAME,COLUMN_NAME,DATA_TYPE,COLUMN_COMMENT FROM"
+                            + " information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE()"
+                            + " ORDER BY TABLE_NAME,ORDINAL_POSITION");
+        String currentTable = null;
+        for (Map<String, Object> column : columns) {
+            String table = String.valueOf(column.get("TABLE_NAME"));
+            String name = String.valueOf(column.get("COLUMN_NAME"));
+            if (sensitiveColumn(name)) {
+                continue;
             }
+            if (!table.equals(currentTable)) {
+                if (currentTable != null) {
+                    result.append(")\n");
+                }
+                currentTable = table;
+                result.append(table).append("(");
+            } else {
+                result.append(",");
+            }
+            result.append(name)
+                    .append(" ")
+                    .append(column.get("DATA_TYPE"))
+                    .append("：")
+                    .append(column.get("COLUMN_COMMENT"));
+        }
+        if (currentTable != null) {
             result.append(")\n");
         }
+        List<Map<String, Object>> relations =
+                db.queryForList(
+                        "SELECT TABLE_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME"
+                            + " FROM information_schema.KEY_COLUMN_USAGE WHERE"
+                            + " TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL"
+                            + " ORDER BY TABLE_NAME,ORDINAL_POSITION");
+        result.append("关联：");
+        for (Map<String, Object> relation : relations) {
+            result.append(relation.get("TABLE_NAME"))
+                    .append(".")
+                    .append(relation.get("COLUMN_NAME"))
+                    .append("=")
+                    .append(relation.get("REFERENCED_TABLE_NAME"))
+                    .append(".")
+                    .append(relation.get("REFERENCED_COLUMN_NAME"))
+                    .append("；");
+        }
         result.append(
-                "关联：teaching_task.course_id=course.id。"
-                        + "course是一门课程的基础资料；teaching_task是一门课程的一次独立开课。"
+                "course是一门课程的基础资料；teaching_task是一门课程的一次独立开课；"
                         + "planned_lab_hours是单个教学任务的计划实验学时；"
                         + "enrollment_count是单个教学任务的选课人数。\n");
         return result.toString();
+    }
+
+    private static boolean sensitiveColumn(String name) {
+        String normalized = name.toLowerCase(Locale.ROOT);
+        return normalized.contains("password")
+                || normalized.equals("token")
+                || normalized.contains("api_key")
+                || normalized.contains("secret");
     }
 }

@@ -103,4 +103,29 @@ class TeachingAiSqlGuardTest {
             assertThrows(
                     IllegalArgumentException.class, () -> TeachingAiSqlGuard.validate(sql), sql);
     }
+
+    @Test
+    void allowsSafeColumnsFromAllBusinessTablesAndBlocksSecrets() {
+        assertTrue(
+                TeachingAiSqlGuard.validate(
+                                "SELECT a.display_name,COUNT(DISTINCT l.task_id) AS task_count"
+                                    + " FROM account a LEFT JOIN teaching_task_teacher l ON"
+                                    + " l.teacher_account_id=a.id WHERE a.role='TEACHER'"
+                                    + " GROUP BY a.id,a.display_name")
+                        .startsWith("SELECT"));
+        assertTrue(
+                TeachingAiSqlGuard.validate(
+                                "SELECT b.file_name,b.row_count FROM teaching_import_batch b"
+                                    + " ORDER BY b.created_at DESC")
+                        .startsWith("SELECT"));
+        for (String sql :
+                new String[] {
+                    "SELECT password_hash FROM account",
+                    "SELECT token FROM token",
+                    "SELECT * FROM account",
+                    "SELECT a.* FROM account a"
+                })
+            assertThrows(
+                    IllegalArgumentException.class, () -> TeachingAiSqlGuard.validate(sql), sql);
+    }
 }
