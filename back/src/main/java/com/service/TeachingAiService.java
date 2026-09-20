@@ -163,47 +163,30 @@ public class TeachingAiService {
             throw new IllegalArgumentException("仅接受question自然语言问题，不接受客户端SQL");
         }
         String question = TeachingExcel.required(input.get("question").toString(), "问题", 1000);
-        TeachingAiQueryCompiler.CompiledQuery direct = compiler.fallback(question);
-        if (direct != null) {
-            return executeCompiled(direct);
-        }
-        String metadata = metadata();
-        String prompt = compiler.sqlInstructions(metadata);
-        String modelOutput = model(prompt, question, null, null);
+        List<Map<String, Object>> termCatalog = db.queryForList(TeachingTermService.SELECT_TERMS);
+        List<Map<String, Object>> labCatalog = db.queryForList("SELECT id,lab_code,lab_name FROM laboratory");
+        TeachingAiScope scope = TeachingAiScope.resolve(question, input.get("termId"), termCatalog, labCatalog);
+        String prompt = compiler.sqlInstructions(metadata()) + scope.instructions()
+                + "\n学期目录：" + termCatalog + "\n实验室目录：" + labCatalog;
+        String output = model(prompt, question, null, null);
         TeachingAiQueryCompiler.CompiledQuery compiled;
-        if (compiler.hasModelSql(json, modelOutput)) {
-            try {
-                compiled = compiler.modelSql(json, modelOutput);
-            } catch (IllegalArgumentException first) {
-                String repaired =
-                        model(
-                                prompt,
-                                question,
-                                modelOutput,
-                                "上一个SQL不合格，请只返回修正后的JSON。错误：" + first.getMessage());
-                compiled = compiler.modelSql(json, repaired);
-            }
-        } else {
-            try {
-                compiled = compiler.compile(json, modelOutput);
-            } catch (IllegalArgumentException first) {
-                String repaired =
-                        model(
-                                prompt,
-                                question,
-                                modelOutput,
-                                "上一个查询计划不合格，请只返回修正后的JSON。错误：" + first.getMessage());
-                compiled = compiler.compile(json, repaired);
-            }
+        try {
+            compiled = compileScoped(output, scope);
+        } catch (IllegalArgumentException first) {
+            String repaired = model(prompt, question, output,
+                    "上一次结果不合格，请保留用户全部条件并修正JSON。错误：" + first.getMessage());
+            compiled = compileScoped(repaired, scope);
         }
-        if (compiled.isUnsupported()) {
-            TeachingAiQueryCompiler.CompiledQuery fallback = compiler.fallback(question);
-            if (fallback == null) {
-                return unsupported(compiled);
-            }
-            compiled = fallback;
-        }
-        return executeCompiled(compiled);
+        Map<String, Object> result = compiled.isUnsupported() ? unsupported(compiled) : executeCompiled(compiled);
+        result.put("scope", scope.description());
+        return result;
+    }
+
+    private TeachingAiQueryCompiler.CompiledQuery compileScoped(String output, TeachingAiScope scope) {
+        TeachingAiQueryCompiler.CompiledQuery compiled = compiler.hasModelSql(json, output)
+                ? compiler.modelSql(json, output) : compiler.compile(json, output);
+        if (!compiled.isUnsupported()) scope.validate(compiled.getExecutionSql());
+        return compiled;
     }
 
     private Map<String, Object> executeCompiled(
@@ -403,7 +386,7 @@ public class TeachingAiService {
         for (Map<String, Object> column : columns) {
             String table = String.valueOf(column.get("TABLE_NAME"));
             String name = String.valueOf(column.get("COLUMN_NAME"));
-            if (sensitiveColumn(name)) {
+            if (!TeachingAiSqlGuard.allowedTables().contains(table) || sensitiveColumn(name)) {
                 continue;
             }
             if (!table.equals(currentTable)) {
@@ -432,6 +415,8 @@ public class TeachingAiService {
                             + " ORDER BY TABLE_NAME,ORDINAL_POSITION");
         result.append("关联：");
         for (Map<String, Object> relation : relations) {
+            if (!TeachingAiSqlGuard.allowedTables().contains(String.valueOf(relation.get("TABLE_NAME")))
+                    || !TeachingAiSqlGuard.allowedTables().contains(String.valueOf(relation.get("REFERENCED_TABLE_NAME")))) continue;
             result.append(relation.get("TABLE_NAME"))
                     .append(".")
                     .append(relation.get("COLUMN_NAME"))

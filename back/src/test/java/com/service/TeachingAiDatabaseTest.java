@@ -93,6 +93,27 @@ class TeachingAiDatabaseTest {
     }
 
     @Test
+    void scopedRoomQuestionUsesModelAndRejectsGlobalShortcut() {
+        Long lab = db.queryForObject("SELECT id FROM laboratory WHERE lab_code='36-601'", Long.class);
+        modelOutput.set("{\"sql\":\"SELECT COUNT(*) AS course_count FROM course\"}");
+        assertThrows(IllegalArgumentException.class,
+                () -> service.query(admin, map("question", "36栋601一共有多少门课程")));
+        assertEquals(4, modelRequest.get().path("messages").size());
+        String sql = "SELECT COUNT(DISTINCT t.course_id) AS course_count FROM schedule_detail s "
+                + "JOIN teaching_task t ON t.id=s.task_id JOIN laboratory l ON l.id=s.lab_id WHERE l.id=" + lab;
+        modelOutput.set("{\"sql\":\"" + sql + "\"}");
+        Map<String, Object> result = service.query(admin, map("question", "36栋601一共有多少门课程"));
+        Number actual = (Number) ((Map<?, ?>) ((List<?>) result.get("rows")).get(0)).get("course_count");
+        assertEquals(db.queryForObject(sql, Long.class).longValue(), actual.longValue());
+        assertTrue(result.get("scope").toString().contains("36-601"));
+        String prompt = modelRequest.get().path("messages").path(0).path("content").asText();
+        assertFalse(prompt.contains("course_2("));
+        assertTrue(prompt.contains("COUNT(DISTINCT t.course_id)"));
+        modelOutput.set("{\"intent\":\"UNSUPPORTED\",\"reason\":\"请补充范围\"}");
+        assertEquals("", service.query(admin, map("question", "一共有多少门课程")).get("sql"));
+    }
+
+    @Test
     void executesModelSqlAndPreservesTopTenWhileTruncatingLargeResult() {
         Map<String, Object> top =
                 query(

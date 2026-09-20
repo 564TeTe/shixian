@@ -220,8 +220,9 @@ class TeachingImportDatabaseTest {
         for (Object row : (List<?>) report.get("labs"))
             actual = actual.add((BigDecimal) ((Map<?, ?>) row).get("person_hours"));
         assertEquals(0, expected.compareTo(actual));
-        assertTrue(report.get("basis").toString().contains("课程关联地点"));
-        assertTrue(reports.export(request("teacher", teacher), null, null, "labs").length > 100);
+        assertTrue(report.get("basis").toString().contains("关联地点不代表项目实际执行地点"));
+        assertThrows(com.exception.AccessException.class,
+                () -> reports.export(request("teacher", teacher), null, null, "labs"));
     }
 
     @Test

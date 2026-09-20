@@ -13,7 +13,7 @@ export default {
 mixins:[shared],
 data:()=>({mobile:false,terms:[],termId:''}),
 computed:{ isAdmin(){return this.$storage.get('sessionTable')==='users'}, username(){return this.$storage.get('adminName')||'用户'}, navigation(){return [
-['/index','教学概览','grid','工作空间'],['/teaching/tasks','课程与课表','calendar','教学管理'],['/teaching/projects','实验项目','flask',''],['/teaching/terms','学年学期','layers',''],['/teaching/labs','实验室','building','基础资料'],['/teaching/teachers','教师账号','users','',true],['/teaching/imports','导入中心','upload','',true],['/teaching/reports','统计报表','chart','数据洞察'],['/teaching/ai','智能查询','spark','智能助手',true],['/teaching/account','账号与安全','shield','个人设置']
+['/index','教学概览','grid','工作空间'],['/teaching/tasks','课程与课表','calendar','教学管理'],['/teaching/projects','实验项目','flask',''],['/teaching/terms','学年学期','layers',''],['/teaching/labs','实验室','building','基础资料'],['/teaching/teachers','教师账号','users','',true],['/teaching/imports','导入中心','upload','',true],['/teaching/reports','统计报表','chart','数据洞察',true],['/teaching/ai','智能查询','spark','智能助手',true],['/teaching/account','账号与安全','shield','个人设置']
 ].filter(r=>!r[4]||this.isAdmin).map(r=>({path:r[0],title:r[1],icon:r[2],group:r[3]}))}},
 watch:{'$route.query.termId'(v){this.termId=v || ''}},
 async mounted(){try{this.terms=await request('/terms');this.termId=this.$route.query.termId || ''; }catch(e){errorMessage(e)}},

@@ -50,7 +50,7 @@ const router = new VueRouter({
         {
           path: '/teaching/reports',
           component: () => import('@/views/teaching/Reports'),
-          meta: { title: '统计报表' }
+          meta: { title: '统计报表', admin: true }
         },
         {
           path: '/teaching/ai',

@@ -1,5 +1,5 @@
 <template><div class="teaching-page">
-<page-heading title="课程与课表" eyebrow="COURSES & TIMETABLE" description="以学期为单位组织课程，清晰掌握每一周的实验教学安排。"><router-link v-if="isAdmin" class="btn" to="/teaching/imports"><sf-icon name="upload"/>导入课表</router-link><button v-if="isAdmin" class="btn primary" @click="openCreate"><sf-icon name="plus"/>创建当前教学任务</button></page-heading>
+<page-heading title="课程与课表" eyebrow="COURSES & TIMETABLE" description="以学期为单位组织课程，清晰掌握每一周的实验教学安排。"><router-link v-if="isAdmin" class="btn" to="/teaching/imports"><sf-icon name="upload"/>导入课表</router-link><button class="btn primary" :disabled="!currentTerms.length" @click="openCreate"><sf-icon name="plus"/>创建当前教学任务</button></page-heading>
 <section class="panel" v-loading="loading">
 <form class="filter-bar" @submit.prevent="search"><label class="search-field"><sf-icon name="search"/><input v-model.trim="filters.q" placeholder="搜索课程、教师或班级" aria-label="搜索课程、教师或班级"/></label><sf-select v-model="filters.termId" placeholder="全部学期" @change="selectTerm(filters.termId)"><sf-option v-for="term in lookups.terms" :key="term.id" :value="term.id" :label="term.name"/></sf-select><button class="btn primary">查询</button><button v-if="filters.q" class="btn" type="button" @click="filters.q='';search()">重置</button></form>
 <div class="section-toolbar"><div class="tabs"><button class="btn" :class="{active:tab==='list'}" @click="tab='list'"><sf-icon name="book"/>教学任务</button><button v-if="!isAdmin" class="btn" :class="{active:tab==='week'}" @click="openWeek"><sf-icon name="calendar"/>周课表</button></div><span class="muted">共 {{ total }} 个教学任务</span></div>
@@ -63,6 +63,7 @@
         show-icon
         :closable="false"
       />
+      <sf-alert v-if="createError" :title="createError" type="error" />
       <sf-form ref="createForm" :model="form" :rules="rules" label-position="top">
         <div class="form-grid">
           <sf-form-item label="当前学期" prop="termId">
@@ -80,7 +81,7 @@
               />
             </sf-select>
           </sf-form-item>
-          <sf-form-item label="任课教师（支持合授）" prop="teacherIds">
+          <sf-form-item v-if="isAdmin" label="任课教师（支持合授）" prop="teacherIds">
             <sf-select v-model="form.teacherIds" multiple filterable placeholder="选择教师">
               <sf-option
                 v-for="teacher in lookups.teachers"
@@ -90,6 +91,7 @@
               />
             </sf-select>
           </sf-form-item>
+          <sf-form-item v-if="!isAdmin" label="任课教师"><span>{{ $storage.get('adminName') }}（本人，自动关联）</span></sf-form-item>
           <sf-form-item label="授课班级" prop="classComposition">
             <sf-input v-model.trim="form.classComposition" placeholder="输入完整班级构成" />
           </sf-form-item>
@@ -116,6 +118,10 @@ import TaskTable from '@/components/workspace/TaskTable'
 import PageHeading from './PageHeading'
 import { request, shared } from './api'
 const required = message => [{ required: true, message, trigger: 'change' }]
+const requiredNumber = (message, min, type = 'number') => [{
+  required: true, type, min, message, trigger: 'change',
+  transform: value => value === '' || value == null ? value : Number(value)
+}]
 export default {
   components: { PageHeading, TaskTable },
   mixins: [shared],
@@ -128,6 +134,7 @@ export default {
     detailLoading: false,
     detail: null,
     createVisible: false,
+    createError: '',
     form: {},
     weekdays: ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'],
     detailFields: [
@@ -145,12 +152,11 @@ export default {
       { key: 'project_count', label: '实验项目数量' }
     ],
     rules: {
-      termId: required('请选择学期'),
-      courseId: required('请选择课程'),
-      teacherIds: required('请选择任课教师'),
+      termId: requiredNumber('请选择学期', 1, 'integer'),
+      courseId: requiredNumber('请选择课程', 1, 'integer'),
       classComposition: required('请输入授课班级'),
-      enrollmentCount: required('请输入选课人数'),
-      plannedLabHours: required('请输入计划学时')
+      enrollmentCount: requiredNumber('请输入非负整数选课人数', 0, 'integer'),
+      plannedLabHours: requiredNumber('请输入大于0的计划学时', 0.01)
     }
   }),
   computed: {
@@ -212,8 +218,9 @@ export default {
       this.$router.push({ path: '/teaching/projects', query: { taskId: row.id, termId: row.term_id || this.filters.termId } })
     },
     openCreate() {
+      this.createError = ''
       this.form = {
-        termId: this.currentTerms[0] ? this.currentTerms[0].id : '',
+        termId: (this.currentTerms.find(t => String(t.id) === String(this.filters.termId)) || this.currentTerms[0] || {}).id || '',
         courseId: '',
         teacherIds: [],
         classComposition: '',
@@ -225,15 +232,23 @@ export default {
       this.$nextTick(() => this.$refs.createForm.clearValidate())
     },
     async save() {
+      this.createError = ''
+      if (this.isAdmin && !this.form.teacherIds.length) {
+        this.createError = '请选择任课教师'
+        return
+      }
       if (!(await this.$refs.createForm.validate().catch(() => false))) return
       this.saving = true
       try {
-        await request('/tasks', { method: 'post', data: this.form })
+        const data = { ...this.form }
+        if (!this.isAdmin) delete data.teacherIds
+        await request('/tasks', { method: 'post', data })
         this.$message.success('教学任务已创建')
         this.createVisible = false
-        await this.load()
+        if (String(this.filters.termId) !== String(this.form.termId)) await this.selectTerm(this.form.termId)
+        else await this.load()
       } catch (e) {
-        this.fail(e)
+        this.createError = (e.response && e.response.data && e.response.data.msg) || e.message || '创建失败'
       } finally {
         this.saving = false
       }

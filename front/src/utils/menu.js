@@ -6,7 +6,7 @@ export const navigation = [
   { path: '/teaching/labs', title: '实验室', icon: 'el-icon-office-building' },
   { path: '/teaching/teachers', title: '教师账号', icon: 'el-icon-user', admin: true },
   { path: '/teaching/imports', title: '导入中心', icon: 'el-icon-upload', admin: true },
-  { path: '/teaching/reports', title: '统计报表', icon: 'el-icon-pie-chart' },
+  { path: '/teaching/reports', title: '统计报表', icon: 'el-icon-pie-chart', admin: true },
   { path: '/teaching/ai', title: '智能查询', icon: 'el-icon-chat-dot-round', admin: true }
 ]
 export default {

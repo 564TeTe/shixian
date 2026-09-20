@@ -84,6 +84,25 @@ class TeachingCoreDatabaseTest {
     }
 
     @Test
+    void teacherCanCreateOwnTaskButCannotAssignOtherTeachers() {
+        MockHttpServletRequest owner = request("teacher", teacherId);
+        List<?> courses = (List<?>) service.lookups(owner).get("courses");
+        assertTrue(courses.stream().anyMatch(row ->
+                ((Number) ((Map<?, ?>) row).get("id")).longValue() == courseId));
+        Map<String, Object> input = taskInput();
+        input.put("teacherIds", Collections.singletonList(otherTeacherId));
+        long id = ((Number) service.createTask(owner, input).get("id")).longValue();
+        assertEquals(Collections.singletonList(teacherId), jdbc.queryForList(
+                "SELECT teacher_account_id FROM teaching_task_teacher WHERE task_id=?", Long.class, id));
+        assertThrows(AccessException.class, () -> service.task(request("teacher", otherTeacherId), id));
+        input.remove("teacherIds");
+        assertNotNull(service.createTask(owner, input).get("id"));
+        jdbc.update("UPDATE academic_term SET status='ARCHIVED' WHERE id=?", currentId);
+        assertThrows(AccessException.class, () -> service.createTask(owner, input));
+        assertThrows(AccessException.class, () -> service.createTask(new MockHttpServletRequest(), input));
+    }
+
+    @Test
     void manuallyCreatedTaskHasNoInventedScheduleAndTeacherScopeIsEnforced() {
         Map<String, Object> task = service.createTask(admin, taskInput());
         long id = ((Number) task.get("id")).longValue();

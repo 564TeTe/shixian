@@ -183,6 +183,7 @@ public class TeachingReportService {
     @SuppressWarnings("unchecked")
     public byte[] export(
             HttpServletRequest request, Long yearId, Long termId, Long labId, String type) {
+        access.requireAdmin(request);
         if (!"labs".equals(type) && !"projects".equals(type)) {
             throw new IllegalArgumentException("导出类型只能为labs或projects");
         }

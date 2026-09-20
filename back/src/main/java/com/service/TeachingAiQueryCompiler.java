@@ -19,10 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Compiles a small AI-produced query plan into parameterized SQL.
- *
- * <p>The model never chooses table names, column names, joins, or SQL fragments. Expanding the demo
- * means adding another explicit intent here together with tests.
+ * Validates model-generated SQL and supports legacy structured query plans.
+ * Natural-language requests are handled by the model; legacy fallback helpers are not query routing.
  */
 final class TeachingAiQueryCompiler {
 
@@ -56,6 +54,16 @@ final class TeachingAiQueryCompiler {
 
     CompiledQuery compile(ObjectMapper json, String modelOutput) {
         JsonNode plan = readPlan(json, modelOutput);
+        // Clarification responses need no executable query-plan fields.
+        if ("UNSUPPORTED".equalsIgnoreCase(plan.path("intent").asText())) {
+            Iterator<String> names = plan.fieldNames();
+            while (names.hasNext()) {
+                if (!PLAN_FIELDS.contains(names.next()))
+                    throw new IllegalArgumentException("澄清结果包含未知字段");
+            }
+            String reason = optionalText(plan, "reason", 300);
+            return unsupported(reason.isEmpty() ? "请补充实验室、学期或统计指标" : reason);
+        }
         validateFields(plan);
         String intent = text(plan, "intent").toUpperCase(Locale.ROOT);
         String reason = optionalText(plan, "reason", 300);
@@ -311,7 +319,13 @@ final class TeachingAiQueryCompiler {
                 + "存储过程、变量、注释、UNION、子查询、CTE和多语句。请使用表中真实存在的字段，"
                 + "只查询回答问题所需的最少列和行，结果最多200行。列别名使用英文蛇形命名，"
                 + "不要使用中文标识符或反引号。不要查询任何密码、令牌或密钥字段。"
-                + "如果问题涉及名称，优先使用LIKE进行模糊匹配。"
+                + "如果问题涉及名称，优先匹配提供的目录；36栋601、36号楼601对应实验室编号36-601。"
+                + "统计实验室课程数必须经schedule_detail连接teaching_task，COUNT(DISTINCT t.course_id)；"
+                + "教学任务数使用COUNT(DISTINCT t.id)，不能把逐周排课条数当作课程数。"
+                + "教学人时为SUM(s.hours*t.enrollment_count)。勿联接合授教师或项目导致人时重复；"
+                + "必要时请用户拆分问题。明确指定的学期优先于页面学期；没有指定则使用页面选择。"
+                + "未指定且页面选择全部学期时统计全部。不存在的实验室不能退回全系统查询。"
+                + "无法完整理解问题时返回{\"intent\":\"UNSUPPORTED\",\"reason\":\"请补充的条件\"}。"
                 + "\n数据库结构：\n"
                 + metadata;
     }

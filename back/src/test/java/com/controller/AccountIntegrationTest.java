@@ -80,13 +80,25 @@ class AccountIntegrationTest {
             mvc.perform(get(route).header("Token", adminToken))
                     .andExpect(jsonPath("$.code").value(0));
         }
-        mvc.perform(get("/teaching/reports/export").header("Token", adminToken))
+        byte[] exported = mvc.perform(get("/teaching/reports/export").header("Token", adminToken))
                 .andExpect(status().isOk())
                 .andExpect(
                         header().string(
                                         "Content-Disposition",
-                                        org.hamcrest.Matchers.containsString("attachment")));
+                                        org.hamcrest.Matchers.containsString("attachment")))
+                .andReturn().getResponse().getContentAsByteArray();
+        try (org.apache.poi.xssf.usermodel.XSSFWorkbook book =
+                new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(exported))) {
+            assertEquals("教学实验项目采集表", book.getSheetName(0));
+            assertEquals("学校代码", book.getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+        }
         String teacherToken = accounts.login(teacher, "TestPassword928!", "TEACHER");
+        mvc.perform(get("/teaching/reports").header("Token", teacherToken))
+                .andExpect(jsonPath("$.code").value(0));
+        for (String type : new String[] {"projects", "labs"}) {
+            mvc.perform(get("/teaching/reports/export").param("type", type).header("Token", teacherToken))
+                    .andExpect(jsonPath("$.code").value(403));
+        }
         long teacherId = accounts.findIdentity(teacherToken).getAccountId();
         String response =
                 mvc.perform(

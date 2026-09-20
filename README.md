@@ -82,6 +82,12 @@ SOURCE database/004_english_schema.sql;
 
 ## AI 配置
 
+教师可以在“课程与课表”创建本人当前开放学期的教学任务。新教师也可选择课程目录；后端根据登录身份自动关联本人，不能指定其他教师。实际排课仍由管理员导入课表。
+
+智能查询中的快捷问题仅用于填写输入框，查询统一调用模型，不按局部关键词返回固定统计。问题明确写出的学年学期优先，其次采用顶部学期选择；选择“全部学期”时查询全部。`36栋601`、`36号楼601` 和 `36-601` 会按实验室目录识别；识别不到时提示核对，不退回全系统统计。生成的 SQL 必须包含已解析的实验室和学期条件；遗漏时尝试修正一次，再失败就报错。结果上方显示查询范围。复杂时间描述或多间指定实验室暂需拆分、明确提问。
+
+验证本次权限和查询修复可运行 `TeachingAiScopeTest`、`TeachingAiTest`、`TeachingAiQueryCompilerTest`、`TeachingAiSqlGuardTest`、`TeachingCoreTest`；设置数据库测试环境后再运行 `TeachingCoreDatabaseTest`（事务回滚）和 `TeachingAiDatabaseTest`（本地模拟模型、真实只读查询）。AI 数据库测试不调用外部模型，不消耗供应商额度。
+
 可在本机 `database/generated/ai-database.local.json` 配置以下字段（该目录已忽略 Git 提交），或在启动后端的进程环境中设置同名变量；环境变量优先。修改后重启后端：
 
 - `TEACHING_AI_BASE_URL`：兼容 Chat Completions 的服务地址，例如供应商的 `/v1` 地址。

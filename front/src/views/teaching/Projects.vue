@@ -12,6 +12,7 @@
       width="760px"
       :close-on-click-modal="false"
     >
+      <sf-alert v-if="saveError" :title="saveError" type="error" />
       <sf-form ref="form" :model="form" :rules="rules" label-position="top" :disabled="readOnly">
         <div class="form-grid">
           <sf-form-item label="实验名称" prop="name" class="span-two">
@@ -129,6 +130,10 @@
 import PageHeading from './PageHeading'
 import Warnings from './Warnings'
 import { request, upload, shared } from './api'
+const requiredNumber = (message, type, min, max) => [{
+  required: true, type, min, max, message, trigger: 'change',
+  transform: value => value === '' || value == null ? value : Number(value)
+}]
 const fields = [
   { key: 'category_code', label: '实验类别', names: ['基础', '专业基础', '专业', '其它'] },
   { key: 'type_code', label: '实验类型', names: ['演示性', '验证性', '综合性', '设计研究', '其它'] },
@@ -149,6 +154,7 @@ export default {
     editable: false,
     editVisible: false,
     readOnly: false,
+    saveError: '',
     form: {},
     optionFields: fields,
     uploadVisible: false,
@@ -161,13 +167,14 @@ export default {
       'name',
       'school_code',
       'discipline_code',
-      'group_size',
-      'hours',
       ...fields.map(f => f.key)
     ].reduce((rules, key) => {
       rules[key] = [{ required: true, message: '请填写此项', trigger: 'change' }]
       return rules
-    }, {})
+    }, {
+      group_size: requiredNumber('请输入1～99之间的整数人数', 'integer', 1, 99),
+      hours: requiredNumber('请输入0.01～9999之间的实验学时', 'number', 0.01, 9999)
+    })
   }),
   computed: {
     displayRows(){return this.rows.filter(p=>(!this.projectType||String(p.type_code)===String(this.projectType))&&[p.name,p.project_code].join(' ').toLowerCase().includes(this.projectQuery.toLowerCase()))},
@@ -266,6 +273,7 @@ export default {
     },
     edit(row, readOnly = false) {
       this.readOnly = readOnly
+      this.saveError = ''
       this.form = row
         ? Object.assign({}, row)
         : {
@@ -289,7 +297,9 @@ export default {
       this.$nextTick(() => this.$refs.form.clearValidate())
     },
     async save() {
-      if (!this.editable || !(await this.$refs.form.validate().catch(() => false))) return
+      if (!this.editable || this.readOnly || this.saving) return
+      this.saveError = ''
+      if (!(await this.$refs.form.validate().catch(() => false))) return
       this.saving = true
       try {
         const allowed = [
@@ -315,6 +325,7 @@ export default {
         this.$message.success('实验项目已保存')
         await this.loadProjects()
       } catch (e) {
+        this.saveError = (e.response && e.response.data && e.response.data.msg) || e.message || '保存失败'
         this.fail(e)
       } finally {
         this.saving = false

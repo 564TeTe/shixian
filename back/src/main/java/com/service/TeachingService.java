@@ -84,19 +84,9 @@ public class TeachingService {
 
     public Map<String, Object> lookups(HttpServletRequest request) {
         Long teacher = access.teacherId(request);
-        List<Object> args = new ArrayList<>();
-        String filter = scope(teacher, "t", args);
         List<Map<String, Object>> courses =
                 jdbc.queryForList(
-                        "SELECT c.id,c.course_code,c.course_name FROM course c WHERE 1=1"
-                                + (teacher == null
-                                        ? ""
-                                        : " AND EXISTS (SELECT 1 FROM teaching_task t WHERE"
-                                                + " t.course_id=c.id"
-                                                + filter
-                                                + ")")
-                                + " ORDER BY c.course_code",
-                        args.toArray());
+                        "SELECT c.id,c.course_code,c.course_name FROM course c ORDER BY c.course_code");
         return map(
                 "terms",
                 terms.terms(teacher),
@@ -238,7 +228,7 @@ public class TeachingService {
 
     @Transactional
     public Map<String, Object> createTask(HttpServletRequest request, Map<String, Object> body) {
-        access.requireAdmin(request);
+        Long ownTeacher = access.teacherId(request);
         long termId = positiveId(body, "termId"), courseId = positiveId(body, "courseId");
         List<Map<String, Object>> termRows =
                 jdbc.queryForList(TeachingTermService.SELECT_TERMS + " WHERE a.id=?", termId);
@@ -250,7 +240,9 @@ public class TeachingService {
         if (courses.isEmpty()) {
             throw new IllegalArgumentException("课程不存在");
         }
-        Object teacherInput = body.get("teacherIds");
+        // Teacher ownership comes only from the authenticated session.
+        Object teacherInput = ownTeacher == null
+                ? body.get("teacherIds") : java.util.Collections.singletonList(ownTeacher);
         if (!(teacherInput instanceof Collection) || ((Collection<?>) teacherInput).isEmpty()) {
             throw new IllegalArgumentException("请至少选择一位授课教师");
         }
