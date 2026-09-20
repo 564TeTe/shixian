@@ -42,9 +42,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+
 /** Fails closed: only a small, auditable SELECT AST is executable. */
 public final class TeachingAiSqlGuard {
-
     private static final Set<String> TABLES =
             new HashSet<>(
                     Arrays.asList(
@@ -121,6 +121,7 @@ public final class TeachingAiSqlGuard {
     }
 
     public static String validate(String source) {
+        System.out.print(source);
         if (source == null || source.length() > 12000) {
             throw bad("SQL为空或过长");
         }
@@ -250,7 +251,6 @@ public final class TeachingAiSqlGuard {
             throw new IllegalArgumentException("模型生成的SQL无法安全解析，请换一种方式提问", e);
         }
     }
-
     private static void table(FromItem item) {
         if (!(item instanceof Table)) {
             throw bad("仅允许业务表，不支持子查询和表函数");
