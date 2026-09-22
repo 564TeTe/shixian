@@ -194,47 +194,17 @@ public class TeachingAiService {
     // 调用AI模型获取初始输出
         String modelOutput = model(prompt, question, null, null);
         TeachingAiQueryCompiler.CompiledQuery compiled;
-    // 检查模型输出是否包含SQL
-        if (compiler.hasModelSql(json, modelOutput)) {
-            try {
-            // 尝试从模型输出中提取SQL
-                compiled = compiler.modelSql(json, modelOutput);
-            } catch (IllegalArgumentException first) {
-            // 如果SQL不合法，尝试修复
-                String repaired =
-                        model(
-                                prompt,
-                                question,
-                                modelOutput,
-                                "上一个SQL不合格，请只返回修正后的JSON。错误：" + first.getMessage());
-                compiled = compiler.modelSql(json, repaired);
-            }
-        } else {
-            try {
-            // 尝试编译模型输出
-                compiled = compiler.compile(json, modelOutput);
-            } catch (IllegalArgumentException first) {
-            // 如果编译失败，尝试修复
-                String repaired =
-                        model(
-                                prompt,
-                                question,
-                                modelOutput,
-                                "上一个查询计划不合格，请只返回修正后的JSON。错误：" + first.getMessage());
-                compiled = compiler.compile(json, repaired);
-            }
+        try {
+            compiled = compiler.modelSql(json, modelOutput);
+        } catch (IllegalArgumentException first) {
+            String repaired =
+                    model(
+                            prompt,
+                            question,
+                            modelOutput,
+                            "上一个SQL不合格，请只返回修正后的JSON。错误：" + first.getMessage());
+            compiled = compiler.modelSql(json, repaired);
         }
-    // 检查是否为不支持的查询
-        if (compiled.isUnsupported()) {
-        // 尝试使用备用方案
-            TeachingAiQueryCompiler.CompiledQuery fallback =
-                    TeachingAiFallback.compile(question, TeachingAiSqlGuard.allowedTables());
-            if (fallback == null) {
-                return unsupported(compiled);
-            }
-            compiled = fallback;
-        }
-    // 执行编译后的查询
         return executeCompiled(compiled);
     }
 
@@ -249,35 +219,6 @@ public class TeachingAiService {
         String executionSql = TeachingAiSqlGuard.validate(compiled.getExecutionSql());
     // 执行验证后的SQL并返回结果
         return execute(executionSql, compiled);
-    }
-
-    static boolean hasUnsupportedTimeScope(String question) {
-        return question.matches(
-                ".*(本学期|当前学期|上学期|下学期|第[一二12]学期|按学期|按学年|学年|本年度|今年|去年).*");
-    }
-
-/**
- * 处理不支持的查询编译结果，返回一个包含错误信息的Map
- *
- * @param compiled 已编译的查询对象，包含查询计划和相关信息
- * @return 包含错误信息的Map，其中包含空的SQL、原始计划、错误消息列和行
- */
-    private static Map<String, Object> unsupported(
-            TeachingAiQueryCompiler.CompiledQuery compiled) {
-    // 从编译计划中获取不支持的原因
-        String reason = String.valueOf(compiled.getPlan().get("reason"));
-    // 构建并返回包含错误信息的Map
-        return map(
-                "sql",           // SQL语句（此处为空）
-                "",              // 空字符串表示不生成SQL
-                "plan",          // 查询计划
-                compiled.getPlan(), // 原始查询计划
-                "columns",       // 列信息
-                Arrays.asList("message"), // 只包含消息列
-                "rows",          // 数据行
-                Arrays.asList(map("message", reason)), // 包含错误消息的行
-                "truncated",     // 是否截断
-                false);          // 不截断
     }
 
 /**
@@ -359,7 +300,7 @@ public class TeachingAiService {
                             .trim();
         // 检查输出内容是否为空
             if (output.isEmpty()) {
-                throw new IllegalArgumentException("AI服务没有返回查询计划");
+                throw new IllegalArgumentException("AI服务没有返回SQL");
             }
             return output;
         } catch (HttpStatusCodeException e) {
@@ -388,7 +329,7 @@ public class TeachingAiService {
  * 执行SQL查询并返回结果
  * @param executionSql 要执行的SQL语句
  * @param compiled 编译后的查询对象，包含SQL语句、参数和结果限制等信息
- * @return 包含查询结果、列信息、执行计划等的Map对象
+ * @return 包含查询结果、列信息和截断状态的Map对象
  */
     private Map<String, Object> execute(
             String executionSql, TeachingAiQueryCompiler.CompiledQuery compiled) {
@@ -459,8 +400,6 @@ public class TeachingAiService {
                     return map(
                             "sql",
                             compiled.getSql(),
-                            "plan",
-                            compiled.getPlan(),
                             "columns",
                             columns,
                             "rows",

@@ -3,9 +3,7 @@ package com.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,45 +27,63 @@ final class TeachingAiFallback {
      * 第一步：尝试用确定性规则回答。
      *
      * <p>每条规则都会先检查依赖表是否在白名单中，避免换库后误用旧业务SQL。
+     * 该方法是一个编译器，用于将自然语言问题编译成可执行的查询。
+     *
+     * @param question 用户输入的自然语言问题
+     * @param allowedTables 允许查询的表集合白名单
+     * @return 返回编译后的查询对象，如果无法匹配则返回null
      */
     static TeachingAiQueryCompiler.CompiledQuery compile(
             String question, Set<String> allowedTables) {
+        // 对输入问题进行预处理，去除前后空格
         String text = question == null ? "" : question.trim();
 
+        // 匹配教师班级问题，并检查是否允许查询"ai_teacher_workload"表
         Matcher teacherClassQuestion = TEACHER_CLASS_QUESTION.matcher(text);
         if (teacherClassQuestion.matches()
                 && hasTables(allowedTables, "ai_teacher_workload")) {
+            // 如果匹配成功，返回教师班级计数查询
             return teacherClassCount(teacherClassQuestion.group(1).trim());
         }
+        // 检查问题中是否包含"教师"或"老师"关键词
         if (text.matches(".*(教师|老师).*")) {
             return null;
         }
+        // 检查是否允许查询"course"和"teaching_task"表
         if (!hasTables(allowedTables, "course", "teaching_task")) {
             return null;
         }
+        // 匹配课程数量相关问题
         if (text.matches(".*(一共有多少门课程|共有多少门课程|课程总数|课程数量|多少门课).*")) {
-            return fixedPlan("COUNT_COURSES", null, null, 20);
+            return fixedQuery("COUNT_COURSES", null, null, 20);
         }
+        // 匹配实验学时最多相关问题
         if (text.matches(".*(计划实验学时最多|实验学时最多的).*")) {
-            return fixedPlan(
+            return fixedQuery(
                     "PLANNED_HOURS_BY_COURSE", null, null, numberInQuestion(text, 10));
         }
+        // 匹配选课人数统计相关问题
         if (text.matches(".*(选课人数最多|选课人数统计|按课程统计选课人数).*")) {
-            return fixedPlan("ENROLLMENT_BY_COURSE", null, null, numberInQuestion(text, 20));
+            return fixedQuery("ENROLLMENT_BY_COURSE", null, null, numberInQuestion(text, 20));
         }
+        // 匹配教学任务数量相关问题
         if (text.matches(".*(每门课程.*教学任务|按课程统计.*教学任务|课程.*任务数量).*")) {
-            return fixedPlan("TASK_COUNT_BY_COURSE", null, null, numberInQuestion(text, 20));
+            return fixedQuery("TASK_COUNT_BY_COURSE", null, null, numberInQuestion(text, 20));
         }
+        // 匹列出教学任务相关问题
         if (text.matches(".*(列出|查看|查询|有哪些).*(教学任务|开课任务).*")) {
-            return fixedPlan(
+            return fixedQuery(
                     "LIST_TASKS", null, extractCourseName(text), numberInQuestion(text, 20));
         }
+        // 匹配列出课程相关问题
         if (text.matches(".*(列出|查看|查询|有哪些).*(课程|课程信息).*")) {
-            return fixedPlan("LIST_COURSES", null, null, numberInQuestion(text, 20));
+            return fixedQuery("LIST_COURSES", null, null, numberInQuestion(text, 20));
         }
+        // 匹配教学任务数量相关问题
         if (text.matches(".*(多少个|多少条|数量).*(教学任务|开课任务).*")) {
-            return fixedPlan("COUNT_TASKS", null, null, 20);
+            return fixedQuery("COUNT_TASKS", null, null, 20);
         }
+        // 如果所有规则都不匹配，返回null
         return null;
     }
 
@@ -89,40 +105,38 @@ final class TeachingAiFallback {
  * @return 返回一个编译好的查询对象，包含SQL语句和参数
  */
     private static TeachingAiQueryCompiler.CompiledQuery teacherClassCount(String teacherName) {
-    // 创建一个执行计划，使用COUNT_CLASSES_BY_TEACHER标识符，无额外参数，结果集大小为1
-        Map<String, Object> plan = plan("COUNT_CLASSES_BY_TEACHER", null, null, 1);
     // 定义SQL查询语句，统计指定教师的课程数量
         String sql =
                 "SELECT ? AS teacher_name,COUNT(DISTINCT task_id) AS class_count"
                         + " FROM ai_teacher_workload WHERE teacher_name=? LIMIT 1";
-    // 返回编译好的查询对象，包含SQL语句、参数列表、执行计划和结果集大小
-        return TeachingAiQueryCompiler.CompiledQuery.compiled(
-                sql, sql, Arrays.asList(teacherName, teacherName), plan, 1);
+    // 返回编译好的查询对象，包含SQL语句、参数列表和结果集大小
+        return TeachingAiQueryCompiler.CompiledQuery.fixed(
+                sql, sql, Arrays.asList(teacherName, teacherName), 1);
     }
 
 /**
- * 根据给定的意图、课程代码、课程名称和限制数量，生成一个固定的查询计划
+ * 根据规则、课程代码、课程名称和限制数量，生成一个固定查询
  *
- * @param intent 查询意图，如"LIST_COURSES"、"COUNT_COURSES"等
+ * @param rule 固定查询规则名称
  * @param courseCode 课程代码，用于过滤结果
  * @param courseName 课程名称，用于过滤结果
  * @param limit 返回结果的最大数量
  * @return 返回一个编译后的查询对象，包含显示SQL、执行SQL、参数列表等信息
  */
-    private static TeachingAiQueryCompiler.CompiledQuery fixedPlan(
-            String intent, String courseCode, String courseName, int limit) {
+    private static TeachingAiQueryCompiler.CompiledQuery fixedQuery(
+            String rule, String courseCode, String courseName, int limit) {
     // 创建参数列表，用于SQL查询中的参数化查询
         List<Object> parameters = new ArrayList<>();
     // 判断是否为任务查询，排除"LIST_COURSES"和"COUNT_COURSES"两种情况
-        boolean taskQuery = !"LIST_COURSES".equals(intent) && !"COUNT_COURSES".equals(intent);
+        boolean taskQuery = !"LIST_COURSES".equals(rule) && !"COUNT_COURSES".equals(rule);
     // 根据过滤条件生成WHERE子句
         String where = filters(courseCode, courseName, parameters, taskQuery);
         String baseSql;
     // 判断是否只需要返回单行结果
-        boolean singleRow = "COUNT_COURSES".equals(intent) || "COUNT_TASKS".equals(intent);
+        boolean singleRow = "COUNT_COURSES".equals(rule) || "COUNT_TASKS".equals(rule);
 
     // 根据不同的查询意图构建基础SQL语句
-        switch (intent) {
+        switch (rule) {
             case "LIST_COURSES":
             // 列出课程的基础SQL查询
                 baseSql =
@@ -181,7 +195,7 @@ final class TeachingAiFallback {
                 break;
             default:
             // 如果意图未实现，抛出异常
-                throw new IllegalArgumentException("未实现的保底查询：" + intent);
+                throw new IllegalArgumentException("未实现的保底查询：" + rule);
         }
 
     // 确定结果限制数量，如果是单行查询则限制为1
@@ -194,11 +208,10 @@ final class TeachingAiFallback {
                         ? displaySql
                         : baseSql + " LIMIT " + Math.min(resultLimit + 1, MAX_LIMIT + 1);
     // 返回编译后的查询对象
-        return TeachingAiQueryCompiler.CompiledQuery.compiled(
+        return TeachingAiQueryCompiler.CompiledQuery.fixed(
                 displaySql,
                 executionSql,
                 parameters,
-                plan(intent, courseCode, courseName, limit),
                 resultLimit);
     }
 
@@ -236,16 +249,6 @@ final class TeachingAiFallback {
             }
         }
         return where.toString();  // 返回构建好的完整WHERE条件字符串
-    }
-
-    private static Map<String, Object> plan(
-            String intent, String courseCode, String courseName, int limit) {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("intent", intent);
-        result.put("courseCode", courseCode);
-        result.put("courseName", courseName);
-        result.put("limit", limit);
-        return result;
     }
 
 /**

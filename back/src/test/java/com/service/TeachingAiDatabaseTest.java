@@ -97,8 +97,11 @@ class TeachingAiDatabaseTest {
         Map<String, Object> top =
                 query(
                         "```json\n"
-                            + "{\"intent\":\"LIST_TASKS\",\"courseCode\":null,"
-                            + "\"courseName\":null,\"limit\":10,\"reason\":\"\"}\n"
+                            + "{\"sql\":\"SELECT t.task_code,c.course_code,"
+                            + "t.course_name_snapshot AS course_name,t.class_composition,"
+                            + "t.enrollment_count,t.planned_lab_hours FROM teaching_task t "
+                            + "JOIN course c ON c.id=t.course_id ORDER BY c.course_code,"
+                            + "t.task_code LIMIT 10\"}\n"
                             + "```");
         assertEquals(10, ((List<?>) top.get("rows")).size());
         assertEquals(
@@ -116,14 +119,16 @@ class TeachingAiDatabaseTest {
         assertFalse(prompt.contains("token varchar"));
         Map<String, Object> all =
                 query(
-                        "{\"intent\":\"LIST_TASKS\",\"courseCode\":null,"
-                            + "\"courseName\":null,\"limit\":200,\"reason\":\"\"}");
+                        "{\"sql\":\"SELECT t.task_code,c.course_code,"
+                            + "t.course_name_snapshot AS course_name,t.class_composition,"
+                            + "t.enrollment_count,t.planned_lab_hours FROM teaching_task t "
+                            + "JOIN course c ON c.id=t.course_id ORDER BY c.course_code,"
+                            + "t.task_code LIMIT 200\"}");
         assertEquals(200, ((List<?>) all.get("rows")).size());
         assertEquals(true, all.get("truncated"));
         Map<String, Object> aggregate =
                 query(
-                        "{\"intent\":\"COUNT_TASKS\",\"courseCode\":null,"
-                            + "\"courseName\":null,\"limit\":20,\"reason\":\"\"}");
+                        "{\"sql\":\"SELECT COUNT(*) AS task_count FROM teaching_task LIMIT 1\"}");
         Number count =
                 (Number)
                         ((Map<?, ?>) ((List<?>) aggregate.get("rows")).get(0))
@@ -131,20 +136,16 @@ class TeachingAiDatabaseTest {
         assertEquals(
                 db.queryForObject("SELECT COUNT(*) FROM teaching_task", Long.class).longValue(),
                 count.longValue());
-        assertEquals("COUNT_TASKS", ((Map<?, ?>) aggregate.get("plan")).get("intent"));
+        assertFalse(aggregate.containsKey("plan"));
     }
 
     @Test
-    void courseNameFilterIsBoundAndDoesNotBecomeModelSql() {
-        String courseName =
-                db.queryForObject(
-                        "SELECT course_name FROM course ORDER BY id LIMIT 1", String.class);
+    void executesModelSqlWithoutPlanMetadata() {
         Map<String, Object> answer =
                 query(
-                        "{\"intent\":\"LIST_TASKS\",\"courseCode\":null,\"courseName\":\""
-                                + courseName
-                                + "\",\"limit\":20,\"reason\":\"\"}");
-        assertTrue(answer.get("sql").toString().contains("c.course_name LIKE ?"));
+                        "{\"sql\":\"SELECT c.course_code,c.course_name FROM course c "
+                            + "ORDER BY c.course_code LIMIT 20\"}");
+        assertTrue(answer.get("sql").toString().contains("FROM course c"));
         assertFalse(((List<?>) answer.get("rows")).isEmpty());
     }
 
@@ -152,12 +153,10 @@ class TeachingAiDatabaseTest {
     void rejectsUnsafeModelOutputAndClientSqlAndUsesSelectOnlyReader() throws Exception {
         for (String sql :
                 new String[] {
-                    "SELECT * FROM users",
-                    "SELECT password FROM teacher",
-                    "SELECT GET_LOCK('teaching-ai-test',1) FROM course",
-                    "UPDATE course SET course_name='x'",
-                    "{\"intent\":\"DELETE_DATA\",\"courseCode\":null,"
-                        + "\"courseName\":null,\"limit\":20,\"reason\":\"\"}"
+                    "{\"sql\":\"SELECT * FROM users\"}",
+                    "{\"sql\":\"SELECT password FROM teacher\"}",
+                    "{\"sql\":\"SELECT GET_LOCK('teaching-ai-test',1) FROM course\"}",
+                    "{\"sql\":\"UPDATE course SET course_name='x'\"}"
                 }) assertThrows(IllegalArgumentException.class, () -> query(sql), sql);
         assertThrows(
                 IllegalArgumentException.class,
@@ -184,15 +183,4 @@ class TeachingAiDatabaseTest {
         }
     }
 
-    @Test
-    void unsupportedQuestionReturnsCompatibleMessageResult() {
-        Map<String, Object> result =
-                query(
-                        "{\"intent\":\"UNSUPPORTED\",\"courseCode\":null,"
-                            + "\"courseName\":null,\"limit\":20,"
-                            + "\"reason\":\"演示版未开放实验室统计\"}");
-        assertEquals("", result.get("sql"));
-        assertEquals("message", ((List<?>) result.get("columns")).get(0));
-        assertTrue(result.get("rows").toString().contains("实验室"));
-    }
 }
