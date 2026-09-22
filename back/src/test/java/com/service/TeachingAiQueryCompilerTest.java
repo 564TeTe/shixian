@@ -3,6 +3,7 @@ package com.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.TeachingAiSqlGuard;
 
 import org.junit.jupiter.api.Test;
 
@@ -91,13 +92,15 @@ class TeachingAiQueryCompilerTest {
     @Test
     void recognizesUnambiguousDemoQuestionsLocallyWhenModelMisclassifiesThem() {
         TeachingAiQueryCompiler.CompiledQuery count =
-                compiler.fallback("一共有多少门课程");
+                TeachingAiFallback.compile(
+                        "一共有多少门课程", TeachingAiSqlGuard.allowedTables());
         assertNotNull(count);
         assertEquals("COUNT_COURSES", count.getPlan().get("intent"));
         assertTrue(count.getSql().contains("COUNT(*) AS course_count"));
 
         TeachingAiQueryCompiler.CompiledQuery tasks =
-                compiler.fallback("列出软件工程的教学任务");
+                TeachingAiFallback.compile(
+                        "列出软件工程的教学任务", TeachingAiSqlGuard.allowedTables());
         assertNotNull(tasks);
         assertEquals("LIST_TASKS", tasks.getPlan().get("intent"));
         assertEquals("%软件工程%", tasks.getParameters().get(0));
@@ -106,7 +109,8 @@ class TeachingAiQueryCompilerTest {
     @Test
     void countsClassesForTeacherWithoutExposingAccountTable() {
         TeachingAiQueryCompiler.CompiledQuery query =
-                compiler.fallback("陈冲教几个班");
+                TeachingAiFallback.compile(
+                        "陈冲教几个班", TeachingAiSqlGuard.allowedTables());
 
         assertNotNull(query);
         assertEquals("COUNT_CLASSES_BY_TEACHER", query.getPlan().get("intent"));
@@ -134,7 +138,11 @@ class TeachingAiQueryCompilerTest {
 
     @Test
     void leavesComplexTeacherQuestionsToTheModel() {
-        assertNull(compiler.fallback("列出教学任务最多的前5位教师"));
-        assertNull(compiler.fallback("统计每位教师的排课学时"));
+        assertNull(
+                TeachingAiFallback.compile(
+                        "列出教学任务最多的前5位教师", TeachingAiSqlGuard.allowedTables()));
+        assertNull(
+                TeachingAiFallback.compile(
+                        "统计每位教师的排课学时", TeachingAiSqlGuard.allowedTables()));
     }
 }

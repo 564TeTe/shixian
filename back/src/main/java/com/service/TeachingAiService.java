@@ -75,17 +75,25 @@ public class TeachingAiService {
         this.readerPassword = setting("TEACHING_AI_DB_PASSWORD", local);
     }
 
+
     private static String env(String name) {
+    // 获取指定名称的环境变量值
         String value = System.getenv(name);
+    // 如果值为null则返回空字符串，否则返回去除前后空格后的值
         return value == null ? "" : value.trim();
     }
 
     private static String setting(String name, Map<String, Object> local) {
+    // 首先尝试从环境变量中获取配置值
         String value = env(name);
+    // 如果环境变量中存在该配置项，则直接返回
         if (!value.isEmpty()) {
             return value;
         }
+    // 如果环境变量中没有，则尝试从本地配置中获取
         Object localValue = local.get(name);
+    // 如果本地配置中存在该配置项，则将其转换为字符串并去除前后空格后返回
+    // 如果不存在，则返回空字符串
         return localValue == null ? "" : localValue.toString().trim();
     }
 
@@ -175,7 +183,8 @@ public class TeachingAiService {
     // 获取并验证问题内容
         String question = TeachingExcel.required(input.get("question").toString(), "问题", 1000);
     // 尝试直接编译问题
-        TeachingAiQueryCompiler.CompiledQuery direct = compiler.fallback(question);
+        TeachingAiQueryCompiler.CompiledQuery direct =
+                TeachingAiFallback.compile(question, TeachingAiSqlGuard.allowedTables());
         if (direct != null) {
             return executeCompiled(direct);
         }
@@ -218,7 +227,8 @@ public class TeachingAiService {
     // 检查是否为不支持的查询
         if (compiled.isUnsupported()) {
         // 尝试使用备用方案
-            TeachingAiQueryCompiler.CompiledQuery fallback = compiler.fallback(question);
+            TeachingAiQueryCompiler.CompiledQuery fallback =
+                    TeachingAiFallback.compile(question, TeachingAiSqlGuard.allowedTables());
             if (fallback == null) {
                 return unsupported(compiled);
             }
@@ -270,55 +280,75 @@ public class TeachingAiService {
                 false);          // 不截断
     }
 
+/**
+ * 调用AI模型并返回处理结果
+ * @param prompt 系统提示词
+ * @param question 用户问题
+ * @param previousOutput 上一次的输出结果（如果有）
+ * @param correction 用户对上一次输出的修正（如果有）
+ * @return AI模型返回的处理结果
+ */
     private String model(
             String prompt, String question, String previousOutput, String correction) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(25000);
+    // 创建RestTemplate客户端并配置消息转换器
         RestTemplate client = new RestTemplate(factory);
+    // 移除默认的StringHttpMessageConverter，添加UTF-8编码的转换器
         client.getMessageConverters()
                 .removeIf(converter -> converter instanceof StringHttpMessageConverter);
         client.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    // 设置请求头，包括Content-Type和认证信息
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
-        headers.setBearerAuth(key);
-        String url = baseUrl.replaceAll("/+$", "");
+        headers.setBearerAuth(key);    // 使用Bearer Token进行认证
+
+
+    // 处理URL，确保格式正确
+        String url = baseUrl.replaceAll("/+$", "");    // 移除末尾的斜杠
         if (!url.endsWith("/chat/completions")) {
-            url += "/chat/completions";
+            url += "/chat/completions";    // 确保URL以/chat/completions结尾
         }
         if (!url.matches("https?://.+")) {
             throw new IllegalArgumentException("AI服务地址必须是HTTP或HTTPS地址");
         }
         try {
+        // 构建消息列表
             List<Map<String, Object>> messages = new ArrayList<>();
-            messages.add(map("role", "system", "content", prompt));
-            messages.add(map("role", "user", "content", question));
+            messages.add(map("role", "system", "content", prompt));    // 系统提示
+            messages.add(map("role", "user", "content", question));    // 用户问题
+        // 如果有上一次的输出和修正，添加到消息列表中
             if (previousOutput != null) {
-                messages.add(map("role", "assistant", "content", previousOutput));
-                messages.add(map("role", "user", "content", correction));
+                messages.add(map("role", "assistant", "content", previousOutput));    // 助手上次输出
+                messages.add(map("role", "user", "content", correction));    // 用户修正
             }
+        // 构建请求体
             Map<String, Object> body =
                     map(
-                            "model",
+                            "model",          // 模型名称
                             model,
-                            "temperature",
+                            "temperature",    // 温度参数，控制随机性
                             0,
-                            "max_tokens",
+                            "max_tokens",     // 最大令牌数
                             4096,
-                            "reasoning_effort",
+                            "reasoning_effort",  // 推理努力程度
                             "low",
-                            "response_format",
+                            "response_format",   // 响应格式要求
                             map("type", "json_object"),
-                            "messages",
+                            "messages",       // 消息列表
                             messages);
+        // 发送POST请求并获取响应
             String raw =
                     client.postForObject(
                             url,
                             new HttpEntity<>(json.writeValueAsString(body), headers),
                             String.class);
+        // 检查响应是否为空
             if (raw == null || raw.trim().isEmpty()) {
                 throw new IllegalArgumentException("AI服务返回了空响应");
             }
+        // 解析JSON响应并提取输出内容
             JsonNode response = json.readTree(raw);
             String output =
                     response.path("choices")
@@ -327,6 +357,7 @@ public class TeachingAiService {
                             .path("content")
                             .asText("")
                             .trim();
+        // 检查输出内容是否为空
             if (output.isEmpty()) {
                 throw new IllegalArgumentException("AI服务没有返回查询计划");
             }
@@ -353,32 +384,45 @@ public class TeachingAiService {
         }
     }
 
+/**
+ * 执行SQL查询并返回结果
+ * @param executionSql 要执行的SQL语句
+ * @param compiled 编译后的查询对象，包含SQL语句、参数和结果限制等信息
+ * @return 包含查询结果、列信息、执行计划等的Map对象
+ */
     private Map<String, Object> execute(
             String executionSql, TeachingAiQueryCompiler.CompiledQuery compiled) {
+    // 获取数据库URL，如果环境变量未设置则使用应用默认数据库URL
         String databaseUrl = env("TEACHING_AI_DB_URL");
         if (databaseUrl.isEmpty()) {
             databaseUrl = applicationDatabaseUrl;
         }
+    // 设置数据库连接属性
         Properties properties = new Properties();
-        properties.setProperty("user", readerUser);
-        properties.setProperty("password", readerPassword);
-        properties.setProperty("connectTimeout", "5000");
-        properties.setProperty("socketTimeout", "7000");
-        properties.setProperty("allowMultiQueries", "false");
+        properties.setProperty("user", readerUser);              // 设置只读用户名
+        properties.setProperty("password", readerPassword);      // 设置只读密码
+        properties.setProperty("connectTimeout", "5000");         // 连接超时时间5秒
+        properties.setProperty("socketTimeout", "7000");         // Socket超时时间7秒
+        properties.setProperty("allowMultiQueries", "false");    // 不允许多查询
         try (Connection connection = DriverManager.getConnection(databaseUrl, properties)) {
-            connection.setReadOnly(true);
-            connection.setAutoCommit(false);
+            connection.setReadOnly(true);        // 设置连接为只读模式
+            connection.setAutoCommit(false);      // 关闭自动提交
             try (PreparedStatement statement = connection.prepareStatement(executionSql)) {
+            // 设置查询参数
                 for (int i = 0; i < compiled.getParameters().size(); i++) {
                     statement.setObject(i + 1, compiled.getParameters().get(i));
                 }
-                statement.setQueryTimeout(5);
-                statement.setMaxRows(201);
-                statement.setMaxFieldSize(4000);
+
+
+            // 设置查询超时和结果限制
+                statement.setQueryTimeout(5);      // 查询超时5秒
+                statement.setMaxRows(201);         // 最大返回201行
+                statement.setMaxFieldSize(4000);   // 最大字段长度4000
                 try (ResultSet rs = statement.executeQuery()) {
                     ResultSetMetaData meta = rs.getMetaData();
                     List<String> columns = new ArrayList<>();
                     List<Map<String, Object>> rows = new ArrayList<>();
+                // 处理列名，处理重复列名的情况
                     for (int i = 1; i <= meta.getColumnCount(); i++) {
                         String original = meta.getColumnLabel(i), name = original;
                         int suffix = 2;
@@ -388,16 +432,19 @@ public class TeachingAiService {
                         columns.add(name);
                     }
                     boolean truncated = false;
+                // 处理查询结果
                     while (rs.next()) {
                         if (rows.size() == compiled.getResultLimit()) {
                             truncated = true;
                             break;
                         }
                         Map<String, Object> row = new LinkedHashMap<>();
+                    // 处理每行的数据
                         for (int i = 1; i <= columns.size(); i++) {
                             Object value = rs.getObject(i);
+                        // 处理字节数组，转换为UTF-8字符串
                             if (value instanceof byte[]) {
-                                value =
+                                value = new String((byte[]) value, java.nio.charset.StandardCharsets.UTF_8);
                                         new String(
                                                 (byte[]) value,
                                                 java.nio.charset.StandardCharsets.UTF_8);
@@ -497,15 +544,9 @@ public class TeachingAiService {
                     .append(relation.get("REFERENCED_COLUMN_NAME"))
                     .append("；");
         }
-    // 添加额外的说明信息
-        result.append(
-                "course是一门课程的基础资料；teaching_task是一门课程的一次独立开课；"
-                        + "planned_lab_hours是单个教学任务的计划实验学时；"
-                        + "enrollment_count是单个教学任务的选课人数。\n");
-    // 返回完整的元数据字符串
+        // 返回完整的元数据字符串
         return result.toString();
     }
-
     private static boolean sensitiveColumn(String name) {
         String normalized = name.toLowerCase(Locale.ROOT);
         return normalized.contains("password")

@@ -114,14 +114,19 @@ public final class TeachingAiSqlGuard {
                             "OrExpression",
                             "LikeExpression"));
 
-    private TeachingAiSqlGuard() {}
-
+/**
+ * 获取允许访问的表名集合的不可修改视图
+ * 该方法返回一个不可修改的Set集合，包含所有允许访问的表名
+ *
+ * @return 返回一个包含允许访问表名的不可修改Set集合
+ *         使用Collections.unmodifiableSet确保返回的集合不能被修改
+ */
     public static Set<String> allowedTables() {
+        // 返回TABLES集合的不可修改视图
         return java.util.Collections.unmodifiableSet(TABLES);
     }
 
     public static String validate(String source) {
-        System.out.print(source);
         if (source == null || source.length() > 12000) {
             throw bad("SQL为空或过长");
         }
