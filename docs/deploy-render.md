@@ -44,7 +44,9 @@ Docker 构建只复制必要源码和报表模板。本机 `application.yml`、`
 
 ## 4. 在 Render 创建免费服务
 
-推荐使用 **New → Blueprint**，连接包含上述文件的 Git 仓库和分支，由根目录 `render.yaml` 创建服务。核对只有一个名为 `teaching-demo` 的 **Free** Web Service。
+没有银行卡时，优先使用 **New → Web Service** 手动创建服务，按下表明确选择 **Free / $0**。本次账号在 Blueprint 创建入口遇到了付款信息要求，手动创建页面则可以选择 Free 并填写配置，但最终提交是否仍触发账号验证，需要以 Render 页面为准。免费套餐不等于保证免银行卡验证；如果 Free 服务最终也强制验证，就无法在这个账号下继续无卡部署。
+
+已满足平台付款信息要求时，也可以使用 **New → Blueprint**，连接包含上述文件的 Git 仓库和分支，由根目录 `render.yaml` 创建服务。核对只有一个名为 `teaching-demo` 的 **Free** Web Service。
 
 按提示填入下面三个应用数据库变量，以及第 6 节的 AI 配置。密码和 API 密钥只填在 Render 控制台：
 
@@ -65,12 +67,16 @@ jdbc:mysql://HOST:PORT/t132?sslMode=REQUIRED&useUnicode=true&characterEncoding=U
 | 设置 | 值 |
 | --- | --- |
 | Language / Runtime | Docker |
+| Branch | `codex/render-demo` |
+| Region | Singapore，靠近本次亚洲区域的数据库与演示用户 |
 | Root Directory | 留空，使用仓库根目录 |
 | Dockerfile Path | `./Dockerfile` |
 | Docker Build Context | `.` |
-| Instance Type | Free |
+| Compute / Instance Type | Free / $0 per month |
 | Health Check Path | `/springboote51e2/index.html` |
 | Environment Variables | 上面的三个数据库变量和第 6 节的五个 AI 变量 |
+
+手动创建页面可能默认选中付费套餐，提交前应确认底部价格为 **$0 / month**。配置中的三个秘密值分别是应用数据库密码、DeepSeek API 密钥和 AI 只读账号密码，由用户直接填到 Render 页面；其余地址、用户名和模型参数可预填。
 
 不需要额外填写 Build Command 或 Start Command。Dockerfile 构建 Vue 后将产物打入 JAR，只运行一个 Java 进程。`PORT` 由 Render 注入，默认端口 10000。
 
@@ -179,6 +185,7 @@ ALTER USER 'teaching_ai_reader'@'%' IDENTIFIED BY RANDOM PASSWORD REQUIRE SSL;
 ## 官方参考
 
 - [Render 免费服务限制](https://render.com/docs/free)
+- [Render 关于免费账号银行卡验证的说明](https://community.render.com/t/the-deployement-of-a-web-service-fails/36005)
 - [Render Docker 部署](https://render.com/docs/docker)
 - [Render Blueprint 配置](https://render.com/docs/blueprint-spec)
 - [Aiven 免费 MySQL](https://aiven.io/docs/products/mysql/concepts/mysql-free-tier)
