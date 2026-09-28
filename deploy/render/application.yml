@@ -1,0 +1,24 @@
+server:
+  address: 0.0.0.0
+  port: ${PORT:10000}
+  servlet:
+    context-path: /springboote51e2
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 20
+    min-spare-threads: 2
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 0
+      connection-timeout: 10000
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

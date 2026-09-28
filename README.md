@@ -93,7 +93,7 @@ SOURCE database/004_english_schema.sql;
 教师授课统计通过 `ai_teacher_workload` 只读视图完成，只暴露教师姓名、教学任务、课程和班级组成。
 `007_ai_read_all_business_tables.sql` 允许只读账号读取 `t132` 的全部表和视图；后端会拒绝密码、令牌和密钥字段，并只执行经过 AST 安全校验的单条 SELECT。
 
-DeepSeek 使用 `TEACHING_AI_BASE_URL=https://api.deepseek.com`、`TEACHING_AI_MODEL=deepseek-chat`，将自己的密钥填入本地配置的 `TEACHING_AI_API_KEY`，并补齐上述只读数据库账号。不要把真实密钥写进源码或本文档。
+DeepSeek 使用 `TEACHING_AI_BASE_URL=https://api.deepseek.com`、`TEACHING_AI_MODEL=deepseek-flash`，将自己的密钥填入本地配置的 `TEACHING_AI_API_KEY`，并补齐上述只读数据库账号。SQL 查询请求使用非思考模式；旧模型名 `deepseek-chat` 已停用。不要把真实密钥写进源码或本文档。Render + Aiven 演示部署和云端只读账号初始化见 [免费部署说明](docs/deploy-render.md)。
 
 在项目根目录执行 `.\start-teaching.ps1 -Restart`（源码改动后加 `-Build`）。如果后端由 IDEA 启动，请在 IDEA 中停止并重新运行，工作目录设为项目根目录或 `back`。管理员登录 http://localhost:8081 后，打开左侧“智能查询”，点击“检查配置”并提问；教师账号不开放此入口。仅显示“模型已配置”并不代表供应商连接已验证，需成功执行一次查询。
 

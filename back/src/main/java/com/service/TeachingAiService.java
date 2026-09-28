@@ -279,6 +279,11 @@ public class TeachingAiService {
                             map("type", "json_object"),
                             "messages",       // 消息列表
                             messages);
+            // DeepSeek defaults to thinking mode; SQL generation uses its non-thinking API.
+            if (model.toLowerCase(Locale.ROOT).startsWith("deepseek-")) {
+                body.remove("reasoning_effort");
+                body.put("thinking", map("type", "disabled"));
+            }
         // 发送POST请求并获取响应
             String raw =
                     client.postForObject(

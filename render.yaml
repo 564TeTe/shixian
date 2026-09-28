@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: teaching-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /springboote51e2/index.html
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: TEACHING_AI_BASE_URL
+        value: https://api.deepseek.com
+      - key: TEACHING_AI_MODEL
+        value: deepseek-flash
+      - key: TEACHING_AI_API_KEY
+        sync: false
+      - key: TEACHING_AI_DB_USER
+        value: teaching_ai_reader
+      - key: TEACHING_AI_DB_PASSWORD
+        sync: false

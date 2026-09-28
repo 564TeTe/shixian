@@ -1,0 +1,24 @@
+# Allow only the files required to build the demo application.
+**
+!Dockerfile
+!front/
+!front/package.json
+!front/package-lock.json
+!front/babel.config.js
+!front/vue.config.js
+!front/src/
+!front/src/**
+!front/public/
+!front/public/**
+!back/
+!back/pom.xml
+!back/src/
+!back/src/main/
+!back/src/main/java/
+!back/src/main/java/**
+!back/src/main/resources/
+!back/src/main/resources/templates/
+!back/src/main/resources/templates/**
+!deploy/
+!deploy/render/
+!deploy/render/application.yml
