@@ -15,13 +15,6 @@ import java.util.Collections;
 
 class TeachingAiTest {
     @Test
-    void twoTableDemoRejectsTimeScopedQuestionsDeterministically() {
-        assertTrue(TeachingAiService.hasUnsupportedTimeScope("查询本学期的软件工程任务"));
-        assertTrue(TeachingAiService.hasUnsupportedTimeScope("按学年统计课程"));
-        assertFalse(TeachingAiService.hasUnsupportedTimeScope("列出软件工程的教学任务"));
-    }
-
-    @Test
     void teachersCannotTriggerAnyModelOrDatabaseQuery() {
         TeachingAccess access = mock(TeachingAccess.class);
         JdbcTemplate db = mock(JdbcTemplate.class);

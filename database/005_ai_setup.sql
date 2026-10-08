@@ -3,7 +3,7 @@
 -- 用法：
 -- 1. 使用root或其他具有CREATE USER、GRANT权限的管理员账号执行本文件。
 -- 2. 只修改下面两个变量，不要把真实密码提交到Git。
--- 3. 当前AI Demo只允许读取course和teaching_task。
+-- 3. 本脚本只负责AI只读账号和数据库权限；应用层白名单负责控制可查询对象。
 --
 -- 推荐账号名：teaching_ai_reader
 -- 账号连接来源：127.0.0.1
@@ -57,25 +57,15 @@ BEGIN
     EXECUTE alter_user_statement;
     DEALLOCATE PREPARE alter_user_statement;
 
-    SET @grant_course_sql = CONCAT(
-        'GRANT SELECT ON `t132`.`course` TO ',
+    SET @grant_database_sql = CONCAT(
+        'GRANT SELECT ON `t132`.* TO ',
         QUOTE(@ai_reader_username),
         '@',
         QUOTE('127.0.0.1')
     );
-    PREPARE grant_course_statement FROM @grant_course_sql;
-    EXECUTE grant_course_statement;
-    DEALLOCATE PREPARE grant_course_statement;
-
-    SET @grant_task_sql = CONCAT(
-        'GRANT SELECT ON `t132`.`teaching_task` TO ',
-        QUOTE(@ai_reader_username),
-        '@',
-        QUOTE('127.0.0.1')
-    );
-    PREPARE grant_task_statement FROM @grant_task_sql;
-    EXECUTE grant_task_statement;
-    DEALLOCATE PREPARE grant_task_statement;
+    PREPARE grant_database_statement FROM @grant_database_sql;
+    EXECUTE grant_database_statement;
+    DEALLOCATE PREPARE grant_database_statement;
 
     FLUSH PRIVILEGES;
 END$$
@@ -87,4 +77,4 @@ DROP PROCEDURE `install_ai_readonly_user`$$
 DELIMITER ;
 
 -- 权限确认示例：
--- SHOW GRANTS FOR 'teaching_ai_reader'@'127.0.0.1';
+-- SHOW GRANTS FOR 'ai12345'@'127.0.0.1';
