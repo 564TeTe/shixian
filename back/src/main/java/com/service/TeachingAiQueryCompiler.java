@@ -457,6 +457,18 @@ final class TeachingAiQueryCompiler {
             this.unsupported = unsupported;
         }
 
+        // Compatibility factory for parameterized queries built by TeachingAiFallback.
+        static CompiledQuery fixed(
+                String sql,
+                String executionSql,
+                List<Object> parameters,
+                int resultLimit) {
+            Map<String, Object> plan = new LinkedHashMap<>();
+            plan.put("intent", "FIXED_QUERY");
+            plan.put("limit", resultLimit);
+            return new CompiledQuery(sql, executionSql, parameters, plan, resultLimit, false);
+        }
+
         String getSql() {
             return sql;
         }

@@ -54,6 +54,10 @@ class TeachingAiQueryCompilerTest {
         assertEquals(2, query.getParameters().size());
         assertEquals("%软件工程%", query.getParameters().get(0));
         assertEquals(20, query.getResultLimit());
+        assertFalse(query.isUnsupported());
+        assertEquals("FIXED_QUERY", query.getPlan().get("intent"));
+        assertEquals(20, query.getPlan().get("limit"));
+        assertThrows(UnsupportedOperationException.class, () -> query.getParameters().add("changed"));
     }
 
     @Test
