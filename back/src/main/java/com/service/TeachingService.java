@@ -314,6 +314,9 @@ public class TeachingService {
 
     @Transactional
     public Map<String, Object> createProject(HttpServletRequest request, Map<String, Object> body) {
+        if (access.teacherId(request) == null) {
+            throw new AccessException(403, "管理员不支持手动新增实验项目，请由任课教师维护");
+        }
         long taskId = positiveId(body, "task_id");
         access.requireTask(request, taskId, true);
         validateProject(body);

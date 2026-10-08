@@ -1,5 +1,5 @@
 <template><div class="teaching-page">
-<page-heading title="实验项目" eyebrow="EXPERIMENT PROJECTS" description="围绕课程构建实验内容，记录每一学期的教学探索。"><button class="btn" :disabled="downloading" @click="downloadFile('/templates/projects','实验项目导入模板.xlsx')"><sf-icon name="download"/>项目模板</button><button class="btn primary" :disabled="!editable" @click="edit()"><sf-icon name="plus"/>新增实验项目</button></page-heading>
+<page-heading title="实验项目" eyebrow="EXPERIMENT PROJECTS" description="围绕课程构建实验内容，记录每一学期的教学探索。"><button class="btn" :disabled="downloading" @click="downloadFile('/templates/projects','实验项目导入模板.xlsx')"><sf-icon name="download"/>项目模板</button><button v-if="!isAdmin" class="btn primary" :disabled="!editable" @click="edit()"><sf-icon name="plus"/>新增实验项目</button></page-heading>
 <div v-if="task && !editable" class="notice"><sf-icon name="info"/><span>当前任务为只读。历史项目可查阅，选择有权限的当前学期任务后可维护项目。</span></div>
 <section class="panel" v-loading="loading"><form class="filter-bar" @submit.prevent="loadProjects"><label class="search-field"><sf-icon name="search"/><input v-model.trim="projectQuery" aria-label="搜索实验名称或编号" placeholder="搜索实验名称或编号"/></label><sf-select v-model="termId" placeholder="全部学期" @change="selectTerm(termId)"><sf-option v-for="t in lookups.terms" :key="t.id" :value="t.id" :label="t.name"/></sf-select><sf-select v-model="taskId" placeholder="选择课程任务" @change="loadProjects"><sf-option v-for="t in filteredTasks" :key="t.id" :value="t.id" :label="t.course_name+' · '+t.teacher_names+' · '+t.task_code"/></sf-select><sf-select v-model="projectType" placeholder="全部实验类型"><sf-option v-for="o in optionFields.find(f=>f.key==='type_code').options" :key="o.value" :value="o.value" :label="o.label"/></sf-select><button class="btn primary" :disabled="loading">查询</button></form>
 <div v-if="task" class="task-summary"><div><span>当前课程</span><strong>{{ task.course_name }}</strong></div><div><span>授课班级 / 教师</span><strong>{{ task.class_composition }} · {{ task.teacher_names }}</strong></div><div><span>已设置项目 / 计划学时</span><strong>{{ projectHours }} / {{ task.planned_lab_hours }} 学时</strong></div></div>
@@ -272,6 +272,7 @@ export default {
       this.edit(row, true)
     },
     edit(row, readOnly = false) {
+      if (!row && this.isAdmin) return
       this.readOnly = readOnly
       this.saveError = ''
       this.form = row
@@ -297,6 +298,7 @@ export default {
       this.$nextTick(() => this.$refs.form.clearValidate())
     },
     async save() {
+      if (this.isAdmin && !this.form.id) return
       if (!this.editable || this.readOnly || this.saving) return
       this.saveError = ''
       if (!(await this.$refs.form.validate().catch(() => false))) return

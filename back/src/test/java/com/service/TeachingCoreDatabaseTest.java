@@ -165,12 +165,18 @@ class TeachingCoreDatabaseTest {
     }
 
     @Test
-    void adminProjectAuditUsesTheUnifiedAccountForeignKey() {
+    void adminCannotCreateProjectsButCanMaintainTeacherProjects() {
         long task = ((Number) service.createTask(admin, taskInput()).get("id")).longValue();
-        Map<String, Object> project = service.createProject(admin, projectInput(task));
+        AccessException denied = assertThrows(AccessException.class,
+                () -> service.createProject(admin, projectInput(task)));
+        assertEquals(403, denied.getCode());
+        assertEquals(0, service.projects(admin, task).get("total"));
+        Map<String, Object> project = service.createProject(request("teacher", teacherId), projectInput(task));
+        Map<String, Object> updated = service.updateProject(admin,
+                ((Number) project.get("id")).longValue(), Collections.singletonMap("name", "管理员编辑"));
         assertEquals(
-                admin.getSession().getAttribute("userId"), project.get("created_by_account_id"));
-        assertEquals(project.get("created_by_account_id"), project.get("updated_by_account_id"));
+                admin.getSession().getAttribute("userId"), updated.get("updated_by_account_id"));
+        assertEquals(teacherId, ((Number) project.get("created_by_account_id")).longValue());
         assertNotNull(service.lookups(admin).get("terms"));
         assertNotNull(service.dashboard(admin).get("counts"));
     }
@@ -180,7 +186,7 @@ class TeachingCoreDatabaseTest {
         long source = ((Number) service.createTask(admin, taskInput()).get("id")).longValue();
         long target = ((Number) service.createTask(admin, taskInput()).get("id")).longValue();
         long project =
-                ((Number) service.createProject(admin, projectInput(source)).get("id")).longValue();
+                ((Number) service.createProject(request("teacher", teacherId), projectInput(source)).get("id")).longValue();
         jdbc.update(
                 "INSERT INTO academic_term(start_year,term_no,status) VALUES (2000,1,'ARCHIVED') ON"
                     + " DUPLICATE KEY UPDATE status='ARCHIVED'");
